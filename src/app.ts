@@ -18,6 +18,9 @@ import {
 import { SITE } from "./config";
 import { islands } from "./islands";
 import { mokuCodeTheme } from "./lib/code-theme";
+import { codeBlocks } from "./lib/markdown/code-blocks";
+import { directives } from "./lib/markdown/directives";
+import { headingIds } from "./lib/markdown/heading-ids";
 import { docsPlugin } from "./plugins/docs";
 import { llmsPlugin } from "./plugins/llms";
 import { searchPlugin } from "./plugins/search";
@@ -57,7 +60,9 @@ export const app = createApp({
         fileSystemContent({
           contentDir: "content/articles",
           trustedContent: true,
-          shikiTheme: mokuCodeTheme
+          shikiTheme: mokuCodeTheme,
+          extraRemarkPlugins: [directives],
+          extraRehypePlugins: [headingIds, codeBlocks]
         })
       ]
     },

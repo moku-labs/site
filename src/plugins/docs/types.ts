@@ -1,6 +1,7 @@
 /**
  * @file Types of the docs plugin.
  */
+import type { contentPlugin } from "@moku-labs/web";
 
 /** Plugin config. */
 export type DocumentationConfig = {
@@ -72,16 +73,39 @@ export type DocumentationState = {
   pages: Map<string, DocumentPage> | undefined;
 };
 
-/** Public API mounted at `app.docs`. */
+/** The part of the content plugin API the docs plugin uses. */
+export type MarkdownRenderer = {
+  /** Render Markdown to HTML through the content pipeline (Shiki, sanitizing, rehype plugins). */
+  renderMarkdown: (md: string) => Promise<string>;
+};
+
+/** The plugin context fields the docs API reads; the framework's `ctx` satisfies it structurally. */
+export type DocumentationContext = {
+  /** Resolved plugin config. */
+  readonly config: Readonly<DocumentationConfig>;
+  /** Mutable plugin state. */
+  readonly state: DocumentationState;
+  /** Resolve the content plugin to its API. */
+  readonly require: (plugin: typeof contentPlugin) => MarkdownRenderer;
+};
+
+/**
+ * Public API mounted at `app.docs`. Pages load once, lazily, on the first call. Package order is
+ * `concepts` first, then the family in `src/data/packages.ts` order. A page without a `section`
+ * field is grouped under `Concepts` (concepts) or `Get started` (a package).
+ */
 export type DocumentationApi = {
   /**
-   * Every docs page, sorted by package order, nav group, `order`, then title.
+   * Every docs page, sorted by package order, nav group, `order`, then title. A group sits where
+   * its first page falls when the package is sorted by `order`.
    *
    * @returns All pages.
+   * @throws {Error} When a file is deeper than `<pkg>/<section>/<page>`, sits in an unknown package folder, or lacks `title`/`description`; the message names the file.
    * @example
    * ```ts
-   * const pages = await app.docs.all();
-   * pages.filter(page => page.pkg === "web").length; // 24
+   * // The llms plugin writes one .md file per page, in sidebar order.
+   * const pages = await ctx.require(docsPlugin).all();
+   * pages.map(page => page.path); // ["/docs/concepts/three-layers/", ..., "/docs/web/", ...]
    * ```
    */
   all: () => Promise<DocumentPage[]>;
@@ -92,8 +116,9 @@ export type DocumentationApi = {
    * @returns The page, or `undefined` when no file maps to the path.
    * @example
    * ```ts
-   * const page = await app.docs.get("/docs/web/guides/routing/");
-   * page?.title; // "Routing"
+   * // The deep docs route loads its page from the URL.
+   * const page = await ctx.require(docsPlugin).get("/docs/web/guides/routing/");
+   * page?.section; // "guides" (from content/docs/web/guides/routing.md)
    * ```
    */
   get: (path: string) => Promise<DocumentPage | undefined>;
@@ -101,11 +126,12 @@ export type DocumentationApi = {
    * Every page of one package.
    *
    * @param pkg - Package id or `concepts`.
-   * @returns The package's pages in nav order.
+   * @returns The package's pages in nav order; `[]` for a package without pages.
    * @example
    * ```ts
+   * // The docs hub lists the concepts cards.
    * const concepts = await app.docs.byPackage("concepts");
-   * concepts.map(page => page.slug); // ["three-layers", "plugins", ...]
+   * concepts.every(page => page.pkg === "concepts"); // true
    * ```
    */
   byPackage: (pkg: string) => Promise<DocumentPage[]>;
@@ -113,21 +139,24 @@ export type DocumentationApi = {
    * Sidebar groups of one package.
    *
    * @param pkg - Package id or `concepts`.
-   * @returns Groups in first-seen section order.
+   * @returns Groups in first-seen order, pages by `order` then title; `[]` for an unknown package.
    * @example
    * ```ts
+   * // The docs layout renders the sidebar of the current package.
    * const groups = await app.docs.nav("web");
    * groups.map(group => group.label); // ["Get started", "Guides", "Plugins", "API reference"]
    * ```
    */
   nav: (pkg: string) => Promise<NavGroup[]>;
   /**
-   * Previous and next pages; at a package's ends, the neighbouring package's home.
+   * Previous and next pages within the package. At a package's ends, the nearest neighbouring
+   * package with pages: its index page, or its first page when it has none.
    *
    * @param path - URL path of the current page.
-   * @returns The neighbours that exist.
+   * @returns The neighbours that exist; `{}` for an unknown path.
    * @example
    * ```ts
+   * // The last web page links on to the next package in the family order.
    * const { next } = await app.docs.neighbours("/docs/web/api/");
    * next?.path; // "/docs/worker/"
    * ```
@@ -137,9 +166,10 @@ export type DocumentationApi = {
    * Static params for the docs routes of one depth.
    *
    * @param depth - 1 for `/docs/{pkg}/`, 2 for `/docs/{pkg}/{page}/`, 3 for `/docs/{pkg}/{section}/{page}/`.
-   * @returns One params object per page of that depth.
+   * @returns One params object per page of that depth, in `all()` order.
    * @example
    * ```ts
+   * // route("/docs/{pkg}/{section}/{page}/").generate(ctx => ctx.require(docsPlugin).params(3))
    * await app.docs.params(3); // [{ pkg: "web", section: "guides", page: "routing" }, ...]
    * ```
    */
