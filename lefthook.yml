@@ -1,0 +1,17 @@
+pre-commit:
+  skip:
+    - run: test ! -d node_modules
+  jobs:
+    - name: build
+      run: bun run build
+    - name: biome-format
+      glob: "*.{ts,tsx,js,mjs,cjs,json,jsonc}"
+      run: bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
+    - name: oxlint-check
+      glob: "*.{ts,tsx,js,mjs,cjs}"
+      run: bunx oxlint --no-error-on-unmatched-pattern {staged_files}
+    - name: typecheck
+      run: bun run typecheck
+    - name: test
+      run: bun run test
