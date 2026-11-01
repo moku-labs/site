@@ -1,6 +1,11 @@
 /**
  * @file Types of the llms plugin.
  */
+import type { About } from "../../data/about";
+import type { DemoEntry } from "../../data/demos";
+import type { PackageEntry } from "../../data/packages";
+import type { docsPlugin } from "../docs";
+import type { DocumentationApi } from "../docs/types";
 
 /** Plugin config. */
 export type LlmsConfig = {
@@ -18,16 +23,98 @@ export type LlmsFile = {
   content: string;
 };
 
+/** A page as the renderers need it: a docs page, or the landing, demos or about page. */
+export type LlmsPage = {
+  /** URL path of the HTML page with a trailing slash, e.g. `/docs/web/guides/routing/`. */
+  path: string;
+  /** Page title. */
+  title: string;
+  /** Page description. */
+  description: string;
+  /** Raw Markdown body, directives not yet converted. */
+  markdown: string;
+  /** Package id of a docs page; `undefined` for a site page. */
+  pkg: string | undefined;
+};
+
+/** A docs page: a page that belongs to a package. */
+export type LlmsDocument = LlmsPage & {
+  /** Package id or `concepts`. */
+  pkg: string;
+};
+
+/** What the renderers know about one docs package. */
+export type LlmsPackage = {
+  /** Package id or `concepts`. */
+  id: string;
+  /** Section heading in llms.txt, e.g. `@moku-labs/web`. */
+  name: string;
+  /** One-line tagline; empty when the data has none. */
+  tagline: string;
+  /** `npm@version` shown in the `Source:` line, e.g. `@moku-labs/web@2.4.11`. */
+  release: string;
+};
+
+/** The site identity the renderers print. */
+export type LlmsSite = {
+  /** Site name, the llms.txt title. */
+  name: string;
+  /** One-line summary, the llms.txt blockquote. */
+  description: string;
+  /** Absolute site URL without a trailing slash. */
+  url: string;
+};
+
+/** The plain data the landing, demos and about pages are generated from. */
+export type SiteData = {
+  /** The package family, for the landing's package list. */
+  packages: readonly PackageEntry[];
+  /** The demo apps. */
+  demos: readonly DemoEntry[];
+  /** The about page content. */
+  about: About;
+  /** Claude Code install commands. */
+  installCommands: readonly string[];
+  /** Example prompts. */
+  prompts: readonly string[];
+};
+
+/** Where the API reads its inputs besides the docs plugin; a seam for tests. */
+export type LlmsSources = SiteData & {
+  /** Site name and summary; the URL comes from the plugin config. */
+  site: Omit<LlmsSite, "url">;
+  /** Directory holding the installed packages, for the versions in `Source:` lines. */
+  nodeModules: string;
+};
+
+/** The structural log API the hook reports a failed write to. */
+export type LlmsLog = {
+  /** Record an error entry. */
+  error: (event: string, data?: unknown, error?: Error) => void;
+};
+
+/** The plugin context fields the llms API reads; the framework's `ctx` satisfies it structurally. */
+export type LlmsContext = {
+  /** Resolved plugin config. */
+  readonly config: Readonly<LlmsConfig>;
+  /** Resolve the docs plugin to its API. */
+  readonly require: (plugin: typeof docsPlugin) => Pick<DocumentationApi, "all">;
+  /** The log core plugin. */
+  readonly log: LlmsLog;
+};
+
 /** Public API mounted at `app.llms`. */
 export type LlmsApi = {
   /**
    * Render every agent-facing file without writing it.
    *
    * @returns The `.md` pages, `llms.txt`, `llms-full.txt` and per-package `llms.txt`.
+   * @throws {Error} When `siteUrl` is empty.
    * @example
    * ```ts
+   * // The docs page "View as .md" link points at the file beside the HTML page.
    * const files = await app.llms.files();
-   * files.some(file => file.path === "llms.txt"); // true
+   * files.some(file => file.path === "docs/web/guides/routing.md"); // true
    * ```
    */
   files: () => Promise<LlmsFile[]>;
@@ -36,9 +123,12 @@ export type LlmsApi = {
    *
    * @param outputDirectory - Output directory; defaults to the configured `outDir`.
    * @returns How many files were written.
+   * @throws {Error} When `siteUrl` is empty.
    * @example
    * ```ts
-   * const { count } = await app.llms.emit("dist");
+   * // scripts/build.ts, after the HTML build: the framework does not await build hooks.
+   * await app.cli.build();
+   * const { count } = await app.llms.emit("dist"); // count === (await app.llms.files()).length
    * ```
    */
   emit: (outputDirectory?: string) => Promise<{ count: number }>;
