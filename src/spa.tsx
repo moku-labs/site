@@ -5,6 +5,7 @@
  */
 import { createApp, dataPlugin } from "@moku-labs/web/browser";
 import { SITE } from "./config";
+import { islands } from "./islands";
 import { routes } from "./routes";
 
 const app = createApp({
@@ -15,7 +16,7 @@ const app = createApp({
     i18n: { locales: ["en"], defaultLocale: "en" },
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
-    spa: { islands: [], progressBar: true },
+    spa: { islands, progressBar: true },
     data: { baseUrl: "/_data/" }
   }
 });

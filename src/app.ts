@@ -6,13 +6,21 @@
 import {
   buildPlugin,
   cliPlugin,
+  collectionPlugin,
+  contentPlugin,
   createApp,
   dataPlugin,
   deployPlugin,
   dotenv,
+  fileSystemContent,
   processEnv
 } from "@moku-labs/web";
 import { SITE } from "./config";
+import { islands } from "./islands";
+import { mokuCodeTheme } from "./lib/code-theme";
+import { docsPlugin } from "./plugins/docs";
+import { llmsPlugin } from "./plugins/llms";
+import { searchPlugin } from "./plugins/search";
 import { routes } from "./routes";
 
 /**
@@ -26,16 +34,41 @@ import { routes } from "./routes";
  * ```
  */
 export const app = createApp({
-  plugins: [buildPlugin, deployPlugin, dataPlugin, cliPlugin],
+  plugins: [
+    contentPlugin,
+    collectionPlugin,
+    dataPlugin,
+    buildPlugin,
+    deployPlugin,
+    cliPlugin,
+    docsPlugin,
+    searchPlugin,
+    llmsPlugin
+  ],
   config: { mode: "hybrid" },
   pluginConfigs: {
     site: SITE,
     i18n: { locales: ["en"], defaultLocale: "en" },
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
+    // Content is only the Markdown renderer for the docs plugin: no articles, no feeds.
+    content: {
+      providers: [
+        fileSystemContent({
+          contentDir: "content/articles",
+          trustedContent: true,
+          shikiTheme: mokuCodeTheme
+        })
+      ]
+    },
+    collection: { baseUrl: "/" },
+    docs: { dir: "content/docs" },
+    search: { collection: "search", shard: "en", outDir: "dist" },
+    llms: { siteUrl: SITE.url, outDir: "dist" },
     build: {
       outDir: "dist",
       sitemap: true,
+      feeds: false,
       injectAssets: true,
       publicDir: "public",
       // Cloudflare Pages needs dist/404.html at the output root, or it flips to SPA mode.
@@ -43,7 +76,7 @@ export const app = createApp({
       clientEntry: "src/spa.tsx",
       template: "src/index.html"
     },
-    spa: { islands: [], progressBar: true },
+    spa: { islands, progressBar: true },
     data: { outputDir: "_data", baseUrl: "/_data/" },
     // `ci: false`: the GitHub workflow is the thin `.github/workflows/ci.yml` caller of
     // `moku-labs/ci` app-deploy, so the deploy plugin must not scaffold a second one.
