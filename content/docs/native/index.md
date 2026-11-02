@@ -51,7 +51,7 @@ export const native = createApp({
 
 One thin script per verb:
 
-```ts file="scripts/native-build.ts" no-check="imports ../src/native from the reader's project"
+```ts file="scripts/native-build.ts" check
 import { native } from "../src/native";
 
 await native.start();

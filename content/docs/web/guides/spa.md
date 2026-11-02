@@ -43,7 +43,7 @@ export const routes = defineRoutes({
 });
 ```
 
-```ts file="src/client.ts" group="spa" hl="7" no-check="imports ./routes from the reader's project"
+```ts file="src/client.ts" group="spa" hl="7" check
 import { createApp } from "@moku-labs/web/browser";
 import { routes } from "./routes";
 import { site } from "./site";

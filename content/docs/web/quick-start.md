@@ -98,7 +98,7 @@ export const routes = defineRoutes({
 });
 ```
 
-```ts file="src/app.ts" group="quick-start" hl="15-16" no-check="imports ./routes from the reader's project"
+```ts file="src/app.ts" group="quick-start" hl="15-16" check
 import {
   buildPlugin,
   cliPlugin,
@@ -127,7 +127,7 @@ export const app = createApp({
 });
 ```
 
-```ts file="scripts/build.ts" group="quick-start" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/build.ts" group="quick-start" check
 import { app } from "../src/app";
 
 await app.cli.build();
@@ -147,7 +147,7 @@ await app.cli.build();
 `scripts/serve.ts` and `scripts/preview.ts` are the same two lines with `app.cli.serve()` and
 `app.cli.preview()`. `scripts/deploy.ts` turns on the guided wizard unless `--cli` is passed:
 
-```ts file="scripts/deploy.ts" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/deploy.ts" check
 import { app } from "../src/app";
 
 await app.cli.deploy({ guided: !process.argv.includes("--cli") });

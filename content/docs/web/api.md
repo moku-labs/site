@@ -130,7 +130,7 @@ interface Urls<T extends RouteMap> {
 | `RouteContext` | `params`, `data`, `locale`, `meta`, `url(name, params?)` |
 
 `params` is inferred from the pattern: `{x}` is required, `{x:?}` optional. Only `load` widens
-`data`. `toJson` stores a serializer on the route; no built-in plugin reads it in 2.4.11. See
+`data`. `toJson` stores a serializer on the route; no built-in plugin reads it yet. See
 [Routing](/docs/web/guides/routing/).
 
 ## Islands and navigation

@@ -28,7 +28,7 @@ The `build` plugin adds the site-wide files: feeds, `sitemap.xml`, `robots.txt` 
 
 ## Example
 
-```ts file="src/app.ts" group="head" hl="8-13" no-check="imports ./routes from the reader's project"
+```ts file="src/app.ts" group="head" hl="8-13" check
 import { buildPlugin, contentPlugin, createApp, fileSystemContent } from "@moku-labs/web";
 import { routes } from "./routes";
 

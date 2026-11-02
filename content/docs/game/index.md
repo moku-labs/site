@@ -60,7 +60,7 @@ export const mainFlow = defineFlow("main", {
 
 The game itself is one data object in `index.ts`:
 
-```ts file="index.ts" no-check="imports ./flow from the reader's project"
+```ts file="index.ts" check
 import { defineGameApp } from "@moku-labs/game/app";
 import { mainFlow } from "./flow";
 
