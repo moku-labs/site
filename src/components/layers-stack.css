@@ -103,7 +103,7 @@
   }
 
   [data-part="code"] [data-component="code"] {
-    margin: 0;
+    margin: 18px 0;
   }
 
   @media (max-width: 900px) {
