@@ -8,7 +8,9 @@ test.describe("tap speed, no JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   // Bug: the menu needs the client bundle, so on a slow phone the first taps do nothing.
-  test("phone: the menu opens and closes with no JavaScript at all", async ({ page }, testInfo) => {
+  test("phone: the burger opens and a second tap closes the menu, with no JavaScript", async ({
+    page
+  }, testInfo) => {
     test.skip(!isPhone(testInfo.project.name), "the burger is the phone nav");
     await page.goto("/", { waitUntil: "load" });
     const menu = page.locator("#site-menu");
@@ -17,7 +19,7 @@ test.describe("tap speed, no JavaScript", () => {
 
     await expect(menu).toBeVisible();
     await expect(menu.locator('a[data-nav="about"]')).toBeVisible();
-    await page.keyboard.press("Escape");
+    await page.locator('[data-part="burger"]').tap();
     await expect(menu).toBeHidden();
   });
 });
@@ -99,6 +101,65 @@ test.describe("tap speed", () => {
 
     expect(bundle).toHaveLength(1);
     expect(pages).toEqual([]);
+  });
+
+  // Bug: an auto popover light-dismisses on the burger's pointerdown and the click reopens it, so
+  // a second tap never closes the menu (iPhone).
+  test("phone: burger toggles; a tap outside and Esc close the menu", async ({
+    page
+  }, testInfo) => {
+    test.skip(!isPhone(testInfo.project.name), "the burger is the phone nav");
+    await boot(page, "/");
+    const burger = page.locator('[data-part="burger"]');
+    const menu = page.locator("#site-menu");
+
+    for (let round = 0; round < 3; round++) {
+      await burger.tap();
+      await expect(menu).toBeVisible();
+      await burger.tap();
+      await expect(menu).toBeHidden();
+    }
+    await burger.tap();
+    // A tap low on the page, below the open menu: outside the header.
+    const viewport = page.viewportSize() ?? { width: 390, height: 844 };
+    await page.touchscreen.tap(viewport.width / 2, viewport.height - 40);
+    await expect(menu).toBeHidden();
+    await burger.tap();
+    await page.keyboard.press("Escape");
+    await expect(menu).toBeHidden();
+    await expect(burger).toHaveAttribute("aria-expanded", "false");
+
+    // After an SPA navigation the island mounts again: its listeners must still work.
+    await burger.tap();
+    await menu.locator('a[data-nav="about"]').tap();
+    await expect(page).toHaveURL(/\/about\/$/);
+    await burger.tap();
+    await expect(menu).toBeVisible();
+    await burger.tap();
+    await expect(menu).toBeHidden();
+    await burger.tap();
+    await page.touchscreen.tap(viewport.width / 2, viewport.height - 40);
+    await expect(menu).toBeHidden();
+  });
+
+  // Bug: a tip target is renamed and loses the rule, so a long press selects the page's text again.
+  // A selector guard: Chromium cannot simulate the iOS long-press selection itself.
+  test("press-and-hold targets select no text", async ({ page }) => {
+    await boot(page, "/");
+    const targets = [
+      '[data-island="kernel-world"] [data-part="world"]',
+      '[data-island="kernel-world"] [data-plug]',
+      '[data-island="pyramid"] svg',
+      '[data-island="layers-stack"] [data-layer]'
+    ];
+
+    for (const selector of targets) {
+      const style = await page
+        .locator(selector)
+        .first()
+        .evaluate(element => getComputedStyle(element).userSelect);
+      expect(style, selector).toBe("none");
+    }
   });
 
   // Bug: Preact sets `src` before `loading`, so an SPA swap downloads every lazy icon of a closed
