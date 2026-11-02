@@ -8,13 +8,16 @@ import type { Router } from "@moku-labs/web/browser";
 import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { siteLayout } from "./components/site-layout";
 import { SITE } from "./config";
+import { contentReference } from "./lib/content-reference";
 import type { DocumentationPageView, DocumentationParameters } from "./lib/docs-data";
 import { packageParameters, pageParameters, sectionPageParameters } from "./lib/docs-params";
 import { docsReference } from "./lib/docs-reference";
+import { kernelReference } from "./lib/kernel-reference";
+import { AboutPage } from "./pages/about-page";
+import { DemosPage } from "./pages/demos-page";
 import { DocumentationPage } from "./pages/doc-page";
 import { DocumentationHubPage } from "./pages/docs-hub-page";
 import { HomePage } from "./pages/home-page";
-import { PlaceholderPage } from "./pages/placeholder-page";
 
 /**
  * The build-time docs loaders. A lazy import keeps their Node code out of the client bundle.
@@ -22,6 +25,13 @@ import { PlaceholderPage } from "./pages/placeholder-page";
  * @returns The `src/lib/docs-data` module.
  */
 const docsData = () => import("./lib/docs-data");
+
+/**
+ * The build-time home loader. A lazy import, like the docs loaders.
+ *
+ * @returns The `src/lib/home-data` module.
+ */
+const homeData = () => import("./lib/home-data");
 
 /** The part of a docs route's load context the docs loader reads. */
 type DocumentationLoadContext = {
@@ -74,7 +84,15 @@ function docsPageHead(ctx: { data: DocumentationPageView }): {
 export const routes = defineRoutes({
   home: route("/")
     .layout(siteLayout)
-    .render(() => <HomePage />)
+    .load(async ctx => {
+      const [home, docs] = await Promise.all([homeData(), docsData()]);
+      return home.loadHome({
+        kernel: ctx.require(kernelReference),
+        content: ctx.require(contentReference),
+        packages: docs.installedSources().packages
+      });
+    })
+    .render(ctx => <HomePage view={ctx.data} url={ctx.url} />)
     .head(() => ({ title: SITE.name, description: SITE.description }))
     .meta({ nav: "home" }),
   docsHub: route("/docs/")
@@ -112,13 +130,19 @@ export const routes = defineRoutes({
     .meta({ nav: "docs" }),
   demos: route("/demos/")
     .layout(siteLayout)
-    .render(() => <PlaceholderPage name="demos" title="Demos" />)
-    .head(() => ({ title: "Demos", description: SITE.description }))
+    .render(ctx => <DemosPage url={ctx.url} />)
+    .head(() => ({
+      title: "Demos",
+      description: "Six apps on Moku. An agent wrote most of the code. The kernel read all of it."
+    }))
     .meta({ nav: "demos" }),
   about: route("/about/")
     .layout(siteLayout)
-    .render(() => <PlaceholderPage name="about" title="About" />)
-    .head(() => ({ title: "About", description: SITE.description }))
+    .render(ctx => <AboutPage url={ctx.url} />)
+    .head(() => ({
+      title: "About",
+      description: "Moku Labs is a one-person lab building frameworks an AI agent can write."
+    }))
     .meta({ nav: "about" })
 });
 

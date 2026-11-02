@@ -1,0 +1,51 @@
+/* A13 404: the lost-cube art, a big 404, one line and two ways back. Styles src/404.html, a
+   static page the build copies (no components, no JS bundle). */
+@scope ([data-component="not-found"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: center;
+    max-width: var(--width-site);
+    margin: 0 auto;
+    padding: 72px var(--gutter-site) 104px;
+  }
+
+  [data-part="art"] img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-large);
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font: 800 clamp(64px, 10vw, 140px) / 0.9 var(--font-display);
+    letter-spacing: -0.04em;
+    color: var(--text-heading);
+  }
+
+  [data-part="lead"] {
+    margin: 0;
+    font-size: 22px;
+    color: var(--text-heading);
+  }
+
+  p {
+    max-width: 44ch;
+    margin: 17px 0;
+  }
+
+  [data-part="actions"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 800px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+      padding: 40px var(--gutter-narrow) 72px;
+    }
+  }
+}

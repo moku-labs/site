@@ -34,6 +34,7 @@ import type {
 const META_TOKEN = /([\w-]+)(?:=(?:"([^"]*)"|'([^']*)'|(\S+)))?/g;
 const LINE_RANGE = /^\s*(\d+)(?:-(\d+))?\s*$/;
 const NOTE = /\s*(?:\/\/|#)\s*\[!note\]\s*(.*)$/;
+const INLINE_CODE = /`([^`]+)`/g;
 const DIFF_SIGNS: ReadonlyMap<string, CodeLine["change"]> = new Map([
   ["+", "add"],
   ["-", "del"],
@@ -156,6 +157,25 @@ function element(
 }
 
 /**
+ * The content of a note: `` `code` `` spans become `<code>`, the rest stays text, so the
+ * serializer escapes any markup in it.
+ *
+ * @param text - The note text.
+ * @returns A `<span>` holding the text and code nodes; one grid cell next to the note number.
+ */
+function noteContent(text: string): HastElement {
+  const children: HastNode[] = [];
+  let index = 0;
+  for (const match of text.matchAll(INLINE_CODE)) {
+    if (match.index > index) children.push({ type: "text", value: text.slice(index, match.index) });
+    children.push(element("code", {}, [{ type: "text", value: match[1] ?? "" }]));
+    index = match.index + match[0].length;
+  }
+  if (index < text.length) children.push({ type: "text", value: text.slice(index) });
+  return element("span", {}, children);
+}
+
+/**
  * The gutter span of one line: number, highlight, diff row and note markers.
  *
  * @param line - The displayed line.
@@ -260,7 +280,7 @@ function toFigure(pre: HastElement & { children: [HastElement] }): HastElement {
   }
   if (notes.length > 0) {
     const items = notes.map((text, index) =>
-      element("li", { dataNote: index + 1 }, [{ type: "text", value: text }])
+      element("li", { dataNote: index + 1 }, [noteContent(text)])
     );
     children.push(element("ol", { dataComponent: "code-notes" }, items));
   }

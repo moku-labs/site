@@ -2,21 +2,11 @@
  * @file The isometric cube icon: three shaded faces with an optional glyph on the top face.
  */
 import type { VNode } from "preact";
-
-/** Glyphs drawn on the top face, in a 100×100 box. */
-const GLYPHS = {
-  none: "",
-  layers: "M50 14L86 32L50 50L14 32Z M14 50L50 68L86 50 M14 68L50 86L86 68",
-  plug: "M36 14V34M64 14V34M24 34H76V52A26 26 0 0 1 24 52Z M50 78V92",
-  lifecycle: "M82 50A32 32 0 1 1 70 26 M57 16L71 26L61 39",
-  events:
-    "M31 31A27 27 0 0 0 31 69M69 31A27 27 0 0 1 69 69M18 18A45 45 0 0 0 18 82M82 18A45 45 0 0 1 82 82 M50 46V54",
-  checks: "M50 10L84 22V50C84 70 68 84 50 90C32 84 16 70 16 50V22Z M34 50L46 62L68 38",
-  page: "M24 12H76V88H24Z M36 32H64M36 46H64M36 60H54"
-} as const;
+import type { GlyphName } from "./glyphs";
+import { glyphPath } from "./glyphs";
 
 /** A glyph name. */
-export type CubeGlyph = keyof typeof GLYPHS;
+export type CubeGlyph = GlyphName;
 
 /** Glyph of each concepts page, by file name. */
 const CONCEPT_GLYPHS: Readonly<Record<string, CubeGlyph>> = {
@@ -41,8 +31,8 @@ export function conceptGlyph(slug: string): CubeGlyph {
   return CONCEPT_GLYPHS[slug] ?? "page";
 }
 
-/** Face colours: the pink kernel, or the calm docs cube. */
-export type CubeTone = "kernel" | "docs";
+/** Face colours: the pink kernel, the calm docs cube, or a violet block of the landing world. */
+export type CubeTone = "kernel" | "docs" | "block";
 
 /** Props of {@link CubeIcon}. */
 type CubeIconProperties = {
@@ -65,7 +55,7 @@ type CubeIconProperties = {
  * ```
  */
 export function CubeIcon(props: CubeIconProperties): VNode {
-  const glyph = GLYPHS[props.glyph ?? "none"];
+  const glyph = glyphPath(props.glyph ?? "none");
   return (
     <svg
       data-component="cube-icon"

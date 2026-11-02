@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { captureKernelErrors, type KernelScenario } from "../../../src/lib/kernel-errors";
+import {
+  captureKernelErrors,
+  captureTrayMessages,
+  type KernelScenario
+} from "../../../src/lib/kernel-errors";
 
 /** The plugin (or call) each real scenario is about; its message must name it. */
 const subjects: Record<string, string> = {
@@ -62,5 +66,30 @@ describe("captureKernelErrors", () => {
     await expect(captureKernelErrors([odd])).rejects.toThrow(
       '[site] kernel check "odd" threw a value that is not an Error.'
     );
+  });
+});
+
+describe("captureTrayMessages", () => {
+  // Bug: a hero message is retyped instead of captured, or a check is pinned on the wrong plugin:
+  // the hero then prints words the kernel never says for that list.
+  it("captures the kernel's own message for every check a tray plugin can fail", async () => {
+    const messages = await captureTrayMessages([
+      { plugin: "router" },
+      { plugin: "router" },
+      { plugin: "auth", depends: "session" },
+      { plugin: "session" },
+      { plugin: "start" }
+    ]);
+
+    expect(Object.keys(messages.reserved)).toEqual(["start"]);
+    expect(messages.reserved.start).toMatch(/^\[web\] Plugin name "start" [^\n]+\n {2}\S/);
+    expect(Object.keys(messages.duplicate)).toEqual(["router", "auth", "session"]);
+    expect(messages.duplicate.router).toMatch(/^\[web\] [^\n]*"router"[^\n]*\n {2}\S/);
+    expect(messages.duplicate.auth).toContain('"auth"');
+    expect(Object.keys(messages.missing)).toEqual(["auth"]);
+    expect(messages.missing.auth).toMatch(
+      /^\[web\] Plugin "auth" depends on "session"[^\n]*\n {2}\S/
+    );
+    expect(messages.missing.auth).not.toBe(messages.duplicate.auth);
   });
 });

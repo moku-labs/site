@@ -2,6 +2,7 @@
 title: collection
 description: "Optional provider. (collection, shard) → JSON file: written at build, fetched on demand in the browser."
 section: Plugins
+kind: optional
 order: 22
 ---
 

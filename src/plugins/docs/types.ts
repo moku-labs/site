@@ -9,6 +9,9 @@ export type DocumentationConfig = {
   dir: string;
 };
 
+/** Runtime tag of a plugin page: `node` runs only on Node, `optional` is opt-in. */
+export type DocumentKind = "node" | "optional";
+
 /** A heading of a docs page, used by the "On this page" TOC. */
 export type DocumentHeading = {
   /** Anchor id, the same one the renderer puts on the heading. */
@@ -41,6 +44,8 @@ export type DocumentPage = {
   drift: string | undefined;
   /** Whether the page is marked as a full reference page. */
   full: boolean;
+  /** Runtime tag of a plugin page; absent for a default plugin and every other page. */
+  kind?: DocumentKind;
   /** Raw Markdown body, kernel-errors marker expanded. */
   markdown: string;
   /** Rendered HTML. */
@@ -57,6 +62,8 @@ export type DocumentLink = {
   path: string;
   /** Page title. */
   title: string;
+  /** Runtime tag of the page, shown in the sidebar; absent when the page has none. */
+  kind?: DocumentKind;
 };
 
 /** One group of the package sidebar. */

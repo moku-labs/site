@@ -2,6 +2,7 @@
 title: data
 description: "Optional provider. Page path → JSON file: the build writes each page's load() result, spa fetches it on navigation."
 section: Plugins
+kind: optional
 order: 24
 ---
 

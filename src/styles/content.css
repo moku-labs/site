@@ -78,17 +78,23 @@
     border-radius: var(--radius-card);
   }
 
-  /* Tables scroll inside themselves, never the page. */
-  table {
-    display: block;
-    overflow-x: auto;
+  /*
+   * Tables fill the column. A wide one scrolls inside its box (the wrapper of
+   * src/lib/markdown/tables.ts), never the page.
+   */
+  [data-part="table"] {
     max-width: 100%;
+    overflow-x: auto;
     margin: 14px 0 18px;
     border: 1px solid var(--docs-line);
     border-radius: var(--radius-control);
+    background: var(--docs-card);
+  }
+
+  table {
+    width: 100%;
     border-collapse: collapse;
     font-size: 14.5px;
-    background: var(--docs-card);
   }
 
   th,
@@ -112,6 +118,11 @@
 
   td:first-child code {
     white-space: nowrap;
+  }
+
+  /* Inline code in a code note wraps instead of widening the block. */
+  [data-component="code-notes"] code {
+    overflow-wrap: anywhere;
   }
 
   /* — Callout: neutral, warn, good — */
@@ -246,6 +257,8 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 8px 30px;
+      /* Room for the arrow of the last chip of a wrapped row, so it never widens the page. */
+      padding-right: 30px;
     }
 
     li {
@@ -279,23 +292,43 @@
     }
   }
 
-  /* — Diagram: the A5 pipeline is drawn by the landing wave; until then a framed placeholder — */
+  /* — Diagram: the inline isometric SVG named by ::diagram{name} (A5) — */
   [data-component="diagram"] {
     margin: 18px 0 6px;
     padding: 18px 10px 6px;
+    overflow: hidden;
     border: 1px solid var(--docs-line);
     border-radius: var(--radius-panel);
     background: var(--docs-card);
 
-    &::before {
-      content: attr(data-diagram);
-      display: grid;
-      place-items: center;
-      min-height: 200px;
-      border: 1.5px dashed var(--docs-line);
-      border-radius: var(--radius-card);
-      font: 500 12.5px var(--font-mono);
-      color: var(--docs-muted);
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    [data-part="link"],
+    [data-part="hop"] {
+      fill: none;
+      stroke: var(--docs-link);
+    }
+
+    [data-part="link"] {
+      stroke-width: 1.6;
+      stroke-dasharray: 4 4;
+    }
+
+    [data-part="hop"] {
+      stroke-width: 1.8;
+    }
+
+    [data-part="arrowhead"] {
+      fill: var(--docs-link);
+    }
+
+    text {
+      font: 600 14px var(--font-mono);
+      fill: var(--docs-heading);
     }
 
     figcaption {

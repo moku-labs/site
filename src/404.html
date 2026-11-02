@@ -6,17 +6,56 @@
     <meta name="robots" content="noindex">
     <!-- Title mirrors SITE.name in src/config.ts; a static page cannot import it. -->
     <title>404 — Moku Labs</title>
+    <!-- The same theme rule as src/index.html: ?theme= → sessionStorage → OS preference. -->
+    <script>
+      (() => {
+        const key = "moku-theme";
+        const valid = value => (value === "light" || value === "dark" ? value : undefined);
+        let theme;
+        try {
+          const forced = valid(new URLSearchParams(location.search).get("theme"));
+          if (forced) sessionStorage.setItem(key, forced);
+          theme = forced ?? valid(sessionStorage.getItem(key));
+        } catch {}
+        theme ??= matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <!-- Bundle filenames carry a content hash, so the build substitutes the stylesheet link here.
-         CSS-only on purpose: this page ships no JS. -->
+         CSS-only on purpose: this page ships no bundle. -->
     <!--moku:assets:css-->
   </head>
   <body>
-    <main>
-      <section data-page="not-found">
-        <h1>404</h1>
-        <p>This page does not exist.</p>
-        <p><a href="/">Back to the start</a></p>
-      </section>
+    <a data-component="skip-link" href="#content">Skip to content</a>
+    <header data-component="site-header">
+      <div data-part="bar">
+        <a data-part="logo" href="/" aria-label="Moku Labs home">
+          <svg data-component="cube-icon" data-tone="kernel" viewBox="0 0 100 104" width="28" height="29" aria-hidden="true">
+            <polygon data-face="left" points="8,30 50,52 50,96 8,74" />
+            <polygon data-face="right" points="50,52 92,30 92,74 50,96" />
+            <polygon data-face="top" points="50,8 92,30 50,52 8,30" />
+          </svg>
+          <span>Moku Labs</span>
+        </a>
+      </div>
+    </header>
+    <main id="content" tabindex="-1">
+      <div data-page="not-found">
+        <div data-component="not-found">
+          <div data-part="art">
+            <img src="/art/not-found.webp" width="1200" height="800" alt="An empty isometric platform with a dashed path that leads off its edge past a small pink cube" decoding="async">
+          </div>
+          <div>
+            <h1>404</h1>
+            <p data-part="lead">Nothing is registered at this address.</p>
+            <p>The page may have moved when the docs were reorganized. The kernel would have caught it, but pages are not plugins.</p>
+            <div data-part="actions">
+              <a data-component="button" data-variant="primary" href="/">Back to the cube city</a>
+              <a data-component="button" data-variant="ghost" href="/docs/">Open the docs</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   </body>
 </html>

@@ -9,6 +9,7 @@ state, no lifecycle.
 |---|---|
 | `docs/<pkg>/<…>/<slug>.md` | One per docs page, beside its HTML: `/docs/web/guides/routing/` → `docs/web/guides/routing.md`, `/docs/web/` → `docs/web.md` |
 | `index.md`, `demos.md`, `about.md` | Landing, demos and about, generated from `src/data/*`. Empty data leaves sections out |
+| `docs.md` | The docs hub (`/docs/`): the concepts pages, then the family by group, each package linked to the `.md` of its docs home (index page, else first page) |
 | `llms.txt` | llmstxt.org: `# Moku Labs`, `> summary`, one `## <package name>` section of links per package in `docs.all()` order, `## Site`, `## Optional` with `llms-full.txt` |
 | `llms-full.txt` | Every docs page in `docs.all()` order, each opening with `# Title` and its `Source:` line |
 | `docs/<pkg>/llms.txt` | One per package, with only that package's pages |

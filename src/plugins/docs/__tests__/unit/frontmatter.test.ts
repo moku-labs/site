@@ -57,6 +57,20 @@ describe("parseFrontmatter", () => {
     );
   });
 
+  // Bug: the sidebar runtime tag is dropped, or a typo such as `kind: node-only` passes silently
+  // and the plugin page shows no tag.
+  it("reads kind node or optional and refuses any other value", () => {
+    expect(parseFrontmatter(page("title: T\ndescription: D\nkind: node"), "f.md").data.kind).toBe(
+      "node"
+    );
+    expect(
+      parseFrontmatter(page("title: T\ndescription: D\nkind: optional"), "f.md").data.kind
+    ).toBe("optional");
+    expect(() =>
+      parseFrontmatter(page("title: T\ndescription: D\nkind: node-only"), "g.md")
+    ).toThrow('g.md: frontmatter field "kind" must be node or optional');
+  });
+
   // Bug: `full: yes` is read as false and the full-reference badge disappears.
   it("throws when full is not true or false", () => {
     expect(() => parseFrontmatter(page("title: T\ndescription: D\nfull: yes"), "e.md")).toThrow(

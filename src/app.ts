@@ -1,5 +1,6 @@
 /**
- * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data/cli) on top of
+ * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data/cli, and the
+ * site's docs/search/llms/kernel plugins, which route loaders reach by name) on top of
  * `@moku-labs/web`'s browser-safe defaults. Driven by the thin `scripts/*.ts` entries via
  * `app.cli.*`. The browser entry (src/spa.tsx) omits the Node-only plugins.
  */
@@ -15,13 +16,15 @@ import {
   fileSystemContent,
   processEnv
 } from "@moku-labs/web";
-import { SITE } from "./config";
+import { SEARCH_INDEX, SITE } from "./config";
 import { islands } from "./islands";
 import { mokuCodeTheme } from "./lib/code-theme";
 import { codeBlocks } from "./lib/markdown/code-blocks";
 import { directives } from "./lib/markdown/directives";
 import { headingIds } from "./lib/markdown/heading-ids";
+import { tables } from "./lib/markdown/tables";
 import { docsPlugin } from "./plugins/docs";
+import { kernelPlugin } from "./plugins/kernel";
 import { llmsPlugin } from "./plugins/llms";
 import { searchPlugin } from "./plugins/search";
 import { routes } from "./routes";
@@ -46,7 +49,8 @@ export const app = createApp({
     cliPlugin,
     docsPlugin,
     searchPlugin,
-    llmsPlugin
+    llmsPlugin,
+    kernelPlugin
   ],
   config: { mode: "hybrid" },
   pluginConfigs: {
@@ -62,13 +66,13 @@ export const app = createApp({
           trustedContent: true,
           shikiTheme: mokuCodeTheme,
           extraRemarkPlugins: [directives],
-          extraRehypePlugins: [headingIds, codeBlocks]
+          extraRehypePlugins: [headingIds, codeBlocks, tables]
         })
       ]
     },
-    collection: { baseUrl: "/" },
+    collection: { baseUrl: SEARCH_INDEX.baseUrl },
     docs: { dir: "content/docs" },
-    search: { collection: "search", shard: "en", outDir: "dist" },
+    search: { collection: SEARCH_INDEX.collection, shard: SEARCH_INDEX.shard, outDir: "dist" },
     llms: { siteUrl: SITE.url, outDir: "dist" },
     build: {
       outDir: "dist",

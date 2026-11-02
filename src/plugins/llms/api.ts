@@ -13,7 +13,7 @@ import { resolvePackages } from "../../lib/packages";
 import { docsPlugin } from "../docs";
 import type { DocumentPage } from "../docs/types";
 import { checkSiteUrl, renderLlmsFiles } from "./render";
-import { renderSitePages } from "./site-pages";
+import { renderDocumentationHub, renderSitePages } from "./site-pages";
 import type {
   LlmsApi,
   LlmsContext,
@@ -93,7 +93,10 @@ async function collectFiles(ctx: LlmsContext, sources: LlmsSources): Promise<Llm
   const site = { ...sources.site, url: checkSiteUrl(ctx.config.siteUrl) };
   const loaded = await ctx.require(docsPlugin).all();
   const documents = loaded.map(page => toLlmsPage(page));
-  const pages = renderSitePages(site, sources, new Set(documents.map(page => page.path)));
+  const pages = [
+    ...renderSitePages(site, sources, new Set(documents.map(page => page.path))),
+    renderDocumentationHub(site, sources.packages, documents)
+  ];
   const ids = new Set(documents.map(page => page.pkg));
   return renderLlmsFiles({ site, documents, pages, packages: describePackages(ids, sources) });
 }

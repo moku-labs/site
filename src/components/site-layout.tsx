@@ -3,6 +3,7 @@
  */
 import type { ComponentChildren, VNode } from "preact";
 import type { UrlBuilder } from "../lib/url-builder";
+import { SearchPalette } from "./search-palette";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
@@ -29,7 +30,7 @@ type LayoutContext = {
  * section and the header and footer persist across navigation.
  *
  * @param props - Component props.
- * @returns The skip link, header, `<main>` and footer.
+ * @returns The skip link, header, `<main>`, footer and the ⌘K palette.
  * @example
  * ```tsx
  * <SiteLayout nav="docs" url={ctx.url}>
@@ -48,6 +49,7 @@ export function SiteLayout(props: SiteLayoutProperties): VNode {
         <section>{props.children}</section>
       </main>
       <SiteFooter url={props.url} />
+      <SearchPalette url={props.url} />
     </>
   );
 }

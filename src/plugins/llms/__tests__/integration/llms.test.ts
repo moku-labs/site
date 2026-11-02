@@ -73,7 +73,8 @@ describe("llms plugin in a real app", () => {
       `Source: ${SITE.url}/docs/web/guides/routing/ · @moku-labs/web@${installedVersion("@moku-labs/web")}`
     );
     const pages = await app.docs.all();
-    expect(read("llms.txt").match(/^- \[.*\.md\)/gm)).toHaveLength(pages.length + 3);
+    // One link per docs page, plus the landing, demos, about and docs hub pages.
+    expect(read("llms.txt").match(/^- \[.*\.md\)/gm)).toHaveLength(pages.length + 4);
     expect(read("docs/web/llms.txt")).not.toContain("/docs/core/");
     expect(existsSync(path.join(target, "index.md"))).toBe(true);
 

@@ -1,8 +1,13 @@
 /**
- * @file The landing, demos and about pages as Markdown for agents, generated from `src/data/*`.
+ * @file The landing, docs hub, demos and about pages as Markdown for agents, generated from
+ * `src/data/*` and the docs pages.
  */
-import { blocks } from "./render";
-import type { LlmsPage, LlmsSite, SiteData } from "./types";
+import type { PackageEntry } from "../../data/packages";
+import { blocks, markdownPathOf } from "./render";
+import type { LlmsDocument, LlmsPage, LlmsSite, SiteData } from "./types";
+
+/** Package id of the core concepts pages. */
+const CONCEPTS = "concepts";
 
 /**
  * A section with a heading, or `""` when it has no body.
@@ -112,4 +117,85 @@ export function renderSitePages(
       pkg: undefined
     }
   ];
+}
+
+/**
+ * The docs home of each package: its index page, or its first page when it has none.
+ *
+ * @param documents - Docs pages in nav order.
+ * @returns URL path of the home by package id.
+ */
+function documentHomes(documents: readonly LlmsDocument[]): Map<string, string> {
+  const homes = new Map<string, string>();
+  for (const page of documents) {
+    const isIndex = page.path === `/docs/${page.pkg}/`;
+    if (isIndex || !homes.has(page.pkg)) homes.set(page.pkg, page.path);
+  }
+  return homes;
+}
+
+/**
+ * The packages section of the hub: one h3 per group in data order, a package linked to the
+ * `.md` of its docs home when it has pages.
+ *
+ * @param url - Site URL without a trailing slash.
+ * @param packages - The family in display order.
+ * @param homes - Docs home path by package id.
+ * @returns The Markdown section, or `""` without packages.
+ */
+function hubPackages(
+  url: string,
+  packages: readonly PackageEntry[],
+  homes: ReadonlyMap<string, string>
+): string {
+  const groups = new Map<string, string[]>();
+  for (const entry of packages) {
+    const home = homes.get(entry.id);
+    const line =
+      home === undefined
+        ? `- ${entry.name}: ${entry.tagline}`
+        : `- [${entry.name}](${url}/${markdownPathOf(home)}): ${entry.tagline}`;
+    groups.set(entry.group, [...(groups.get(entry.group) ?? []), line]);
+  }
+  const body = [...groups].map(([group, lines]) => `### ${group}\n\n${lines.join("\n")}`);
+  return section("Packages", blocks(...body));
+}
+
+/**
+ * The docs hub (`/docs/`) for agents: the concepts pages, then the family by group, each
+ * package linked to its docs home. Written as `docs.md`, the hub's "View as .md".
+ *
+ * @param site - Site identity; `url` without a trailing slash.
+ * @param packages - The family in display order.
+ * @param documents - Docs pages in nav order.
+ * @returns The hub page, with no package.
+ * @example
+ * ```ts
+ * const site = { name: "Moku Labs", description: "Kernel family.", url: "https://moku-labs.com" };
+ * renderDocumentationHub(site, [], []).path; // "/docs/"
+ * ```
+ */
+export function renderDocumentationHub(
+  site: LlmsSite,
+  packages: readonly PackageEntry[],
+  documents: readonly LlmsDocument[]
+): LlmsPage {
+  const concepts = documents
+    .filter(page => page.pkg === CONCEPTS)
+    .map(page => `- [${page.title}](${site.url}/${markdownPathOf(page.path)}): ${page.description}`)
+    .join("\n");
+  const conceptsBody =
+    concepts === ""
+      ? ""
+      : blocks("How every Moku package works underneath. From @moku-labs/core.", concepts);
+  return {
+    path: "/docs/",
+    title: "Docs",
+    description: "Docs for every Moku package, checked against the published releases.",
+    markdown: blocks(
+      section("Concepts", conceptsBody),
+      hubPackages(site.url, packages, documentHomes(documents))
+    ),
+    pkg: undefined
+  };
 }

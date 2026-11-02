@@ -25,3 +25,13 @@ export const LINKS = {
   /** Every docs page as one Markdown file, written by the llms plugin after the build. */
   llmsFull: "/llms-full.txt"
 } as const;
+
+/** Where the ⌘K index lives: the search plugin writes it, the palette island reads it. */
+export const SEARCH_INDEX = {
+  /** Base URL of the collection files. */
+  baseUrl: "/",
+  /** Collection name. */
+  collection: "search",
+  /** Shard name: one shard per locale. */
+  shard: "en"
+} as const;

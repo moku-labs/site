@@ -5,6 +5,9 @@
  * inside its loaders, which run only at build, so the client bundle never loads it. Everything a
  * page renders is in the returned view, which the build also writes as the page's data sidecar.
  */
+import { h } from "preact";
+import { renderToString } from "preact-render-to-string";
+import { PipelineDiagram } from "../components/pipeline-diagram";
 import { LINKS } from "../config";
 import type { PackageGroup } from "../data/packages";
 import { packages } from "../data/packages";
@@ -16,6 +19,7 @@ import type {
   NavGroup
 } from "../plugins/docs/types";
 import { markdownPathOf } from "../plugins/llms/render";
+import { expandDiagrams } from "./diagrams";
 import type { ResolvedPackage } from "./packages";
 import { resolvePackages } from "./packages";
 
@@ -27,6 +31,19 @@ const CONCEPTS_RELEASE = "core";
 
 /** Package id and file name of the "What the kernel checks" page, linked from every sidebar. */
 const KERNEL_CHECKS_PATH = "/docs/concepts/kernel-checks/";
+
+/** The drawings of the `::diagram{name}` figures, rendered once on first use. */
+let drawings: Readonly<Record<string, string>> | undefined;
+
+/**
+ * The SVG markup of every docs diagram, by name.
+ *
+ * @returns The drawings.
+ */
+function diagramDrawings(): Readonly<Record<string, string>> {
+  drawings ??= { pipeline: renderToString(h(PipelineDiagram, {})) };
+  return drawings;
+}
 
 /** What the loaders read besides the docs plugin: the resolved family and the check date. */
 export type DocumentationSources = {
@@ -310,7 +327,8 @@ export async function loadDocumentationHub(
 }
 
 /**
- * The view fields of a page: rendered parts, Markdown twin and edit link.
+ * The view fields of a page: rendered parts with their diagrams drawn, Markdown twin and edit
+ * link.
  *
  * @param page - The docs page.
  * @returns The page content of the view.
@@ -324,7 +342,7 @@ function pageContent(page: DocumentPage): DocumentationPageContent {
     title,
     description,
     group,
-    html,
+    html: expandDiagrams(html, diagramDrawings()),
     full,
     headings,
     markdownUrl: `/${markdownPathOf(path)}`,

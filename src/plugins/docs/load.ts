@@ -91,6 +91,7 @@ async function readPage(
     group: data.section ?? defaultGroup(location.pkg),
     drift: data.drift,
     full: data.full ?? false,
+    ...(data.kind === undefined ? {} : { kind: data.kind }),
     markdown,
     html,
     headings: Object.freeze(extractHeadings(markdown)),

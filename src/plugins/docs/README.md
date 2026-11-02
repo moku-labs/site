@@ -21,8 +21,9 @@ renders HTML through the content plugin's renderer, and keeps the raw Markdown f
 - `<pkg>` is a package id from `src/data/packages.ts` or `concepts`. Anything else fails the build.
 - Package order: `concepts` first, then the family in data order.
 - Frontmatter: `title` and `description` required; `order` (number, default 0), `section` (nav
-  group label), `drift` (string), `full` (`true`/`false`) optional. A page without `section` goes
-  to `Concepts` (concepts) or `Get started` (a package).
+  group label), `drift` (string), `full` (`true`/`false`), `kind` (`node`/`optional`, the
+  sidebar tag of a plugin page) optional. A page without `section` goes to `Concepts` (concepts)
+  or `Get started` (a package).
 - Sort: package, then group (where its first page falls by `order`), then `order`, then title.
 - Prev/next stay in the package; at its ends they link to the nearest package with pages: its
   index page, or its first page when it has no index.

@@ -1,0 +1,56 @@
+/* D1 world tooltip: inverted colours, placed above the hovered block by the island through
+   --tip-x / --tip-y. A global atom: the hero and the pyramid both use it. */
+[data-component="world-tip"] {
+  position: fixed;
+  left: var(--tip-x, 50%);
+  top: var(--tip-y, 50%);
+  z-index: 70;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 290px;
+  padding: 10px 12px;
+  border-radius: var(--radius-card);
+  background: var(--tooltip-surface);
+  color: var(--tooltip-text);
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: var(--tooltip-lift);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px));
+
+  &[hidden] {
+    display: none;
+  }
+
+  [data-part="art"] {
+    flex: none;
+    object-fit: contain;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  [data-part="title"] {
+    font: 600 13px var(--font-mono);
+  }
+
+  [data-part="version"] {
+    margin-left: 6px;
+    font: 12px var(--font-mono);
+    opacity: 0.65;
+  }
+
+  [data-part="text"] {
+    margin: 4px 0 0;
+  }
+
+  [data-part="action"] {
+    display: block;
+    margin-top: 6px;
+    font-style: normal;
+    font-size: 12px;
+    color: var(--tooltip-emphasis);
+  }
+}

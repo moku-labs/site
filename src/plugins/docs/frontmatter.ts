@@ -1,6 +1,7 @@
 /**
  * @file Parses docs frontmatter: a YAML subset of strings, numbers and booleans.
  */
+import type { DocumentKind } from "./types";
 
 /** Frontmatter fields a docs page may set. */
 export type DocumentFrontmatter = {
@@ -16,6 +17,8 @@ export type DocumentFrontmatter = {
   drift?: string;
   /** Marks a full reference page. */
   full?: boolean;
+  /** Runtime tag of a plugin page: `node` or `optional`. */
+  kind?: DocumentKind;
 };
 
 /** Parsed frontmatter plus the Markdown body after it. */
@@ -81,12 +84,26 @@ function fail(file: string, field: string, problem: string): never {
 }
 
 /**
+ * Check the `kind` field: the sidebar tag of a plugin page.
+ *
+ * @param value - The raw field value.
+ * @param file - File named in the error message.
+ * @returns `node` or `optional`.
+ * @throws {Error} When the value is anything else.
+ */
+function parseKind(value: string, file: string): DocumentKind {
+  return value === "node" || value === "optional"
+    ? value
+    : fail(file, "kind", "must be node or optional");
+}
+
+/**
  * Split and parse the frontmatter of a docs file.
  *
  * @param source - Full file contents.
  * @param file - File path, used in error messages.
  * @returns The typed fields and the Markdown body.
- * @throws {Error} When `title` or `description` is missing or empty, `order` is not a number, or `full` is not `true`/`false`.
+ * @throws {Error} When `title` or `description` is missing or empty, `order` is not a number, `full` is not `true`/`false`, or `kind` is not `node`/`optional`.
  * @example
  * ```ts
  * parseFrontmatter("---\ntitle: Routing\ndescription: Routes.\norder: 2\n---\n# Hi", "routing.md");
@@ -112,6 +129,8 @@ export function parseFrontmatter(source: string, file: string): ParsedDocument {
     if (full !== "true" && full !== "false") fail(file, "full", "must be true or false");
     data.full = full === "true";
   }
+  const kind = fields.get("kind");
+  if (kind !== undefined) data.kind = parseKind(kind, file);
   const section = fields.get("section");
   if (section) data.section = section;
   const drift = fields.get("drift");

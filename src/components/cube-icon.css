@@ -48,6 +48,29 @@
       stroke: var(--iso-docs-glyph);
     }
   }
+
+  &[data-tone="block"] {
+    [data-face] {
+      stroke: var(--iso-block-stroke);
+      stroke-width: 1.5;
+    }
+
+    [data-face="top"] {
+      fill: var(--iso-block-top);
+    }
+
+    [data-face="left"] {
+      fill: var(--iso-block-left);
+    }
+
+    [data-face="right"] {
+      fill: var(--iso-block-right);
+    }
+
+    [data-part="glyph"] {
+      stroke: var(--iso-block-glyph);
+    }
+  }
 }
 
 /* Package art keeps its square box. */

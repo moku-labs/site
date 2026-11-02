@@ -2,6 +2,7 @@
 title: deploy
 description: "Node-only. Ships the built site to Cloudflare Pages through wrangler, and scaffolds wrangler.jsonc and a CI workflow."
 section: Plugins
+kind: node
 order: 25
 ---
 

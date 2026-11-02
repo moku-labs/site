@@ -23,8 +23,10 @@
   --color-cube-left: #d92a56;
   --color-cube-right: #8f1b3c;
   --color-cube-glyph: #ffe1ea;
+  --color-cube-flash: #ffd6e1;
 
   /* — Primitives: night (dark theme violets, darkest first) — */
+  --color-night-console: #07060d;
   --color-night-code: #08070f;
   --color-night-terminal: #0a0914;
   --color-night-docs: #0b0a16;
@@ -43,6 +45,7 @@
   --color-night-muted: #8d86b8;
   --color-night-docs-muted: #9a94c0;
   --color-night-docs-text: #d6d1f0;
+  --color-night-console-code: #bdb5ec;
   --color-night-code-text: #e6e1fb;
   --color-night-head: #f6f3ff;
 
@@ -133,12 +136,14 @@
   --text-muted: light-dark(var(--color-day-muted), var(--color-night-muted));
   --text-heading: light-dark(var(--color-ink), var(--color-night-head));
   --text-link: light-dark(var(--color-pink-deep), var(--color-pink-soft));
+  --text-accent: light-dark(var(--color-pink-deep), var(--color-cube-top));
 
   /* — Accent: fixed across themes — */
   --accent: var(--color-pink);
   --accent-hover: var(--color-cube-top);
   --accent-line: var(--color-cube-left);
   --on-accent: var(--color-ink);
+  --accent-ring: rgb(255 46 99 / 0.35);
 
   /* — Docs: the calmer reading sheet — */
   --docs-page: light-dark(var(--color-day-docs), var(--color-night-docs));
@@ -229,10 +234,36 @@
   --iso-rim: light-dark(rgb(255 46 99 / 0.65), rgb(255 46 99 / 0.55));
   --demo-thumb-lightness: light-dark(88%, 24%);
 
+  --iso-block-stroke: light-dark(#cfc8ea, transparent);
+  --socket-fill: rgb(255 46 99 / 0.05);
+  --socket-fill-hot: rgb(255 46 99 / 0.14);
+  --kernel-glow: rgb(255 46 99 / 0.9);
+  --kernel-flash: var(--color-cube-flash);
+  --lift-shadow: 0 6px 18px -10px var(--color-cube-left);
+
+  /* — kernel.log on the hero: a dark console in both themes — */
+  --console-bg: var(--color-night-console);
+  --console-line: var(--color-night-terminal-line);
+  --console-text: var(--color-lavender);
+  --console-muted: var(--color-night-muted);
+  --console-code: var(--color-night-console-code);
+  --console-function: var(--color-syntax-sky);
+  --console-ok: var(--color-green-mint);
+  --console-error: var(--color-red-soft);
+  --console-win: var(--color-white);
+  --console-button-line: var(--color-night-terminal-dot);
+
+  /* — The plugin in flight and the ⌘K modal — */
+  --flyer-label: rgb(10 11 18 / 0.85);
+  --flyer-shadow: rgb(0 0 0 / 0.45);
+  --backdrop: rgb(10 11 18 / 0.55);
+  --modal-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55);
+
   /* — Tooltip on the world: inverted — */
   --tooltip-surface: light-dark(var(--color-ink), var(--color-paper));
   --tooltip-text: light-dark(var(--color-paper), var(--color-ink));
   --tooltip-emphasis: light-dark(var(--color-pink-soft), var(--color-pink-deep));
+  --tooltip-lift: 0 14px 30px -12px rgb(0 0 0 / 0.5);
 }
 
 :root[data-theme="light"] {

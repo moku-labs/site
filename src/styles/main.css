@@ -9,11 +9,25 @@
 @import "./tokens.css" layer(tokens);
 @import "./base.css" layer(base);
 
-/* — Components: global atoms first, then the chrome, the docs and content sheets — */
+/* — Components: global atoms first, then the chrome, the landing, the docs and content sheets — */
 @import "../components/cube-icon.css" layer(components);
+@import "../components/iso.css" layer(components);
+@import "../components/button.css" layer(components);
+@import "../components/world-tip.css" layer(components);
 @import "../components/sync-badge.css" layer(components);
 @import "../components/site-header.css" layer(components);
 @import "../components/site-footer.css" layer(components);
+@import "../components/search-palette.css" layer(components);
+@import "../components/hero.css" layer(components);
+@import "../components/landing-section.css" layer(components);
+@import "../components/kernel-checks.css" layer(components);
+@import "../components/layers-stack.css" layer(components);
+@import "../components/pyramid.css" layer(components);
+@import "../components/package-grid.css" layer(components);
+@import "../components/start-claude.css" layer(components);
+@import "../pages/demos-page.css" layer(components);
+@import "../pages/about-page.css" layer(components);
+@import "../pages/not-found.css" layer(components);
 @import "../components/docs-layout.css" layer(components);
 @import "../components/docs-sidebar.css" layer(components);
 @import "../components/docs-toc.css" layer(components);

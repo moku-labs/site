@@ -129,7 +129,8 @@ describe("docs api: order and navigation", () => {
     ]);
   });
 
-  // Bug: the sidebar groups appear alphabetically ("API reference" first) or pages shuffle.
+  // Bug: the sidebar groups appear alphabetically ("API reference" first) or pages shuffle; a
+  // plugin page loses its runtime tag (`kind`) on the way to the sidebar.
   it("nav() returns groups in first-seen order, pages by order then title", async () => {
     expect(await setup().api.nav("web")).toEqual([
       {
@@ -147,7 +148,10 @@ describe("docs api: order and navigation", () => {
           { path: "/docs/web/guides/routing/", title: "Routing" }
         ]
       },
-      { label: "Plugins", pages: [{ path: "/docs/web/plugins/router/", title: "router" }] },
+      {
+        label: "Plugins",
+        pages: [{ path: "/docs/web/plugins/router/", title: "router", kind: "node" }]
+      },
       { label: "API reference", pages: [{ path: "/docs/web/api/", title: "API reference" }] }
     ]);
   });

@@ -28,6 +28,16 @@ function linkTo(page: DocumentPage): DocumentLink {
 }
 
 /**
+ * The sidebar link to a page: its path, title and runtime tag.
+ *
+ * @param page - Target page.
+ * @returns The link, with `kind` when the page has one.
+ */
+function navLink(page: DocumentPage): DocumentLink {
+  return page.kind === undefined ? linkTo(page) : { ...linkTo(page), kind: page.kind };
+}
+
+/**
  * The route depth of a page: 1 for a package home, 2 for a top-level page, 3 inside a section.
  *
  * @param page - The page.
@@ -59,7 +69,7 @@ function groupPages(pages: readonly DocumentPage[]): NavGroup[] {
   const groups = new Map<string, DocumentLink[]>();
   for (const page of pages) {
     const links = groups.get(page.group) ?? [];
-    links.push(linkTo(page));
+    links.push(navLink(page));
     groups.set(page.group, links);
   }
   return [...groups].map(([label, links]) => ({ label, pages: links }));

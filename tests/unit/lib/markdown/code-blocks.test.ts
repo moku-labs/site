@@ -87,10 +87,24 @@ describe("codeBlocks through the content pipeline", () => {
     expect(html).toContain(
       '<span data-line="1" data-highlight data-note="1"></span><span data-line="2"></span><span data-line="3" data-highlight></span>'
     );
-    expect(html).toContain('<ol data-component="code-notes"><li data-note="1">The first</li></ol>');
+    expect(html).toContain(
+      '<ol data-component="code-notes"><li data-note="1"><span>The first</span></li></ol>'
+    );
     expect(html).not.toContain("[!note]");
     expect(html).not.toContain("data-meta");
     expect(html).toContain('<pre class="shiki');
+  });
+
+  // Catches: backticks in a note shown as text instead of inline code; markup in a note injected
+  // as HTML instead of escaped; a lone backtick eating the rest of the note.
+  it("renders inline code in a note and escapes everything else", async () => {
+    const html = await render(
+      fence("", "run(); // [!note] Call `app.start()` <b>once</b> & see `x` then a ` alone")
+    );
+
+    expect(html).toContain(
+      '<li data-note="1"><span>Call <code>app.start()</code> &#x3C;b>once&#x3C;/b> &#x26; see <code>x</code> then a ` alone</span></li>'
+    );
   });
 
   // Catches: a plain fence left without the figure, or given an empty file label.

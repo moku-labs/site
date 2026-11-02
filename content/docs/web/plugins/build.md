@@ -2,6 +2,7 @@
 title: build
 description: "Node-only. The static build: every route to HTML, plus bundles, feeds, sitemap, OG images and cache headers."
 section: Plugins
+kind: node
 order: 20
 ---
 

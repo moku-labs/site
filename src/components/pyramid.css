@@ -1,0 +1,110 @@
+/* A1 pyramid: core on top, packages, demos; hover lights relations, others dim. */
+@scope ([data-component="pyramid"]) {
+  [data-part="scroller"] {
+    margin: 0 -4px;
+    padding: 16px 4px 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    min-width: 720px;
+    height: auto;
+    overflow: visible;
+  }
+
+  [data-brick] {
+    cursor: pointer;
+    outline: none;
+    transition:
+      transform 0.2s var(--ease-lift),
+      opacity var(--duration-normal);
+
+    &:hover,
+    &:focus-visible,
+    &[data-current] {
+      transform: translateY(-7px);
+    }
+
+    &[data-related] > [data-face="left"],
+    &[data-current] > [data-face="left"] {
+      stroke: var(--accent);
+      stroke-width: 2;
+    }
+
+    &:focus-visible > [data-face="left"] {
+      stroke: var(--accent);
+      stroke-width: 3;
+    }
+  }
+
+  /* While one brick is lit, the unrelated ones step back. */
+  svg[data-focus] [data-brick]:not([data-related], [data-current]) {
+    opacity: 0.3;
+  }
+
+  text {
+    font: 600 12.5px var(--font-mono);
+    fill: var(--iso-block-glyph);
+    pointer-events: none;
+  }
+
+  [data-kind="core"] text {
+    font-size: 14px;
+    fill: var(--color-white);
+  }
+
+  [data-kind="demo"] text {
+    font: 600 14px var(--font-body);
+    fill: var(--text-heading);
+  }
+
+  [data-part="legend"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+    margin: 14px 0 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+  }
+
+  [data-swatch] {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  [data-swatch="kernel"] {
+    background: var(--kernel-top);
+  }
+
+  [data-swatch="package"] {
+    background: var(--iso-block-left);
+    border: 1px solid var(--line-strong);
+  }
+
+  [data-swatch="demo"] {
+    background: var(--iso-terrace-2-left);
+    border: 1px solid var(--line-strong);
+  }
+
+  [data-part="legend"] [data-part="hint"] {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    [data-part="legend"] [data-part="hint"] {
+      display: inline-flex;
+    }
+  }
+}

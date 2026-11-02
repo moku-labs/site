@@ -1,0 +1,124 @@
+/* Isometric faces of every SVG drawing (hero world, layers stack, pipeline diagram). A global
+   atom: the tone on the group picks the face colours, the theme tokens do the rest. */
+[data-tone] > [data-face] {
+  stroke-linejoin: round;
+}
+
+[data-tone="ground"] {
+  > [data-face="top"] {
+    fill: var(--iso-ground-top);
+  }
+
+  > [data-face="left"] {
+    fill: var(--iso-ground-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--iso-ground-right);
+  }
+}
+
+[data-tone="terrace-1"],
+[data-tone="terrace-2"] {
+  > [data-face] {
+    stroke: var(--iso-terrace-stroke);
+    stroke-width: 0.6;
+  }
+}
+
+[data-tone="terrace-1"] {
+  > [data-face="top"] {
+    fill: var(--iso-terrace-1-top);
+  }
+
+  > [data-face="left"] {
+    fill: var(--iso-terrace-1-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--iso-terrace-1-right);
+  }
+}
+
+[data-tone="terrace-2"] {
+  > [data-face="top"] {
+    fill: var(--iso-terrace-2-top);
+  }
+
+  > [data-face="left"] {
+    fill: var(--iso-terrace-2-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--iso-terrace-2-right);
+  }
+}
+
+[data-tone="block"] {
+  > [data-face] {
+    stroke: var(--iso-block-stroke);
+    stroke-width: 0.5;
+  }
+
+  > [data-face="top"] {
+    fill: var(--iso-block-top);
+    transition: fill var(--duration-normal);
+  }
+
+  > [data-face="left"] {
+    fill: var(--iso-block-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--iso-block-right);
+  }
+}
+
+[data-tone="kernel"] {
+  > [data-face="top"] {
+    fill: var(--kernel-top);
+  }
+
+  > [data-face="left"] {
+    fill: var(--kernel-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--kernel-right);
+  }
+}
+
+[data-tone="plugin"] {
+  > [data-face="top"] {
+    fill: var(--iso-plugin-top);
+  }
+
+  > [data-face="left"] {
+    fill: var(--iso-plugin-left);
+  }
+
+  > [data-face="right"] {
+    fill: var(--iso-plugin-right);
+  }
+}
+
+/* Glyphs on the lids: a stroke drawing, coloured by the box tone. */
+[data-tone] [data-part="glyph"] {
+  fill: none;
+  stroke: var(--iso-block-glyph);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+[data-tone="kernel"] [data-part="glyph"] {
+  stroke: var(--kernel-glyph);
+}
+
+[data-tone="plugin"] [data-part="glyph"] {
+  stroke: var(--iso-plugin-glyph);
+}
+
+[data-tone] [data-part="glyph"][data-accent] {
+  stroke: var(--kernel-top);
+}

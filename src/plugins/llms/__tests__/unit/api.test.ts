@@ -105,6 +105,16 @@ describe("llms api", () => {
     expect(content("llms.txt")).toContain("## Concepts\n\n- [Plugins]");
   });
 
+  // Bug: "View as .md" on the docs hub (/docs/) is a 404 because no docs.md is written.
+  it("files() writes docs.md for the docs hub, listed in llms.txt", async () => {
+    const files = await setup().api.files();
+    const content = (file: string) => files.find(entry => entry.path === file)?.content;
+    expect(content("docs.md")).toContain(
+      "- [@moku-labs/web](https://moku-labs.com/docs/web.md): Web."
+    );
+    expect(content("llms.txt")).toContain("- [Docs](https://moku-labs.com/docs.md):");
+  });
+
   // Bug: emit writes fewer files than it reports, or ignores the configured outDir.
   it("emit() writes every file into the configured outDir and counts them", async () => {
     const { api, outDir } = setup();

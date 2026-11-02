@@ -98,6 +98,8 @@ export function PackageIcon(props: { id: string; size: number }): VNode {
     <img
       data-component="package-icon"
       src={`/art/icon-${props.id}-256.webp`}
+      srcset={`/art/icon-${props.id}-256.webp 256w, /art/icon-${props.id}-512.webp 512w`}
+      sizes={`${props.size}px`}
       width={props.size}
       height={props.size}
       alt=""

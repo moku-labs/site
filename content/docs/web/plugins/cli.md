@@ -2,6 +2,7 @@
 title: cli
 description: "Node-only. build, serve, preview and deploy as app methods, with the branded terminal panel."
 section: Plugins
+kind: node
 order: 21
 ---
 

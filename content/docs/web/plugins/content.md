@@ -2,6 +2,7 @@
 title: content
 description: "Node build. Markdown articles to sanitized HTML, with frontmatter, reading time, locale fallback and drafts."
 section: Plugins
+kind: node
 order: 23
 full: true
 ---

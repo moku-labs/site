@@ -144,3 +144,93 @@ export async function captureKernelErrors(
   }
   return errors;
 }
+
+/** A hero tray plugin as the kernel sees it: its name and the plugin it depends on. */
+export type TrayRule = {
+  /** The plugin name. */
+  plugin: string;
+  /** Name of the plugin it depends on. */
+  depends?: string;
+};
+
+/** The kernel's exact messages for the checks a tray plugin can fail, by plugin name. */
+export type TrayMessages = {
+  /** Registered twice; for every name that is not reserved. */
+  duplicate: Record<string, string>;
+  /** Its dependency is not registered; for every name with a dependency. */
+  missing: Record<string, string>;
+  /** A reserved app method name; only for those names. */
+  reserved: Record<string, string>;
+};
+
+/**
+ * The app's own method names (`start`, `stop`, `emit`, …): the names the kernel reserves.
+ * Read from a real app, so the list follows the kernel.
+ *
+ * @returns The method names.
+ */
+function appMethodNames(): Set<string> {
+  const app = createApp({ pluginConfigs });
+  return new Set(
+    Object.entries(app)
+      .filter(([, member]) => typeof member === "function")
+      .map(([name]) => name)
+  );
+}
+
+/**
+ * Capture the real kernel's message for every check the hero tray can fail, using the tray's
+ * own plugin names, so the hero never retypes a kernel string. A reserved name gets only its
+ * reserved message (the kernel checks that first); every other name gets its "registered twice"
+ * message, and a name with a dependency also its "missing dependency" message.
+ *
+ * @param tray - The tray plugins; repeated names are captured once.
+ * @returns The messages by check and plugin name.
+ * @throws {Error} When a scenario no longer throws, which means the kernel changed.
+ * @example
+ * ```ts
+ * // At build, for the hero's data-props:
+ * const messages = await captureTrayMessages(trayPlugins);
+ * messages.duplicate.router; // '[web] Duplicate plugin name: "router".\n  Each plugin must have a unique name.'
+ * ```
+ */
+export async function captureTrayMessages(tray: readonly TrayRule[]): Promise<TrayMessages> {
+  const methods = appMethodNames();
+  const messages: TrayMessages = { duplicate: {}, missing: {}, reserved: {} };
+  for (const name of new Set(tray.map(rule => rule.plugin))) {
+    const dependsOn = tray.find(rule => rule.plugin === name && rule.depends)?.depends;
+    const base = { when: "createApp", hint: "" } as const;
+    if (methods.has(name)) {
+      messages.reserved[name] = await captureMessage({
+        ...base,
+        id: `reserved-name:${name}`,
+        trigger: () => createApp({ plugins: [createPlugin(name, {})], pluginConfigs })
+      });
+      continue;
+    }
+    // The dependency is registered first, so only the duplicate can fail.
+    const dependency = dependsOn === undefined ? undefined : createPlugin(dependsOn, {});
+    const own = () =>
+      dependency === undefined
+        ? createPlugin(name, {})
+        : createPlugin(name, { depends: [dependency] });
+    messages.duplicate[name] = await captureMessage({
+      ...base,
+      id: `duplicate-name:${name}`,
+      trigger: () =>
+        dependency === undefined
+          ? createApp({ plugins: [own(), own()], pluginConfigs })
+          : createApp({ plugins: [dependency, own(), own()], pluginConfigs })
+    });
+    if (dependsOn !== undefined) {
+      const absent = createPlugin(dependsOn, {});
+      messages.missing[name] = await captureMessage({
+        ...base,
+        id: `missing-dependency:${name}`,
+        trigger: () =>
+          createApp({ plugins: [createPlugin(name, { depends: [absent] })], pluginConfigs })
+      });
+    }
+  }
+  return messages;
+}

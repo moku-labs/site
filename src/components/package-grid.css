@@ -1,0 +1,130 @@
+/* A1 package family: a 4-column grid of lots on hairlines; the cube lifts on hover. */
+@scope ([data-component="package-grid"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style: none;
+    border: 1px solid var(--line-default);
+    border-radius: var(--radius-large);
+    background: var(--line-default);
+  }
+
+  a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: 100%;
+    min-height: 228px;
+    padding: 24px 22px 26px;
+    background: var(--surface-card);
+    color: var(--text-body);
+    text-decoration: none;
+    outline-offset: -3px;
+    transition: background var(--duration-normal);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--surface-raised);
+
+      img {
+        transform: translateY(-10px);
+      }
+
+      [data-part="shadow"] {
+        transform: scale(0.7);
+        opacity: 0.5;
+      }
+
+      [data-part="name"] {
+        color: var(--text-link);
+      }
+    }
+  }
+
+  [data-part="icon"] {
+    position: relative;
+    width: 76px;
+    height: 84px;
+    margin-bottom: 12px;
+
+    img {
+      position: relative;
+      z-index: 1;
+      object-fit: contain;
+      transition: transform 0.26s cubic-bezier(0.3, 1.6, 0.5, 1);
+    }
+  }
+
+  [data-part="shadow"] {
+    position: absolute;
+    left: 12px;
+    bottom: 4px;
+    width: 52px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--iso-shadow);
+    filter: blur(4px);
+    transition:
+      transform 0.26s,
+      opacity 0.26s;
+  }
+
+  [data-part="group"] {
+    position: absolute;
+    top: 22px;
+    right: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  [data-part="name"] {
+    font: 600 15px var(--font-mono);
+    color: var(--text-heading);
+    transition: color var(--duration-normal);
+  }
+
+  [data-part="version"] {
+    font: 12px var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  [data-part="tagline"] {
+    margin: 6px 0 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 1000px) {
+    :scope {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    a {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      column-gap: 16px;
+      align-content: start;
+      min-height: 0;
+    }
+
+    [data-part="icon"] {
+      grid-row: span 3;
+      margin: 0;
+    }
+
+    [data-part="tagline"] {
+      grid-column: 2;
+    }
+  }
+}

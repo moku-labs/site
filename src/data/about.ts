@@ -42,3 +42,32 @@ export const about: About = {
     { label: "Blog: alexblog.net", href: "https://alexblog.net" }
   ]
 };
+
+/** One "how the lab works" card. */
+export type Principle = {
+  /** Card title. */
+  title: string;
+  /** One line under it. */
+  text: string;
+};
+
+/**
+ * The three principles cards of the about page.
+ *
+ * @example
+ * ```ts
+ * principles.map(principle => principle.title);
+ * ```
+ */
+export const principles: readonly Principle[] = [
+  {
+    title: "Agents write. The kernel reviews.",
+    text: "Every plugin passes the same checks, whoever wrote it."
+  },
+  { title: "Docs are tested against npm.", text: "If an example breaks, the page says so." },
+  { title: "Small packages, one kernel.", text: "Twelve packages share one core under 8 KB." }
+];
+
+/** What the about portrait shows, for its `alt` text. */
+export const portraitAlt =
+  "Portrait: a cube with a sunny day on one face and a starry night on the other";

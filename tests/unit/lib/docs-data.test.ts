@@ -221,6 +221,25 @@ describe("loadDocumentationPage", () => {
   });
 
   // Bug: a route whose params match no page renders an empty page instead of failing the build.
+  // Bug: the how-it-works page ships the empty diagram frame instead of the pipeline drawing.
+  it("draws the named diagram into its figure", async () => {
+    const withDiagram = page({
+      path: "/docs/web/how-it-works/",
+      pkg: "web",
+      slug: "how-it-works",
+      html: '<figure data-component="diagram" data-diagram="pipeline"><figcaption>Build to SPA</figcaption></figure>'
+    });
+    const view = await loadDocumentationPage(
+      fakeDocs([...pages, withDiagram]),
+      { pkg: "web", page: "how-it-works" },
+      sources
+    );
+
+    expect(view.page.html).toMatch(
+      /^<figure data-component="diagram" data-diagram="pipeline"><svg data-diagram-art="pipeline"[^>]*>.*<\/svg><figcaption>Build to SPA<\/figcaption><\/figure>$/s
+    );
+  });
+
   it("fails the build when no page maps to the params", async () => {
     await expect(
       loadDocumentationPage(fakeDocs(pages), { pkg: "web", page: "nope" }, sources)

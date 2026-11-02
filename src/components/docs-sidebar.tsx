@@ -68,7 +68,7 @@ function PackageSwitcher(props: {
 }
 
 /**
- * A list of page links with the current one marked.
+ * A list of page links with the current one marked; a plugin page shows its runtime tag (B3).
  *
  * @param props - Component props.
  * @param props.links - The links.
@@ -82,6 +82,7 @@ function PageList(props: { links: readonly DocumentLink[]; current: string }): V
         <li key={link.path}>
           <a href={link.path} aria-current={link.path === props.current ? "page" : undefined}>
             {link.title}
+            {link.kind === undefined ? undefined : <small data-part="kind">{link.kind}</small>}
           </a>
         </li>
       ))}
