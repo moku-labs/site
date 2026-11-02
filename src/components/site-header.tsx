@@ -65,8 +65,9 @@ export function SiteHeader(props: SiteHeaderProperties): VNode {
           <span>{SITE.name}</span>
         </a>
         <nav aria-label="Main">
-          {/* A native popover: the burger's popovertarget opens it before the island hydrates. */}
-          <ul id="site-menu" data-part="links" popover="auto">
+          {/* A manual popover: the burger's popovertarget opens and closes it before the island
+              hydrates, with no light-dismiss race on the burger's own tap. */}
+          <ul id="site-menu" data-part="links" popover="manual">
             {navLinks(url).map(link => (
               <li key={link.id}>
                 <a
@@ -88,7 +89,12 @@ export function SiteHeader(props: SiteHeaderProperties): VNode {
           <kbd>⌘K</kbd>
         </button>
         <ThemeToggle />
-        <button type="button" data-part="burger" popovertarget="site-menu">
+        <button
+          type="button"
+          data-part="burger"
+          popovertarget="site-menu"
+          aria-controls="site-menu"
+        >
           Menu
         </button>
       </div>
