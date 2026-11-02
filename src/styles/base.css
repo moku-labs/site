@@ -1,7 +1,9 @@
 /* Element defaults and the page ground. The reset is in reset.css. */
 
 html {
-  /* Root scrolling stays instant: smooth scrolling strands the SPA's scroll-to-top. */
+  /* Root scrolling stays instant: smooth scrolling strands the SPA's scroll-to-top. The padding
+     alone keeps an anchored heading clear of the sticky header: no scroll-margin on the headings,
+     or the two add up. */
   scroll-padding-top: calc(var(--header-height) + 20px);
 }
 
@@ -69,5 +71,26 @@ main:focus {
     background: var(--accent);
     color: var(--on-accent);
     padding: 8px 12px;
+  }
+}
+
+/* The SPA navigation progress bar (`spa.progressBar`): the framework prepends `<div data-progress>`
+   to the body, sets its width and marks it `data-active` while a page loads. */
+[data-progress] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    width var(--duration-normal) ease-out,
+    opacity var(--duration-fast);
+
+  &[data-active] {
+    opacity: 1;
   }
 }

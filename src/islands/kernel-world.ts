@@ -69,6 +69,8 @@ type WorldState = {
   drag: Drag | undefined;
   /** Swallow the click that follows a drag. */
   suppressClick: boolean;
+  /** Reset was pressed while a plugin was in flight; it wins when the flight ends. */
+  resetQueued: boolean;
 };
 
 /** The island context with its state. */
@@ -380,14 +382,68 @@ async function plug(ctx: WorldContext, id: string, from: ScreenPoint): Promise<v
   const flight: Flight = { svg, flyer };
   state.busy = true;
   try {
-    const above = await throwAtKernel(flight, from);
-    if (judgement.accepted) await dropIntoSocket(flight, above, next.accepted.length - 1);
-    showVerdict(root, state, next, judgement.accepted);
-    if (!judgement.accepted) await tumbleOff(flight, above, next.rejections);
+    await flyVerdict(root, state, flight, from, { next, accepted: judgement.accepted });
   } finally {
     flyer.remove();
-    state.busy = false;
+    land(root, state);
   }
+}
+
+/** Where a throw ends: the state after it and whether the kernel took the plugin. */
+type Verdict = {
+  /** The state after the verdict. */
+  next: HeroState;
+  /** Whether the kernel accepted the plugin. */
+  accepted: boolean;
+};
+
+/**
+ * Fly a thrown plugin and show its verdict: into a socket, or off the edge after the kernel
+ * shakes. A Reset pressed mid-flight drops the verdict.
+ *
+ * @param root - The hero section.
+ * @param state - The island state.
+ * @param flight - The throw.
+ * @param from - Where it starts.
+ * @param verdict - The kernel's verdict.
+ */
+async function flyVerdict(
+  root: Element,
+  state: WorldState,
+  flight: Flight,
+  from: ScreenPoint,
+  verdict: Verdict
+): Promise<void> {
+  const above = await throwAtKernel(flight, from);
+  if (state.resetQueued) return;
+  if (verdict.accepted) await dropIntoSocket(flight, above, verdict.next.accepted.length - 1);
+  if (state.resetQueued) return;
+  showVerdict(root, state, verdict.next, verdict.accepted);
+  if (!verdict.accepted) await tumbleOff(flight, above, verdict.next.rejections);
+}
+
+/**
+ * A flight is over: take plugs again, and apply a Reset pressed while it flew.
+ *
+ * @param root - The hero section.
+ * @param state - The island state.
+ */
+function land(root: Element, state: WorldState): void {
+  state.busy = false;
+  if (!state.resetQueued) return;
+  state.resetQueued = false;
+  commit(root, state, initialHeroState());
+}
+
+/**
+ * Back to an empty kernel. While a plugin flies, the reset waits for it to land and wins over
+ * its verdict, so the press is never lost.
+ *
+ * @param ctx - The island context.
+ */
+function resetWorld(ctx: WorldContext): void {
+  if (ctx.state.busy) ctx.state.resetQueued = true;
+  else commit(ctx.el, ctx.state, initialHeroState());
 }
 
 /**
@@ -545,7 +601,8 @@ export const kernelWorldIsland = createIsland("kernel-world", {
           : seedHeroState(props.tray, props.messages, props.seed),
       busy: false,
       drag: undefined,
-      suppressClick: false
+      suppressClick: false,
+      resetQueued: false
     };
   },
   events: {
@@ -561,9 +618,7 @@ export const kernelWorldIsland = createIsland("kernel-world", {
       if (button instanceof HTMLElement)
         void plug(ctx, button.dataset.plug ?? "", centreOf(button));
     },
-    "click [data-part='reset']": ctx => {
-      if (!ctx.state.busy) commit(ctx.el, ctx.state, initialHeroState());
-    },
+    "click [data-part='reset']": ctx => resetWorld(ctx),
     "click [data-href]": (ctx, _event, block) => openBlock(ctx, block),
     "keydown [data-href]": (ctx, event, block) => {
       if (event instanceof KeyboardEvent && event.key === "Enter") openBlock(ctx, block);

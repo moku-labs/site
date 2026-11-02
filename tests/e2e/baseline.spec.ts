@@ -43,7 +43,9 @@ test.describe("states", () => {
       await page.locator(`[data-plug="${id}"]`).click();
     }
     await expect(page.locator('[data-part="log"] [data-kind="win"]')).toBeVisible();
-    await page.locator('[data-part="stage"]').scrollIntoViewIfNeeded();
+    // The clicks leave the page wherever they scrolled it: start the shot's scroll from the top.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await scrollTo(page, page.locator('[data-part="stage"]'));
     await stateShot(page, "hero-win");
   });
 

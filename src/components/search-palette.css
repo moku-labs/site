@@ -1,4 +1,12 @@
 /* E1 ⌘K search: a centred modal on a dimmed, blurred backdrop, in docs colours on every page. */
+
+/* While it is open the page under it stays put, as under any modal dialog (WAI-ARIA APG). The
+   stable gutter keeps the page from shifting sideways when its scrollbar goes. */
+html:has([data-component="search-palette"]:not([hidden])) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
 @scope ([data-component="search-palette"]) {
   :scope {
     position: fixed;
