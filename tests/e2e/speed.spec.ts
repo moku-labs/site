@@ -77,22 +77,49 @@ test.describe("tap speed", () => {
     expect(floating).toBe(false);
   });
 
-  // Bug: the next page's data is fetched only after the tap, or twice: once warm, once on tap.
-  test("a link's page data is fetched before the tap, and only once", async ({ page }) => {
-    const fetched: string[] = [];
+  // Bug: the data of every page is not loaded once up front, so a tap waits for the network, or
+  // the start page and each next page are fetched again one by one.
+  test("all page data loads once after boot, and navigation fetches no page data", async ({
+    page
+  }) => {
+    const bundle: string[] = [];
+    const pages: string[] = [];
     page.on("request", request => {
-      if (request.url().includes("/_data/docs/web/how-it-works/")) fetched.push(request.url());
+      const url = new URL(request.url());
+      if (url.pathname === "/_data/_all.json") bundle.push(url.pathname);
+      else if (url.pathname.startsWith("/_data/")) pages.push(url.pathname);
     });
     await boot(page, "/docs/web/quick-start/");
-    const link = page.locator('main a[href="/docs/web/how-it-works/"]:visible').first();
-    await link.scrollIntoViewIfNeeded();
+    await expect.poll(() => bundle.length).toBe(1);
 
-    await link.dispatchEvent("touchstart");
-    await expect.poll(() => fetched.length).toBe(1);
-    await link.click();
+    await page.locator('main a[href="/docs/web/how-it-works/"]:visible').first().click();
+    await expect(page.locator("h1")).toContainText("How");
+    await page.goBack();
+    await expect(page.locator("h1")).toContainText("Quick start");
 
+    expect(bundle).toHaveLength(1);
+    expect(pages).toEqual([]);
+  });
+
+  // Bug: Preact sets `src` before `loading`, so an SPA swap downloads every lazy icon of a closed
+  // package list.
+  test("a docs navigation loads no icons of a closed package list", async ({ page }) => {
+    const icons: string[] = [];
+    page.on("request", request => {
+      if (request.url().includes("/art/icon-")) icons.push(request.url());
+    });
+    await boot(page, "/docs/web/quick-start/");
+    const loadedOnBoot = icons.length;
+
+    await page.locator('main a[href="/docs/web/how-it-works/"]:visible').first().click();
     await expect(page).toHaveURL(/\/how-it-works\/$/);
     await expect(page.locator("h1")).toContainText("How");
-    expect(fetched).toHaveLength(1);
+    await page.waitForLoadState("networkidle");
+
+    // The closed list is on the new page, so the count below is not trivially equal.
+    const listed = page.locator('[data-part="switcher"] li img[data-component="package-icon"]');
+    expect(await listed.count()).toBeGreaterThan(5);
+
+    expect(icons.length).toBe(loadedOnBoot);
   });
 });

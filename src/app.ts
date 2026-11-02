@@ -90,7 +90,8 @@ export const app = createApp({
       template: "src/index.html"
     },
     spa: { islands, progressBar: true },
-    data: { outputDir: "_data", baseUrl: "/_data/" },
+    // One `_all.json` with every page's data: the browser loads it once, so navigation is instant.
+    data: { outputDir: "_data", baseUrl: "/_data/", preload: "all" },
     // `ci: false`: the GitHub workflow is the thin `.github/workflows/ci.yml` caller of
     // `moku-labs/ci` app-deploy, so the deploy plugin must not scaffold a second one.
     deploy: {

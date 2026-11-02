@@ -94,8 +94,12 @@ export function ThemeCubeIcon(): VNode {
  * ```
  */
 export function PackageIcon(props: { id: string; size: number }): VNode {
+  // `loading` comes before `src`: Preact sets props in order, and a browser that sees `src` first
+  // starts the download before it learns the image is lazy.
   return (
     <img
+      loading="lazy"
+      decoding="async"
       data-component="package-icon"
       src={`/art/icon-${props.id}-256.webp`}
       srcset={`/art/icon-${props.id}-256.webp 256w, /art/icon-${props.id}-512.webp 512w`}
@@ -103,8 +107,6 @@ export function PackageIcon(props: { id: string; size: number }): VNode {
       width={props.size}
       height={props.size}
       alt=""
-      loading="lazy"
-      decoding="async"
     />
   );
 }

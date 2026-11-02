@@ -301,6 +301,15 @@ describe("prefetch plugin", () => {
     expect(observers[1]?.disconnected).toBe(false);
   });
 
+  // Bug: a zero budget still observes every link on every page, for nothing.
+  it("watches nothing when the viewport budget is 0", () => {
+    pageLinks = [fakeLink("/a/")];
+    start({ viewportBudget: 0 });
+    vi.advanceTimersByTime(5000);
+
+    expect(observers).toEqual([]);
+  });
+
   // Bug: without requestIdleCallback (Safari) the view is never watched.
   it("falls back to a timer when the browser has no idle callback", () => {
     vi.stubGlobal("requestIdleCallback", undefined);

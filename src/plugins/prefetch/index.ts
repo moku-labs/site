@@ -10,7 +10,8 @@ import { listenForIntent, stopWatching, watchViewport } from "./lifecycle";
 import { createPrefetchState } from "./state";
 import type { PrefetchConfig } from "./types";
 
-const defaultConfig: PrefetchConfig = { hoverDelay: 65, viewportBudget: 6, idleTimeout: 1200 };
+// No links in view by default: page data comes from the data plugin's preload, the rest on intent.
+const defaultConfig: PrefetchConfig = { hoverDelay: 65, viewportBudget: 0, idleTimeout: 1200 };
 
 /**
  * The prefetch plugin: loads a page's data through `app.data.at(path)` before the tap, so the SPA
@@ -19,6 +20,7 @@ const defaultConfig: PrefetchConfig = { hoverDelay: 65, viewportBudget: 6, idleT
  * @see README.md
  */
 export const prefetchPlugin = createPlugin("prefetch", {
+  // data: its `at(path)` cache; spa: types the `spa:navigated` hook.
   depends: [dataPlugin, spaPlugin],
   config: defaultConfig,
   createState: createPrefetchState,

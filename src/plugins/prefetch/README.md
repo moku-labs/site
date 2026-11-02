@@ -13,7 +13,7 @@ plugin calls the same `data.at(path)` earlier, once per path (`src/lib/link-pref
 |---|---|
 | A mouse rests on a link for `hoverDelay` ms | that link |
 | A finger touches a link (`touchstart`), or it gets keyboard focus | that link |
-| The page is idle, after start and after every `spa:navigated` | up to `viewportBudget` links that come into view |
+| The page is idle, after start and after every `spa:navigated` | up to `viewportBudget` links that come into view (off by default) |
 
 Never warmed: other origins, `target` other than `_self`, `download`, paths
 that are files (`/llms.txt`, `.md` twins), the current page. Links in view are not warmed on
@@ -32,7 +32,7 @@ save-data or a 2g connection.
 | Key | Default | Meaning |
 |---|---|---|
 | `hoverDelay` | `65` | Milliseconds a mouse rests on a link before its page is warmed |
-| `viewportBudget` | `6` | Links in view warmed per page |
+| `viewportBudget` | `0` | Links in view warmed per page; `0` watches nothing |
 | `idleTimeout` | `1200` | Longest wait for an idle moment before links in view are watched |
 
 ## Lifecycle

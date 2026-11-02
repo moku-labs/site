@@ -105,8 +105,9 @@ export function watchViewport(state: PrefetchState, config: PrefetchConfig): voi
 
   // Watch nothing without a warmer, an observer, or a connection that allows eager warming.
   const { warmer } = state;
+  const hasBudget = config.viewportBudget > 0;
   const canWatch = typeof IntersectionObserver === "function" && isEagerAllowed(readConnection());
-  if (warmer === undefined || !canWatch) return;
+  if (warmer === undefined || !hasBudget || !canWatch) return;
 
   // Observe every link once the main thread is idle: unless stopped meanwhile, and replacing an
   // observer a faster navigation already set.

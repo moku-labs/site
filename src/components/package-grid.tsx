@@ -25,14 +25,14 @@ export function PackageGrid(props: { packages: readonly HomePackage[]; url: UrlB
           <a href={props.url("docsPackage", { pkg: entry.id })}>
             <span data-part="icon">
               <img
+                loading="lazy"
+                decoding="async"
                 src={`/art/icon-${entry.id}-256.webp`}
                 srcset={`/art/icon-${entry.id}-256.webp 256w, /art/icon-${entry.id}-512.webp 512w`}
                 sizes="76px"
                 width={76}
                 height={76}
                 alt=""
-                loading="lazy"
-                decoding="async"
               />
               <i data-part="shadow" />
             </span>

@@ -23,14 +23,14 @@ export function ClaudeInstall(props: { claude: HomeView["claude"] }): VNode {
     <div data-component="claude-install" data-island="code-block">
       <div data-part="conductor">
         <img
+          loading="lazy"
+          decoding="async"
           src="/art/icon-claude-256.webp"
           srcset="/art/icon-claude-256.webp 256w, /art/icon-claude-512.webp 512w"
           sizes="88px"
           width={88}
           height={88}
           alt=""
-          loading="lazy"
-          decoding="async"
         />
         <p>
           The conductor goes idea → plan → build → verify → release. The kernel checks every plugin
