@@ -157,7 +157,7 @@ await app.cli.deploy({ guided: !process.argv.includes("--cli") });
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ bundle · 5ms
 ✓ images · 0ms
 ✓ content · 1239ms
@@ -212,7 +212,7 @@ CLOUDFLARE_ACCOUNT_ID=...
 
 ```sh terminal title="deploy"
 $ bun run deploy
-▟▙ moku web  deploy                                      v2.4.11
+▟▙ moku web  deploy
 ✓ DEPLOYED · main                                             9.4s
 → https://my-blog.pages.dev · 3f2a9c1e
 ```

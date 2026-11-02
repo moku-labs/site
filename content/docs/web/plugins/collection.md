@@ -106,7 +106,7 @@ export const englishUrl = collectionUrl("/", "bank", "en/animals"); // "/bank/en
 ```
 
 :::gotchas
-- **`collectionPlugin` is not exported from `@moku-labs/web/browser` in 2.4.11.** In the client bundle use `loadCollectionShard` and `collectionUrl`, which are.
+- **`collectionPlugin` is not exported from `@moku-labs/web/browser`.** In the client bundle use `loadCollectionShard` and `collectionUrl`, which are.
 - **`at` returns `unknown`.** There is no validation step. Check the shape before you trust it.
 - **`loadCollectionShard` throws; `at` returns `null`.** Pick the one whose failure mode fits the caller.
 - **`baseUrl` must end with `/`.** Otherwise `createApp` throws `[web] collection.baseUrl: must be a URL prefix ending with "/" (e.g. "/" or "/cdn/").`
