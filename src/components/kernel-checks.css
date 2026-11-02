@@ -1,4 +1,4 @@
-/* A1 "The kernel says no": three cards with the exact kernel messages. */
+/* A1 "Errors at startup, not in production.": three cards with the exact kernel messages. */
 @scope ([data-component="kernel-checks"]) {
   ul {
     display: grid;

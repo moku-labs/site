@@ -30,7 +30,7 @@ const FILTERS: readonly PackageEntry[] = packages.filter(
 );
 
 /**
- * One demo card: diorama, name, line, stack chips, Live and Source.
+ * One demo card: diorama, name, line, stack chips, Live (when deployed) and Source.
  *
  * @param props - Component props.
  * @param props.demo - The demo.
@@ -72,11 +72,7 @@ function DemoCard(props: { demo: DemoEntry; eager: boolean; url: UrlBuilder }): 
           ))}
         </div>
         <div data-part="links">
-          {demo.live === undefined ? (
-            <span data-part="soon" aria-disabled="true">
-              Live <small>Soon</small>
-            </span>
-          ) : (
+          {demo.live === undefined ? undefined : (
             <a href={demo.live} target="_blank" rel="noopener">
               Live
             </a>

@@ -146,7 +146,8 @@ export const routes = defineRoutes({
     .render(ctx => <AboutPage url={ctx.url} />)
     .head(() => ({
       title: "About",
-      description: "Moku Labs is a one-person lab building frameworks an AI agent can write."
+      description:
+        "Alex Kucherenko builds Moku, an agentic TypeScript framework for reliable software written with LLMs."
     }))
     .meta({ nav: "about" })
 });

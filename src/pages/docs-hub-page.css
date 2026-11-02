@@ -1,4 +1,4 @@
-/* A2 docs hub: head with search and sync state, concepts cards, package groups. */
+/* A2 docs hub: head with sync state, concepts cards, package groups. */
 @scope ([data-component="docs-hub"]) {
   :scope {
     max-width: var(--width-docs);
@@ -28,30 +28,6 @@
     max-width: 62ch;
     margin: 12px 0 0;
     color: var(--docs-muted);
-  }
-
-  [data-part="search"] {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    max-width: 640px;
-    padding: 13px 16px;
-    background: var(--docs-card);
-    border: 1.5px solid var(--docs-muted);
-    border-radius: var(--radius-card);
-    color: var(--docs-muted);
-    cursor: text;
-    text-align: left;
-    font-size: 16px;
-
-    &:hover {
-      border-color: var(--docs-link);
-    }
-
-    kbd {
-      margin-left: auto;
-    }
   }
 
   [data-part="section"] {

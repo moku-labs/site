@@ -110,7 +110,7 @@ Local test
 
 ## Without the cli plugin
 
-The two plugins also work alone. This script builds and deploys in one go:
+The two plugins also work alone. This script builds and deploys in one script:
 
 ```ts file="scripts/release.ts" check
 import { buildPlugin, createApp, defineRoutes, deployPlugin, processEnv, route } from "@moku-labs/web";

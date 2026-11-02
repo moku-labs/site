@@ -10,12 +10,12 @@ section: Get started
 flow, the state, the render and the files of the live game, and lets you change them. It is a dev
 dependency: nothing of it ships in a release build.
 
-- **One registry, every surface.** The overlay, the tools page, MCP and a test read the same
+- **One shared command registry.** The overlay, the tools page, MCP and a test read the same
   sources and commands.
-- **Doors, not hooks.** The editor touches the game only through `@moku-labs/game/inspect` and
+- **Public interfaces only.** The editor touches the game only through `@moku-labs/game/inspect` and
   `@moku-labs/game/control`. No private hooks, no engine fork.
-- **Edits keep the game state.** A save reloads the game page and restores the bookmark taken just
-  before it.
+- **Edits keep the game state.** A save reloads the game page and restores the bookmark taken
+  before the save.
 
 ## Install
 
@@ -64,8 +64,6 @@ claude mcp add moku-editor -- bunx moku-editor mcp
 ```
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

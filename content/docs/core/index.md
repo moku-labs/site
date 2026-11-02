@@ -1,17 +1,17 @@
 ---
 title: "@moku-labs/core"
-description: "Micro-kernel plugin framework. Under 8 KB, zero deps. The kernel says no."
+description: "Micro-kernel plugin framework. Under 8 KB, zero deps."
 section: Get started
 ---
 
 ## Overview
 
 Moku Core is the micro-kernel under every Moku framework. Two runtime exports, a bundle under
-8 KB gzipped, zero dependencies. The type system does the heavy lifting.
+8 KB gzipped, zero dependencies. Most checks run at compile time.
 
-It enforces three layers. The kernel is pure machinery. A framework defines the config shape, the
+It enforces three layers. The kernel has no domain logic. A framework defines the config shape, the
 event contract and the default plugins. An app only configures, composes plugins and calls typed
-APIs. Code written in a plugin cannot break the framework, and app code cannot break a plugin.
+APIs. A plugin cannot change the framework, and an app cannot reach into a plugin.
 
 - **Each plugin owns its parts.** Config, state, API and events, resolved by the kernel.
 - **Explicit dependencies.** `depends: [otherPlugin]`, validated when the app is created.
@@ -72,8 +72,6 @@ The chain is the whole API: `createCoreConfig` → `createCore` → `createApp`.
 export, `createCorePlugin`, builds infrastructure plugins such as `log` and `env`.
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

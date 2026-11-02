@@ -39,7 +39,7 @@ export function HomePage(props: HomePageProperties): VNode {
       <Hero hero={view.hero} packages={view.packages} url={url} />
       <LandingSection
         id="checks"
-        title="The kernel says no before your users do."
+        title="Errors at startup, not in production."
         lede="createApp checks the whole plugin list before anything runs. A bad plugin is a startup error with a sentence you can read, not a bug in production."
       >
         <KernelChecks
@@ -64,7 +64,7 @@ export function HomePage(props: HomePageProperties): VNode {
       </LandingSection>
       <LandingSection
         id="packages"
-        title="Twelve packages. One kernel."
+        title="Packages"
         lede="Each one is built on @moku-labs/core, and each one refuses the same mistakes. Pick a block to read its docs."
       >
         <PackageGrid packages={view.packages} url={url} />
@@ -72,7 +72,7 @@ export function HomePage(props: HomePageProperties): VNode {
       <LandingSection
         id="start"
         title="Start with Claude"
-        lede="An AI agent can write the plugins. So can you, on a bad day. Install the plugin in Claude Code, then say what you want."
+        lede="Install the plugin in Claude Code, then say what you want."
         aside={<ClaudePrompts prompts={view.claude.prompts} />}
       >
         <ClaudeInstall claude={view.claude} />

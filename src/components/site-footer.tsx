@@ -3,7 +3,6 @@
  */
 import type { VNode } from "preact";
 import { LINKS, SITE } from "../config";
-import { about } from "../data/about";
 import type { UrlBuilder } from "../lib/url-builder";
 import { CubeIcon } from "./cube-icon";
 
@@ -46,8 +45,7 @@ function footerColumns(url: UrlBuilder): FooterColumn[] {
       title: "For agents",
       links: [
         { label: "llms.txt", href: LINKS.llms, external: true },
-        { label: "Docs as .md", href: LINKS.llmsFull, external: true },
-        { label: "Claude plugin", href: url("docsPackage", { pkg: "claude" }) }
+        { label: "llms-full.txt", href: LINKS.llmsFull, external: true }
       ]
     },
     {
@@ -82,8 +80,8 @@ export function SiteFooter(props: { url: UrlBuilder }): VNode {
               <span>{SITE.name}</span>
             </a>
             <p>
-              Slop doesn't spread. A one-person lab by {about.name}, building frameworks an AI agent
-              can write without making a mess.
+              Moku Labs builds Moku, an agentic TypeScript framework for reliable software written
+              with LLMs.
             </p>
           </div>
           {footerColumns(props.url).map(column => (
@@ -109,7 +107,7 @@ export function SiteFooter(props: { url: UrlBuilder }): VNode {
           <span>
             © {new Date().getFullYear()} {SITE.name}
           </span>
-          <span>Built with @moku-labs/web. Not an ORM.</span>
+          <span>Built with @moku-labs/web.</span>
         </div>
       </div>
     </footer>

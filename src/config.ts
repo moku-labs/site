@@ -9,7 +9,8 @@ export const SITE = {
   /** Default author. */
   author: "Oleksandr Kucherenko",
   /** Tagline used for the default meta description. */
-  description: "Moku: a micro-kernel TypeScript framework family."
+  description:
+    "Moku is an agentic TypeScript framework. LLMs write the plugins, a micro-kernel checks them before anything runs."
 } as const;
 
 /** Outbound links and agent files the site chrome points at. Not routes, so not in `urls`. */

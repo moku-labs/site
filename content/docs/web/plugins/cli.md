@@ -22,8 +22,8 @@ calling it.
 hooking their events: every `build:phase` becomes a row, `build:complete` becomes the BUILD box,
 `deploy:complete` the DEPLOYED box.
 
-On a terminal the panel is animated: the `▟▙ moku web` lockup with the version and runtime, a
-live phase tree, boxed results and a breathing "live" line while the dev server waits. In CI and
+On a terminal the panel is animated: the `▟▙ moku web` logo with the version and runtime, a
+live phase tree, boxed results and a pulsing "live" indicator while the dev server waits. In CI and
 pipes, or with `NO_COLOR`, it prints plain lines: one per finished phase, no animation.
 
 The dev server, the preview server and the file watcher live inside `serve()` and `preview()`

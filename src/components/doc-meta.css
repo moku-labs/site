@@ -1,4 +1,4 @@
-/* The meta row of a docs page and the hub: action buttons and sync badges. */
+/* The meta row of a docs page and the hub: the Copy as Markdown button and sync badges. */
 @scope ([data-component="doc-meta"]) {
   :scope {
     display: flex;
