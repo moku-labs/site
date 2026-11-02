@@ -155,7 +155,7 @@ $ ls dist
 ```
 
 The log lines are shortened here: each one is a structured record from `ctx.log`. The warning
-says there is no client bundle, which is right for a site without islands.
+says there is no client bundle, which is expected for a site without islands.
 
 :::gotchas
 - **`build:complete` handlers are not awaited.** Hooks are notifications. Work that must finish before the process exits goes after `await app.build.run()`.

@@ -9,7 +9,7 @@ order: 1
 
 `@moku-labs/web` renders Preact pages to static HTML for search engines and first paint. Then it
 hydrates islands and, if you want it, navigates on the client from JSON. The same `render`
-function runs at build and in the browser, so the two can never disagree.
+function runs at build and in the browser, so both produce the same output.
 
 It is a Moku framework: the `@moku-labs/core` kernel plus a list of plugins. You write one
 `createApp` call. The browser-safe plugins are always there. You add the Node-only plugins for
@@ -17,11 +17,11 @@ the build.
 
 ### Five things it does
 
-- **[SSG and SPA parity](/docs/web/how-it-works/).** One route, two runtimes. The build writes
+- **[SSG and SPA parity](/docs/web/how-it-works/).** The same route at build and in the browser. The build writes
   HTML, the browser re-runs the same `render` with the saved data.
 - **[A typed route](/docs/web/guides/routing/).** `route("/{slug}/").load().render().head()`.
   Params come from the pattern, `ctx.data` from `load`.
-- **[Full SEO](/docs/web/guides/head/).** Title template, canonical, Open Graph, Twitter,
+- **[SEO tags](/docs/web/guides/head/).** Title template, canonical, Open Graph, Twitter,
   JSON-LD, hreflang, feeds, sitemap and OG images.
 - **[A node-free browser entry](/docs/web/api/).** `@moku-labs/web/browser` has zero Node imports
   in its graph. About 50 kB gzip.
@@ -103,7 +103,7 @@ Add a search box that reads a JSON index built at deploy time
 ## Where to next
 
 - [Quick start](/docs/web/quick-start/): a static blog in two files, client navigation in a third.
-- [How it works](/docs/web/how-it-works/): one route, two places.
+- [How it works](/docs/web/how-it-works/): what the build writes and what the browser does.
 - [Routing](/docs/web/guides/routing/): `route().load().render().head()`, the single contract.
 - [Islands](/docs/web/guides/islands/): the parts that run in the browser.
 - [API reference](/docs/web/api/): every export of both entries.

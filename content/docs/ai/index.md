@@ -1,6 +1,6 @@
 ---
 title: "@moku-labs/ai"
-description: "Build system for AI assets. kill -9 is a supported workflow."
+description: "Build system for AI assets. Resumable and budget-gated."
 section: Get started
 ---
 
@@ -11,11 +11,11 @@ section: Get started
 dollar against a budget, and journals every state change to crash-safe SQLite. It is not an SDK
 wrapper and not a job queue.
 
-- **`kill -9` is a supported workflow.** Every run, item and attempt change is a committed write.
+- **Crash-safe and resumable.** Every run, item and attempt change is a committed write.
   Run again and it resumes where it stopped.
-- **Budget-gated by construction.** One atomic transaction checks the projected spend against
+- **Budget-gated.** One atomic transaction checks the projected spend against
   `--max-cost` before anything is billed.
-- **Incremental by default.** Every item has an artifact key. A done artifact is reused for $0.
+- **Incremental by default.** Every item has an artifact key. A finished artifact is reused at no cost.
 
 Tasks: `voiceover`, `translate`, `prompt-gen`, `image`, `video`, `music`, `sfx`, `sprite`, `asset`.
 Providers: `elevenlabs`, `openai`, `codex`, `claude`, `fal`, `apimodels`, `ark`.
@@ -74,20 +74,20 @@ moku run --max-cost 5 # run; Ctrl-C pauses, moku run resumes
 
 ## Start with Claude
 
-Describe what you want. The conductor picks the packages.
+Describe the assets you need. Claude writes the build file.
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Generate a sprite sheet for a pixel-art knight from a build file with @moku-labs/ai
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Add jump, coin and hit sound effects to the game's build file
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Add a looping menu music track and estimate its cost before the run
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Voice the tutorial lines in English and Spanish under a $5 budget
 ```

@@ -1,10 +1,11 @@
 /**
- * @file Demos filter chips (filter, empty state, show all), demo card links, the About page and
- * the 404 page.
+ * @file Demos filter chips (filter, empty state, show all), demo card links (Source only until a
+ * demo is deployed), the About page and the 404 page.
  */
+import { about, principles } from "../../src/data/about";
 import { demos } from "../../src/data/demos";
 import { boot, expect, isPhone, press, test } from "./_fixtures";
-import { NOT_FOUND_PATH } from "./_inventory";
+import { NOT_FOUND_PATH, SITE_SCREENS } from "./_inventory";
 
 test.describe("demos", () => {
   test("chips filter the cards; an unused package shows its empty state", async ({
@@ -34,7 +35,9 @@ test.describe("demos", () => {
     await expect(chip("all")).toHaveAttribute("aria-pressed", "true");
   });
 
-  test("every card has a diorama, its stack and Live and Source links", async ({ page }) => {
+  test("every card has a diorama, its stack, Source, and Live only when deployed", async ({
+    page
+  }) => {
     await boot(page, "/demos/");
     for (const demo of demos) {
       const card = page.locator(`[data-demo]#${demo.id}, [data-demo="${demo.id}"]`).first();
@@ -45,7 +48,11 @@ test.describe("demos", () => {
         "href",
         /^https:\/\//
       );
+      const links = card.locator('[data-part="links"] a');
+      await expect(links).toHaveText(demo.live === undefined ? ["Source"] : ["Live", "Source"]);
     }
+    await expect(page.locator('[data-part="soon"]')).toHaveCount(0);
+    await expect(page.locator("main")).not.toContainText("Soon");
   });
 });
 
@@ -53,6 +60,8 @@ test.describe("about", () => {
   test("portrait, buttons, principles, and the package row link out", async ({ page }) => {
     await boot(page, "/about/");
     await expect(page.locator("h1")).toHaveText("Alex Kucherenko");
+    await expect(page.locator('[data-part="motto"]')).toHaveText(about.motto);
+    await expect(page.locator('[data-part="principles"] > *')).toHaveCount(principles.length);
     await expect(page.locator('main a[href="https://github.com/moku-labs"]').first()).toBeVisible();
     await expect(page.locator('main a[href="https://alexblog.net"]').first()).toBeVisible();
     const packageLinks = page.locator('main a[href^="/docs/"]');
@@ -68,9 +77,11 @@ test.describe("404", () => {
     const response = await page.goto(NOT_FOUND_PATH);
     expect(response?.status()).toBe(404);
     await expect(page.locator("h1")).toHaveText("404");
-    await expect(page.locator('main a[href="/docs/"]')).toBeVisible();
-    await press(page.locator('main a[href="/"]').first(), phone);
+    await expect(page.locator('main a[href="/docs/"]')).toHaveText("Open the docs");
+    const home = page.locator('main a[href="/"]').first();
+    await expect(home).toHaveText("Home");
+    await press(home, phone);
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator("h1").first()).toHaveText("Slop doesn't spread.");
+    await expect(page.locator("h1").first()).toHaveText(SITE_SCREENS[0]?.title ?? "");
   });
 });

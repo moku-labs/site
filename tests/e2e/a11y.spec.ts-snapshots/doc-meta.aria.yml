@@ -1,6 +1,2 @@
 - button "Copy as Markdown"
-- link "routing.md":
-  - /url: /docs/web/guides/routing.md
-- link "llms.txt":
-  - /url: /llms.txt
 - button /Synced with @moku-labs\/web v2\.\d+\.\d+ · checked \d+-\d+-\d+/

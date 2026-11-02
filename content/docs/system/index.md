@@ -10,10 +10,10 @@ section: Get started
 `clipboard`, `deep-link`, `lifecycle`, `back`, `haptics` and `keepAwake`. A Tauri provider runs when
 the native shell is detected, a web provider otherwise. Your code never branches on the runtime.
 
-- **One codebase, web and native.** Each capability picks its provider once at startup.
+- **Provider chosen at startup.** Each capability picks its provider once at startup.
 - **A degraded capability is data, never a throw.** Every method returns `SystemResult<T>`:
   `{ ok: true, value }` or `{ ok: false, reason }`.
-- **Zero-leak bundles.** Plugins live at subpath exports, and the `@tauri-apps/*` packages are
+- **No native code in web bundles.** Plugins live at subpath exports, and the `@tauri-apps/*` packages are
   optional peers loaded only in the native shell.
 
 | `reason` | Meaning | What to do |
@@ -58,8 +58,6 @@ To build the native shell, compose the same capabilities in
 [`@moku-labs/native`](/docs/native/). It generates the Tauri permissions from that list.
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

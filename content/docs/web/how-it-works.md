@@ -29,8 +29,7 @@ A route is one object. The build and the browser read different parts of it.
 
 In `spa` and `hybrid` mode the build saves what `load` returned next to the HTML, as JSON. The
 browser fetches that file and passes it to `render` as `ctx.data`. There is no second
-projection of the data and no second render function, so the HTML and the client view cannot
-drift apart.
+projection of the data and no second render function.
 
 ## Where the data comes from
 

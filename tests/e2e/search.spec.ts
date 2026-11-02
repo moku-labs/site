@@ -1,7 +1,7 @@
 /**
- * @file ⌘K search palette: opens from the header button, the docs hub button and the shortcut;
- * suggested items when empty; live filter with highlighted matches; arrow keys and Enter; Esc and
- * backdrop close it and return focus; the empty message.
+ * @file ⌘K search palette: opens from the header button and the shortcut; suggested items when
+ * empty, no llms note in the foot; live filter with highlighted matches; arrow keys and Enter; Esc
+ * and backdrop close it and return focus; the empty message.
  */
 import type { Page } from "@playwright/test";
 import { boot, expect, isPhone, press, test } from "./_fixtures";
@@ -22,6 +22,7 @@ test("header button opens the palette with suggestions", async ({ page }, testIn
   await expect(palette(page).locator('[data-part="label"]')).toHaveText("Suggested");
   await expect(options(page)).toHaveCount(5);
   await expect(options(page).first()).toHaveAttribute("aria-selected", "true");
+  await expect(palette(page).locator('[data-part="foot"]')).not.toContainText("llms");
 });
 
 test("typing filters with highlight; arrows and Enter open the pick", async ({ page }) => {
@@ -46,7 +47,7 @@ test("typing filters with highlight; arrows and Enter open the pick", async ({ p
 
 test("a query with no match says so", async ({ page }) => {
   await boot(page, "/docs/");
-  await page.locator("main [data-search-open]").click();
+  await page.locator('[data-component="site-header"] [data-part="search"]').click();
   await expect(palette(page)).toBeVisible();
   await input(page).fill("zzqxv");
   await expect(options(page)).toHaveCount(0);

@@ -10,11 +10,11 @@ section: Get started
 phones join by scanning a QR code, and everything flows over direct WebRTC DataChannels on the LAN.
 No accounts, no lobby servers, no relay for gameplay.
 
-- **Couch multiplayer, no server.** One shared screen hosts. Phones join by QR and talk to it
+- **Direct WebRTC.** One shared screen hosts. Phones join by QR and talk to it
   directly over WebRTC.
-- **The host owns the truth.** The stage validates controller intents, owns the game state and
+- **The host is the source of truth.** The stage validates controller intents, owns the game state and
   sends snapshots and deltas back. Phones render a read-only replica.
-- **Two planes, never crossed.** Gameplay rides the typed wire. Only coarse `room:*` lifecycle
+- **Gameplay and lifecycle use separate channels.** Gameplay rides the typed wire. Only coarse `room:*` lifecycle
   rides Moku events.
 
 :::callout{tone="warn"}
@@ -63,8 +63,6 @@ A phone is the same framework with `controllerPlugin`: `await app.controller.joi
 `app.controller.intent("score", {})`.
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web
