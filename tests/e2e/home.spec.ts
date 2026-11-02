@@ -4,6 +4,7 @@
  * phones), the package grid and the copy buttons.
  */
 import type { Locator, Page } from "@playwright/test";
+import { trayPlugins } from "../../src/data/tray";
 import {
   boot,
   clipboardAfterCopy,
@@ -14,7 +15,7 @@ import {
   scrollTo,
   test
 } from "./_fixtures";
-import { PACKAGE_IDS } from "./_inventory";
+import { PACKAGE_IDS, SITE_SCREENS } from "./_inventory";
 
 const plug = (page: Page, id: string) => page.locator(`[data-plug="${id}"]`);
 const log = (page: Page) => page.locator('[data-part="log"] li');
@@ -75,6 +76,10 @@ async function dragToKernel(page: Page, id: string, phone: boolean) {
 test.describe("hero kernel world", () => {
   test("first paint explains itself: router in, second router refused", async ({ page }) => {
     await boot(page, "/");
+    await expect(page.locator("h1")).toHaveText(SITE_SCREENS[0]?.title ?? "");
+    for (const item of trayPlugins.filter(entry => ["session", "start"].includes(entry.id))) {
+      await expect(plug(page, item.id).locator("small")).toHaveText(item.note);
+    }
     await expect(plug(page, "router")).toHaveAttribute("data-state", "locked");
     await expect(plug(page, "router")).toBeDisabled();
     await expect(plug(page, "router-again")).toHaveAttribute("data-state", "rejected");
@@ -109,8 +114,8 @@ test.describe("hero kernel world", () => {
     await expect(plug(page, "session")).toHaveAttribute("data-state", "locked");
     await press(plug(page, "auth"), phone);
     await expect(plug(page, "auth")).toHaveAttribute("data-state", "locked");
-    await expect(page.locator('[data-part="log"] [data-kind="win"]')).toContainText(
-      "app.start() → ready. 4 plugins in"
+    await expect(page.locator('[data-part="log"] [data-kind="win"]')).toHaveText(
+      "app.start() → ready. 4 plugins registered."
     );
     await expect(log(page)).toHaveCount(6);
 
@@ -286,6 +291,15 @@ test.describe("pyramid", () => {
 });
 
 test.describe("packages and copy", () => {
+  test("the landing sections carry their titles", async ({ page }) => {
+    await boot(page, "/");
+    await expect(page.locator("#checks h2").first()).toHaveText(
+      "Errors at startup, not in production."
+    );
+    await expect(page.locator("#packages h2").first()).toHaveText("Packages");
+    await expect(page.locator("#start h2").first()).toHaveText("Start with Claude");
+  });
+
   test("the package grid lists every package and links to its docs", async ({ page }, testInfo) => {
     const phone = isPhone(testInfo.project.name);
     await boot(page, "/");

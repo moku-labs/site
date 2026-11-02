@@ -23,7 +23,8 @@
 
   h1 {
     margin: 0 0 24px;
-    font: 800 clamp(44px, 6.2vw, 88px) / 0.94 var(--font-display);
+    /* Under 367px the floor follows the screen, so the longest word ("framework") fits at 320. */
+    font: 800 clamp(min(44px, 12vw), 6.2vw, 88px) / 0.94 var(--font-display);
     letter-spacing: -0.035em;
     color: var(--text-heading);
   }
