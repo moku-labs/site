@@ -17,7 +17,7 @@ Signatures below are simplified for reading. The installed `dist/index.d.mts` is
 
 ## createApp
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function createApp<const ExtraPlugins extends readonly AnyPluginInstance[] = readonly []>(options?: {
   plugins?: ExtraPlugins;
   config?: { stage?: "production" | "development" | "test"; mode?: "ssg" | "spa" | "hybrid" };
@@ -55,7 +55,7 @@ The returned app:
 
 ## createPlugin
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function createPlugin<Name extends string, Config, State, Api, Deps, Events, Hooks, Helpers>(
   name: Name,
   spec: {
@@ -100,7 +100,7 @@ export const visitsPlugin = createPlugin("visits", {
 
 ## Routing
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function route<P extends string>(pattern: P): RouteBuilder<RouteState<P>>;
 function defineRoutes<T extends RouteMap>(routes: T): T;
 function createUrls<T extends RouteMap>(routes: T, defaultLocale?: string): Urls<T>;
@@ -135,7 +135,7 @@ interface Urls<T extends RouteMap> {
 
 ## Islands and navigation
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function createIsland<S extends object = object, A = unknown>(name: string, spec: IslandSpec<S, A>): IslandDef;
 
 interface IslandSpec<S, A> {
@@ -163,7 +163,7 @@ empty name or an unknown hook. `lazyEmbed` activates the `::embed` facades of th
 pipeline. `navigate` and `hardNavigate` are no-ops before `app.start()`. See
 [Islands](/docs/web/guides/islands/) and [SPA navigation](/docs/web/guides/spa/).
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 interface ChannelOptions<T> {
   url: (id: string) => string;
   parse?: (raw: string) => T | undefined; // default: JSON.parse, dropping frames that fail
@@ -185,7 +185,7 @@ interface Channel<T> {
 
 ## Head helpers
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function meta(name: string, content: string): HeadElement;
 function og(property: string, content: string): HeadElement;
 function twitter(name: string, content: string): HeadElement;
@@ -203,7 +203,7 @@ See [Head & SEO](/docs/web/guides/head/).
 
 ## Collections
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function collectionUrl(baseUrl: string, collection: string, shard: string): string;
 function loadCollectionShard<T>(baseUrl: string, collection: string, shard: string): Promise<T>;
 ```
@@ -213,7 +213,7 @@ fetches and parses that URL and throws on a non-OK response. Both are browser-sa
 
 ## Content (Node)
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function fileSystemContent(options: FileSystemContentOptions): ContentProvider;
 function EmbedFacadeButton(props: EmbedFacadeProps): VNode;
 function GalleryTrack(props: GalleryProps): VNode;
@@ -317,7 +317,7 @@ export function ArticleList(ctx: CardContext) {
 
 ## Testing
 
-```ts
+```ts no-check="a simplified signature; the exports are checked against the package"
 function mountIsland<S extends object = object, A = unknown>(definition: IslandDef, options?: MountIslandOptions): IslandHandle<S, A>;
 function renderIsland<S extends object>(render: IslandRender<S>, input: { state: S; ctx?: Partial<IslandContext<S>> }): RenderIslandResult;
 ```

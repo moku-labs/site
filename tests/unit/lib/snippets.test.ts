@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink } from "node:f
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { checkSnippets, type SnippetFailure } from "../../../src/lib/snippets";
+import { checkSnippets, type SnippetFailure, ungatedSnippets } from "../../../src/lib/snippets";
 
 const fixtures = path.join(import.meta.dirname, "fixtures", "snippets");
 const repository = path.resolve(import.meta.dirname, "..", "..", "..");
@@ -121,5 +121,56 @@ describe("checkSnippets", () => {
     } finally {
       await rm(broken, { recursive: true, force: true });
     }
+  });
+});
+
+/**
+ * One docs page as a snippet source.
+ *
+ * @param markdown - Raw Markdown of the page.
+ * @returns The page, named `content/docs/a.md`.
+ */
+function page(markdown: string): { file: string; markdown: string }[] {
+  return [{ file: "content/docs/a.md", markdown }];
+}
+
+describe("ungatedSnippets", () => {
+  // Bug: a ts block with no marker passes, so a new example skips the compile gate.
+  it("fails a ts block with neither check nor no-check", () => {
+    expect(ungatedSnippets(page("```ts\nconst a = 1;\n```"))).toEqual([
+      {
+        file: "content/docs/a.md",
+        index: 0,
+        message: 'add check, or no-check="<reason>" when the block cannot compile on its own.'
+      }
+    ]);
+  });
+
+  // Bug: a bare or empty no-check opts out without saying why.
+  it("fails a no-check without a reason", () => {
+    const markdown = '```tsx no-check\nx\n```\n\n```ts no-check=" "\nx\n```';
+
+    expect(ungatedSnippets(page(markdown)).map(failure => failure.index)).toEqual([0, 1]);
+  });
+
+  // Bug: a block marked both ways is read as checked or as skipped, depending on the reader.
+  it("fails a block marked check and no-check", () => {
+    expect(ungatedSnippets(page('```ts check no-check="x"\nx\n```'))[0]?.message).toBe(
+      "a block is either check or no-check, not both."
+    );
+  });
+
+  // Bug: a ts diff escapes the gate, or a non-ts block is wrongly demanded a marker.
+  it("gates ts diffs and ignores other languages", () => {
+    const markdown = "```diff lang=ts\n+x\n```\n\n```bash\nls\n```\n\n```diff\n+x\n```";
+
+    expect(ungatedSnippets(page(markdown)).map(failure => failure.index)).toEqual([0]);
+  });
+
+  // Bug: a correctly marked block is reported.
+  it("passes check and no-check with a reason", () => {
+    const markdown = '```ts check\nx\n```\n\n```tsx file="a.tsx" no-check="imports ./a"\nx\n```';
+
+    expect(ungatedSnippets(page(markdown))).toEqual([]);
   });
 });

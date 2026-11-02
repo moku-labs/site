@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "bun"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     # Dependabot holds every new version back for 3 days by default. The family's own
     # packages are trusted the moment they are released, so they skip that wait.
     cooldown:
