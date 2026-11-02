@@ -1,0 +1,38 @@
+/* The meta row of a docs page and the hub: action buttons and sync badges. */
+@scope ([data-component="doc-meta"]) {
+  :scope {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  [data-part="action"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 12.5px var(--font-mono);
+    padding: 6px 10px;
+    border: 1px solid var(--docs-line);
+    border-radius: var(--radius-control);
+    background: var(--docs-card);
+    color: var(--docs-heading);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--docs-link);
+      color: var(--docs-link);
+    }
+
+    &[data-copied] {
+      border-color: var(--accent);
+      color: var(--docs-link);
+    }
+
+    &[data-failed] {
+      border-color: var(--drift-line);
+      color: var(--drift-text);
+    }
+  }
+}

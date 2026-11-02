@@ -15,11 +15,38 @@ export type DemoEntry = {
 };
 
 /**
- * The demos in display order. Filled with the real entries in the data wave.
+ * The demos in display order.
  *
  * @example
  * ```ts
  * demos.filter(demo => demo.stack.includes("web"));
  * ```
  */
-export const demos: readonly DemoEntry[] = [];
+export const demos: readonly DemoEntry[] = [
+  { id: "tracker", name: "Tracker", description: "Real-time kanban", stack: ["web", "worker"] },
+  { id: "atlas", name: "Atlas", description: "Tracker redesign", stack: ["web", "worker"] },
+  {
+    id: "timber-town",
+    name: "Timber Town",
+    description: "Merge puzzle",
+    stack: ["game", "editor"]
+  },
+  {
+    id: "ticktoe",
+    name: "TickToe",
+    description: "Tic-tac-toe in a candy toy box",
+    stack: ["game", "native"]
+  },
+  {
+    id: "todo",
+    name: "Todo",
+    description: "Offline todo for macOS/iOS",
+    stack: ["web", "system", "native"]
+  },
+  {
+    id: "trivia",
+    name: "Trivia",
+    description: "Couch party quiz",
+    stack: ["web", "room", "worker"]
+  }
+];

@@ -1,0 +1,169 @@
+/* B1 header and C1 mobile menu. Docs mode re-points the --chrome-* tokens (tokens.css). */
+@scope ([data-component="site-header"]) {
+  :scope {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--chrome-surface);
+    backdrop-filter: var(--chrome-blur);
+    border-bottom: 1px solid var(--chrome-line);
+  }
+
+  [data-part="bar"] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    height: var(--header-height);
+    max-width: var(--chrome-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter-site);
+  }
+
+  [data-part="logo"] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font: 800 15px/1 var(--font-display);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--chrome-heading);
+    white-space: nowrap;
+  }
+
+  [data-part="docs-tag"] {
+    display: none;
+    font: 500 12px/1 var(--font-mono);
+    border: 1.5px solid var(--docs-heading);
+    padding: 4px 7px;
+    border-radius: 5px;
+    color: var(--docs-heading);
+    text-decoration: none;
+  }
+
+  :root:has([data-mode="docs"]) :scope [data-part="docs-tag"] {
+    display: inline-block;
+  }
+
+  nav {
+    flex: 1;
+  }
+
+  [data-part="links"] {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+    margin: 0 0 0 10px;
+    padding: 0;
+  }
+
+  [data-part="links"] a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--chrome-text);
+    border-radius: 7px;
+
+    &:hover {
+      color: var(--chrome-heading);
+      background: var(--chrome-hover);
+    }
+
+    &[aria-current="page"] {
+      color: var(--chrome-active);
+      box-shadow: inset 0 -2px var(--accent);
+      border-radius: 0;
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--chrome-button);
+    border: 1px solid var(--chrome-line);
+    color: var(--chrome-button-text);
+    padding: 7px 10px;
+    border-radius: var(--radius-control);
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--chrome-heading);
+      border-color: var(--chrome-button-hover);
+    }
+  }
+
+  [data-part="theme"] [data-part="label"] {
+    min-width: 34px;
+    text-align: left;
+  }
+
+  /* The theme button names the theme it switches to. */
+  :root[data-theme="light"] :scope [data-to="light"],
+  :root:not([data-theme="light"]) :scope [data-to="dark"] {
+    display: none;
+  }
+
+  [data-part="burger"] {
+    display: none;
+  }
+
+  @media (max-width: 960px) {
+    [data-part="burger"] {
+      display: flex;
+    }
+
+    [data-part="search"] {
+      margin-left: auto;
+    }
+
+    [data-part="search"] [data-part="label"],
+    [data-part="search"] kbd,
+    [data-part="theme"] [data-part="label"] {
+      display: none;
+    }
+
+    nav {
+      flex: none;
+    }
+
+    [data-part="links"] {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: var(--chrome-menu);
+      border-bottom: 1px solid var(--chrome-line);
+      padding: 10px 20px 16px;
+      margin: 0;
+      max-height: calc(100vh - var(--header-height));
+      overflow: auto;
+    }
+
+    :scope[data-open] [data-part="links"] {
+      display: flex;
+    }
+
+    [data-part="links"] a[aria-current="page"] {
+      box-shadow: inset 3px 0 var(--accent);
+    }
+  }
+
+  @media (max-width: 520px) {
+    [data-part="bar"] {
+      gap: 10px;
+      padding: 0 var(--gutter-narrow);
+    }
+
+    :root:has([data-mode="docs"]) :scope [data-part="docs-tag"] {
+      display: none;
+    }
+  }
+}

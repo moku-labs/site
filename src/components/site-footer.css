@@ -1,0 +1,90 @@
+/* B2 footer. Docs mode gives it the docs sheet (--footer-* tokens). */
+@scope ([data-component="site-footer"]) {
+  :scope {
+    border-top: 1px solid var(--chrome-line);
+    padding: 56px 0 34px;
+    color: var(--footer-text);
+    background: var(--footer-surface);
+    font-size: 14px;
+  }
+
+  [data-part="inner"] {
+    max-width: var(--chrome-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter-site);
+  }
+
+  [data-part="columns"] {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 32px;
+  }
+
+  [data-part="logo"] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font: 800 15px/1 var(--font-display);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--chrome-heading);
+    white-space: nowrap;
+  }
+
+  [data-part="brand"] p {
+    max-width: 34ch;
+  }
+
+  h2 {
+    font: 600 13px var(--font-body);
+    color: var(--chrome-heading);
+    margin: 0 0 10px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 7px;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text-link);
+    }
+  }
+
+  [data-part="logo"]:hover {
+    color: var(--chrome-heading);
+  }
+
+  [data-part="bottom"] {
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 1px solid var(--chrome-line);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 760px) {
+    [data-part="columns"] {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    [data-part="brand"] {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    [data-part="inner"] {
+      padding: 0 var(--gutter-narrow);
+    }
+  }
+}

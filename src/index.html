@@ -3,6 +3,25 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Theme before first paint: ?theme= (kept for the visit) → sessionStorage → OS preference.
+         The theme-toggle island writes the same "moku-theme" key. -->
+    <script>
+      (() => {
+        const key = "moku-theme";
+        const valid = value => (value === "light" || value === "dark" ? value : undefined);
+        let theme;
+        try {
+          const forced = valid(new URLSearchParams(location.search).get("theme"));
+          if (forced) sessionStorage.setItem(key, forced);
+          theme = forced ?? valid(sessionStorage.getItem(key));
+        } catch {}
+        theme ??= matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <link rel="preload" href="/fonts/unbounded/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono/jetbrains-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <!--moku:head-->
     <!--moku:assets-->
   </head>

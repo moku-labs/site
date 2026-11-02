@@ -1,0 +1,48 @@
+/* Prev/next cards at the end of a docs page. */
+@scope ([data-component="previous-next"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 64px;
+  }
+
+  a {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    border: 1px solid var(--docs-line);
+    border-radius: var(--radius-card);
+    background: var(--docs-card);
+    color: var(--docs-heading);
+    text-decoration: none;
+    font: 600 15px var(--font-mono);
+    transition: border-color var(--duration-normal);
+
+    &:hover {
+      border-color: var(--docs-link);
+      color: var(--docs-link);
+    }
+  }
+
+  small {
+    color: var(--docs-muted);
+    font: 400 13px var(--font-body);
+  }
+
+  [data-direction="next"] {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  @media (max-width: 860px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-part="empty"] {
+      display: none;
+    }
+  }
+}

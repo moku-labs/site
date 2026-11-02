@@ -1,41 +1,28 @@
-/* CSS bundle entry (the framework build picks up src/styles/main.css). @layer order controls cascade priority. */
+/*
+ * CSS bundle entry (the framework build picks up src/styles/main.css). The @layer order controls
+ * cascade priority; every sheet is imported into its layer here, so a new component sheet is one
+ * @import line in the components block.
+ */
 
 @layer reset, tokens, base, components, utilities;
 
-@layer tokens {
-  :root {
-    --color-bg: #0a0b12;
-    --color-fg: #f4f4f6;
-    --color-muted: #9a9cab;
-    --font-body: system-ui, sans-serif;
-  }
-}
+@import "./tokens.css" layer(tokens);
+@import "./base.css" layer(base);
 
-@layer base {
-  html {
-    color-scheme: dark;
-    background: var(--color-bg);
-    color: var(--color-fg);
-    font-family: var(--font-body);
-  }
+/* — Components: global atoms first, then the chrome, the docs and content sheets — */
+@import "../components/cube-icon.css" layer(components);
+@import "../components/sync-badge.css" layer(components);
+@import "../components/site-header.css" layer(components);
+@import "../components/site-footer.css" layer(components);
+@import "../components/docs-layout.css" layer(components);
+@import "../components/docs-sidebar.css" layer(components);
+@import "../components/docs-toc.css" layer(components);
+@import "../components/doc-article.css" layer(components);
+@import "../components/doc-meta.css" layer(components);
+@import "../components/previous-next.css" layer(components);
+@import "../pages/docs-hub-page.css" layer(components);
+@import "./content.css" layer(components);
+@import "./code.css" layer(components);
 
-  body {
-    margin: 0;
-    min-height: 100dvh;
-    display: grid;
-    place-items: center;
-  }
-
-  [data-page] {
-    padding: 2rem;
-    text-align: center;
-  }
-
-  p {
-    color: var(--color-muted);
-  }
-
-  a {
-    color: inherit;
-  }
-}
+@import "./utilities.css" layer(utilities);
+@import "./fonts.css";

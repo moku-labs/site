@@ -23,11 +23,22 @@ export type About = {
 };
 
 /**
- * The about content. Filled with the real text in the data wave.
+ * The about content.
  *
  * @example
  * ```ts
  * about.links.map(link => link.href);
  * ```
  */
-export const about: About = { name: "", motto: "", bio: [], links: [] };
+export const about: About = {
+  name: "Alex Kucherenko",
+  motto: "TypeScript by day, Rust by night.",
+  bio: [
+    "Builds Moku as a one-person lab: a family of frameworks designed so AI agents can write most of the code without making a mess.",
+    "One person, twelve packages, one kernel. The kernel is the only member of the team who never approves slop."
+  ],
+  links: [
+    { label: "GitHub: moku-labs", href: "https://github.com/moku-labs" },
+    { label: "Blog: alexblog.net", href: "https://alexblog.net" }
+  ]
+};

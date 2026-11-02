@@ -1,0 +1,36 @@
+/*
+ * Vendored variable fonts (OFL), Latin subset, served from public/fonts/ and preloaded in
+ * src/index.html. Not layered: font loading is independent of the cascade order.
+ */
+
+@font-face {
+  font-family: "Unbounded";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url(/fonts/unbounded/unbounded-latin-wght-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url(/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url(/fonts/instrument-sans/instrument-sans-latin-wght-italic.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(/fonts/jetbrains-mono/jetbrains-mono-latin-wght-normal.woff2) format("woff2");
+}

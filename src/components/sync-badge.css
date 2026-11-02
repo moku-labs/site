@@ -1,0 +1,65 @@
+/* F6 / D2: the sync pill and its tooltip. A global atom: it also sits inside its own tooltip. */
+[data-component="sync-badge"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 500 12px var(--font-mono);
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--synced-surface);
+  color: var(--synced-text);
+  border: 1px solid var(--synced-line);
+  cursor: help;
+  outline-offset: 2px;
+  text-align: left;
+
+  &::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  &[data-state="drift"] {
+    background: var(--drift-surface);
+    color: var(--drift-text);
+    border-color: var(--drift-line);
+  }
+
+  [data-part="tip"] {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 20;
+    width: min(330px, 80vw);
+    background: var(--docs-card);
+    border: 1px solid var(--docs-muted);
+    border-radius: var(--radius-card);
+    padding: 12px 14px;
+    font: 13.5px/1.5 var(--font-body);
+    color: var(--docs-text);
+    box-shadow: var(--tooltip-shadow);
+    white-space: normal;
+    cursor: default;
+
+    b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--docs-heading);
+    }
+
+    [data-component="sync-badge"] {
+      margin-top: 8px;
+      cursor: default;
+    }
+  }
+
+  &:hover > [data-part="tip"],
+  &:focus > [data-part="tip"] {
+    display: block;
+  }
+}

@@ -11,3 +11,17 @@ export const SITE = {
   /** Tagline used for the default meta description. */
   description: "Moku: a micro-kernel TypeScript framework family."
 } as const;
+
+/** Outbound links and agent files the site chrome points at. Not routes, so not in `urls`. */
+export const LINKS = {
+  /** The Moku Labs GitHub organisation. */
+  github: "https://github.com/moku-labs",
+  /** This site's repository; "Edit on GitHub" opens `<repository>/edit/main/<file>`. */
+  repository: "https://github.com/moku-labs/site",
+  /** The author's blog. */
+  blog: "https://alexblog.net",
+  /** The site-wide llms.txt, written by the llms plugin after the build. */
+  llms: "/llms.txt",
+  /** Every docs page as one Markdown file, written by the llms plugin after the build. */
+  llmsFull: "/llms-full.txt"
+} as const;
