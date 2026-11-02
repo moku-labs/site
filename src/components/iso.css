@@ -1,0 +1,141 @@
+/*
+ * Isometric faces of every SVG drawing (hero world, layers stack, pipeline diagram, pyramid, cube
+ * icon). A global atom: the tone on the group picks the face colours, the theme tokens do the
+ * rest. The tone group is the scope root, so each scope is keyed on one tone and `:scope` keeps
+ * the weight of the `[data-tone]` selector it replaces.
+ */
+@scope ([data-tone]) {
+  :scope > [data-face] {
+    stroke-linejoin: round;
+  }
+
+  /* Glyphs on the lids: a stroke drawing, coloured by the box tone. */
+  :scope [data-part="glyph"] {
+    fill: none;
+    stroke: var(--iso-block-glyph);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+
+    &[data-accent] {
+      stroke: var(--kernel-top);
+    }
+  }
+}
+
+@scope ([data-tone="ground"]) {
+  :scope {
+    > [data-face="top"] {
+      fill: var(--iso-ground-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-ground-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-ground-right);
+    }
+  }
+}
+
+@scope ([data-tone="terrace-1"], [data-tone="terrace-2"]) {
+  :scope > [data-face] {
+    stroke: var(--iso-terrace-stroke);
+    stroke-width: 0.6;
+  }
+}
+
+@scope ([data-tone="terrace-1"]) {
+  :scope {
+    > [data-face="top"] {
+      fill: var(--iso-terrace-1-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-terrace-1-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-terrace-1-right);
+    }
+  }
+}
+
+@scope ([data-tone="terrace-2"]) {
+  :scope {
+    > [data-face="top"] {
+      fill: var(--iso-terrace-2-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-terrace-2-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-terrace-2-right);
+    }
+  }
+}
+
+@scope ([data-tone="block"]) {
+  :scope {
+    > [data-face] {
+      stroke: var(--iso-block-stroke);
+      stroke-width: 0.5;
+    }
+
+    > [data-face="top"] {
+      fill: var(--iso-block-top);
+      transition: fill var(--duration-normal);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-block-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-block-right);
+    }
+  }
+}
+
+@scope ([data-tone="kernel"]) {
+  :scope {
+    > [data-face="top"] {
+      fill: var(--kernel-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--kernel-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--kernel-right);
+    }
+
+    [data-part="glyph"] {
+      stroke: var(--kernel-glyph);
+    }
+  }
+}
+
+@scope ([data-tone="plugin"]) {
+  :scope {
+    > [data-face="top"] {
+      fill: var(--iso-plugin-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-plugin-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-plugin-right);
+    }
+
+    [data-part="glyph"] {
+      stroke: var(--iso-plugin-glyph);
+    }
+  }
+}

@@ -1,0 +1,57 @@
+/* A1 "Start with Claude": conductor, install terminal, and prompts in landing colours. */
+@scope ([data-component="claude-install"]) {
+  [data-part="conductor"] {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 6px 0 10px;
+
+    p {
+      max-width: 32ch;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+  }
+}
+
+@scope ([data-component="claude-prompts"]) {
+  h3 {
+    margin: 0 0 12px;
+    font: 600 15px var(--font-body);
+    color: var(--text-heading);
+  }
+
+  ul {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* `figure` outweighs the prompt's own scoped `:scope` rules in code.css. */
+  figure[data-component="prompt"] {
+    margin: 0;
+    background: var(--surface-card);
+    border-color: var(--line-default);
+
+    [data-part="text"] {
+      font-size: 16px;
+      color: var(--text-heading);
+
+      &::before {
+        color: var(--text-link);
+      }
+    }
+  }
+}
+
+/* D13: the prompt's Copy button is a 40px target on a phone. */
+@scope ([data-component="claude-prompts"]) {
+  @media (max-width: 760px) {
+    [data-part="copy"] {
+      min-width: 64px;
+      min-height: 40px;
+    }
+  }
+}

@@ -23,6 +23,9 @@
   },
   "ignorePatterns": [
     "dist/**",
+    "dist-e2e/**",
+    "test-results/**",
+    "playwright-report/**",
     "coverage/**",
     ".claude/**",
     ".planning/**",

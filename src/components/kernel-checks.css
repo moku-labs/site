@@ -1,0 +1,70 @@
+/* A1 "The kernel says no": three cards with the exact kernel messages. */
+@scope ([data-component="kernel-checks"]) {
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 20px 18px;
+    border: 1px solid var(--line-default);
+    border-radius: var(--radius-panel);
+    background: var(--surface-card);
+  }
+
+  h3 {
+    font: 600 16px var(--font-body);
+    color: var(--text-heading);
+  }
+
+  p {
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  code {
+    display: block;
+    padding: 10px 12px;
+    border-radius: var(--radius-control);
+    background: var(--code-del-bg);
+    color: var(--code-del);
+    font: 12.5px/1.5 var(--font-mono);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  [data-part="more"] {
+    display: inline-flex;
+    margin-top: 22px;
+    font-weight: 600;
+    color: var(--text-link);
+    text-underline-offset: 4px;
+  }
+
+  @media (max-width: 1000px) {
+    ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@scope ([data-component="kernel-checks"]) {
+  @media (max-width: 760px) {
+    [data-part="more"] {
+      align-items: center;
+      min-height: 40px;
+      margin-top: 12px;
+    }
+
+    li {
+      padding: 16px;
+    }
+  }
+}

@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Dependabot holds every new version back for 3 days by default. The family's own
+    # packages are trusted the moment they are released, so they skip that wait.
+    cooldown:
+      default-days: 3
+      exclude:
+        - "@moku-labs/*"
+    groups:
+      moku:
+        patterns:
+          - "@moku-labs/*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

@@ -1,0 +1,332 @@
+/*
+ * Design tokens. Two layers: primitives (raw values, named by material) and semantic tokens
+ * (named by purpose, themed with light-dark()). Components use semantic tokens only.
+ *
+ * Theme: html[data-theme] is set before paint by the inline script in src/index.html
+ * (?theme= → sessionStorage → prefers-color-scheme) and drives color-scheme, which light-dark()
+ * reads. Dark is the brand default.
+ *
+ * Breakpoints (reference only; custom properties cannot be used in @media):
+ * 1200px TOC hides · 960px burger menu · 860px docs one column · 520px narrow padding.
+ */
+
+:root {
+  /* — Primitives: brand — */
+  --color-ink: #0a0b12;
+  --color-paper: #f2eff9;
+  --color-lavender: #cfc9ec;
+  --color-white: #ffffff;
+  --color-pink: #ff2e63;
+  --color-pink-soft: #ff6f97;
+  --color-pink-deep: #c8103f;
+  --color-cube-top: #ff5c8a;
+  --color-cube-left: #d92a56;
+  --color-cube-right: #8f1b3c;
+  --color-cube-glyph: #ffe1ea;
+  --color-cube-flash: #ffd6e1;
+
+  /* — Primitives: night (dark theme violets, darkest first) — */
+  --color-night-console: #07060d;
+  --color-night-code: #08070f;
+  --color-night-terminal: #0a0914;
+  --color-night-docs: #0b0a16;
+  --color-night-surface: #0f0c1e;
+  --color-night-sheet: #100d1f;
+  --color-night-code-bar: #110d24;
+  --color-night-card: #151129;
+  --color-night-raised: #17122f;
+  --color-night-glow-deep: #1a1240;
+  --color-night-inline: #1e1938;
+  --color-night-terminal-line: #241e44;
+  --color-night-docs-line: #262046;
+  --color-night-line: #2b2452;
+  --color-night-glow: #2b1d5f;
+  --color-night-terminal-dot: #2e2756;
+  --color-night-line-strong: #3a3170;
+  --color-night-gutter: #827bb3;
+  --color-night-muted: #8d86b8;
+  --color-night-docs-muted: #9a94c0;
+  --color-night-docs-text: #d6d1f0;
+  --color-night-console-code: #bdb5ec;
+  --color-night-code-text: #e6e1fb;
+  --color-night-head: #f6f3ff;
+
+  /* — Primitives: day (light theme violets, lightest first) — */
+  --color-day-code: #fbfaff;
+  --color-day-raised: #f8f6fd;
+  --color-day-inline: #ece8f8;
+  --color-day-glow-soft: #ebe6fc;
+  --color-day-code-bar: #efecf8;
+  --color-day-docs: #e9e5f5;
+  --color-day-docs-line: #e2dcf2;
+  --color-day-glow: #ded4fa;
+  --color-day-line: #dcd6f0;
+  --color-day-line-strong: #c6bee6;
+  --color-day-gutter: #6c668f;
+  --color-day-muted: #655f8a;
+  --color-day-docs-muted: #615b86;
+  --color-day-text: #3b3658;
+  --color-day-docs-text: #24203d;
+  --color-day-code-text: #1d1a33;
+
+  /* — Primitives: signal — */
+  --color-green-ink: #0f2a20;
+  --color-green-line-dark: #1d5a44;
+  --color-green-bright: #86e3bf;
+  --color-green-mint: #7ee0b8;
+  --color-green-wash: #e2f2ea;
+  --color-green-line-light: #b5dcc9;
+  --color-green-deep: #14563f;
+  --color-green-text: #14734f;
+  --color-amber-ink: #2d2009;
+  --color-amber-line-dark: #5e4314;
+  --color-amber-bright: #f3c46b;
+  --color-amber-wash: #fbefdb;
+  --color-amber-line-light: #ebd0a0;
+  --color-amber-deep: #7a4705;
+  --color-red-soft: #ff7097;
+  --color-red-deep: #b0103a;
+
+  /* — Primitives: syntax — */
+  --color-syntax-violet: #a993ff;
+  --color-syntax-violet-deep: #5a2fc2;
+  --color-syntax-rose: #ff8fb0;
+  --color-syntax-sky: #8fd8ff;
+  --color-syntax-blue: #1d4fbf;
+  --color-syntax-teal: #8be0cf;
+  --color-syntax-teal-deep: #0f6b5c;
+  --color-syntax-grey: #8a84b8;
+  --color-syntax-grey-deep: #6b658c;
+  --color-syntax-orange: #ffc27a;
+  --color-syntax-orange-deep: #9a5a06;
+  --color-terminal-output: #aaa4d0;
+  --color-terminal-dim: #8f89bd;
+
+  /* — Primitives: type — */
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* — Primitives: layout & motion — */
+  --width-site: 1240px;
+  --width-docs: 1400px;
+  --header-height: 64px;
+  --gutter-site: 32px;
+  --gutter-narrow: 20px;
+  --radius-small: 6px;
+  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-panel: 12px;
+  --radius-large: 14px;
+  --ease-lift: cubic-bezier(0.3, 1.4, 0.5, 1);
+  --duration-fast: 0.15s;
+  --duration-normal: 0.2s;
+  --copied-flash: 1.6s;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* — Site: ground, text, lines — */
+  --surface-page: light-dark(var(--color-paper), var(--color-ink));
+  --surface-card: light-dark(var(--color-white), var(--color-night-surface));
+  --surface-raised: light-dark(var(--color-day-raised), var(--color-night-raised));
+  --surface-header: light-dark(
+    color-mix(in srgb, var(--color-paper) 90%, transparent),
+    color-mix(in srgb, var(--color-ink) 84%, transparent)
+  );
+  --glow-primary: light-dark(
+    color-mix(in srgb, var(--color-day-glow) 95%, transparent),
+    color-mix(in srgb, var(--color-night-glow) 95%, transparent)
+  );
+  --glow-secondary: light-dark(
+    color-mix(in srgb, var(--color-day-glow-soft) 90%, transparent),
+    color-mix(in srgb, var(--color-night-glow-deep) 90%, transparent)
+  );
+  --line-default: light-dark(var(--color-day-line), var(--color-night-line));
+  --line-strong: light-dark(var(--color-day-line-strong), var(--color-night-line-strong));
+  --text-body: light-dark(var(--color-day-text), var(--color-lavender));
+  --text-muted: light-dark(var(--color-day-muted), var(--color-night-muted));
+  --text-heading: light-dark(var(--color-ink), var(--color-night-head));
+  --text-link: light-dark(var(--color-pink-deep), var(--color-pink-soft));
+  --text-accent: light-dark(var(--color-pink-deep), var(--color-cube-top));
+
+  /* — Accent: fixed across themes — */
+  --accent: var(--color-pink);
+  --accent-hover: var(--color-cube-top);
+  --accent-line: var(--color-cube-left);
+  --on-accent: var(--color-ink);
+  --accent-ring: rgb(255 46 99 / 0.35);
+
+  /* — Docs: the calmer reading sheet — */
+  --docs-page: light-dark(var(--color-day-docs), var(--color-night-docs));
+  --docs-grid: light-dark(rgb(80 60 160 / 0.09), rgb(150 130 255 / 0.07));
+  --docs-sheet: light-dark(var(--color-day-code), var(--color-night-sheet));
+  --docs-card: light-dark(var(--color-white), var(--color-night-card));
+  --docs-text: light-dark(var(--color-day-docs-text), var(--color-night-docs-text));
+  --docs-muted: light-dark(var(--color-day-docs-muted), var(--color-night-docs-muted));
+  --docs-heading: light-dark(var(--color-ink), var(--color-white));
+  --docs-line: light-dark(var(--color-day-docs-line), var(--color-night-docs-line));
+  --docs-link: light-dark(var(--color-pink-deep), var(--color-pink-soft));
+  --docs-inline: light-dark(var(--color-day-inline), var(--color-night-inline));
+
+  /* — Sync badge, drift, callouts — */
+  --synced-surface: light-dark(var(--color-green-wash), var(--color-green-ink));
+  --synced-text: light-dark(var(--color-green-deep), var(--color-green-bright));
+  --synced-line: light-dark(var(--color-green-line-light), var(--color-green-line-dark));
+  --drift-surface: light-dark(var(--color-amber-wash), var(--color-amber-ink));
+  --drift-text: light-dark(var(--color-amber-deep), var(--color-amber-bright));
+  --drift-line: light-dark(var(--color-amber-line-light), var(--color-amber-line-dark));
+  --tooltip-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.45);
+
+  /* — Code blocks — */
+  --code-bg: light-dark(var(--color-day-code), var(--color-night-code));
+  --code-bar: light-dark(var(--color-day-code-bar), var(--color-night-code-bar));
+  --code-fg: light-dark(var(--color-day-code-text), var(--color-night-code-text));
+  --code-gutter: light-dark(var(--color-day-gutter), var(--color-night-gutter));
+  --code-highlight: light-dark(rgb(255 46 99 / 0.08), rgb(255 46 99 / 0.12));
+  --code-add-bg: light-dark(rgb(31 138 98 / 0.1), rgb(60 200 140 / 0.11));
+  --code-add: light-dark(var(--color-green-text), var(--color-green-mint));
+  --code-del-bg: light-dark(rgb(200 16 63 / 0.08), rgb(255 80 120 / 0.11));
+  --code-del: light-dark(var(--color-red-deep), var(--color-red-soft));
+  --code-line: var(--line-default);
+
+  /* — Syntax colours, read by the Shiki theme in src/lib/code-theme.ts — */
+  --code-keyword: light-dark(var(--color-syntax-violet-deep), var(--color-syntax-violet));
+  --code-string: light-dark(var(--color-cube-right), var(--color-syntax-rose));
+  --code-function: light-dark(var(--color-syntax-blue), var(--color-syntax-sky));
+  --code-type: light-dark(var(--color-syntax-teal-deep), var(--color-syntax-teal));
+  --code-comment: light-dark(var(--color-syntax-grey-deep), var(--color-syntax-grey));
+  --code-number: light-dark(var(--color-syntax-orange-deep), var(--color-syntax-orange));
+
+  /* — Terminal: a dark panel in both themes — */
+  --terminal-bg: var(--color-night-terminal);
+  --terminal-line: var(--color-night-terminal-line);
+  --terminal-text: var(--color-night-code-text);
+  --terminal-bar-text: var(--color-night-muted);
+  --terminal-dot: var(--color-night-terminal-dot);
+  --terminal-command: var(--color-white);
+  --terminal-prompt: var(--color-cube-top);
+  --terminal-output: var(--color-terminal-output);
+  --terminal-ok: var(--color-green-bright);
+  --terminal-error: var(--color-red-soft);
+  --terminal-dim: var(--color-terminal-dim);
+  --terminal-button: var(--color-lavender);
+
+  /* — Isometric faces (cube icons; the hero world uses the same set) — */
+  --kernel-top: var(--color-cube-top);
+  --kernel-left: var(--color-cube-left);
+  --kernel-right: var(--color-cube-right);
+  --kernel-glyph: var(--color-cube-glyph);
+  --iso-docs-top: light-dark(var(--color-white), #251e48);
+  --iso-docs-left: light-dark(#ebe7f6, #1b1638);
+  --iso-docs-right: light-dark(#d9d3ee, #120e29);
+  --iso-docs-stroke: light-dark(#2a2450, #9088d2);
+  --iso-docs-glyph: light-dark(#2a2450, var(--color-night-docs-text));
+  --iso-ground-top: light-dark(#e8e4f6, #191433);
+  --iso-ground-left: light-dark(#d2cbec, #110d26);
+  --iso-ground-right: light-dark(#bcb3df, #0b0919);
+  --iso-ground-line: light-dark(#d6cfee, #2a2350);
+  --iso-terrace-1-top: light-dark(var(--color-day-code), #231c48);
+  --iso-terrace-1-left: light-dark(#dfd9f3, #1a1439);
+  --iso-terrace-1-right: light-dark(#c8bfe6, #110d28);
+  --iso-terrace-2-top: light-dark(#f3f0fc, #2a2256);
+  --iso-terrace-2-left: light-dark(#d7d0ef, #1f1843);
+  --iso-terrace-2-right: light-dark(#c1b8e2, #150f30);
+  --iso-terrace-stroke: light-dark(#d3cbec, #3a3172);
+  --iso-block-top: light-dark(var(--color-white), #3d3278);
+  --iso-block-left: light-dark(#e1dcf4, #2c2460);
+  --iso-block-right: light-dark(#bfb6e1, #1f1946);
+  --iso-block-hover: light-dark(#fff0f5, #5d4dbb);
+  --iso-block-glyph: light-dark(#2a2450, var(--color-lavender));
+  --iso-plugin-top: light-dark(#3d3278, var(--color-lavender));
+  --iso-plugin-left: light-dark(#2c2460, #a49cd6);
+  --iso-plugin-right: light-dark(#1f1946, #7a71ad);
+  --iso-plugin-glyph: light-dark(var(--color-lavender), #1b1640);
+  --iso-shadow: light-dark(rgb(42 36 80 / 0.16), rgb(0 0 0 / 0.42));
+  --iso-rim: light-dark(rgb(255 46 99 / 0.65), rgb(255 46 99 / 0.55));
+  --demo-thumb-saturation: 45%;
+  --demo-thumb-lightness: light-dark(88%, 24%);
+
+  --iso-block-stroke: light-dark(#cfc8ea, transparent);
+  --socket-fill: rgb(255 46 99 / 0.05);
+  --socket-fill-hot: rgb(255 46 99 / 0.14);
+  --kernel-glow: rgb(255 46 99 / 0.9);
+  --kernel-flash: var(--color-cube-flash);
+  --lift-shadow: 0 6px 18px -10px var(--color-cube-left);
+
+  /* — kernel.log on the hero: a dark console in both themes — */
+  --console-bg: var(--color-night-console);
+  --console-line: var(--color-night-terminal-line);
+  --console-text: var(--color-lavender);
+  --console-muted: var(--color-night-muted);
+  --console-code: var(--color-night-console-code);
+  --console-function: var(--color-syntax-sky);
+  --console-ok: var(--color-green-mint);
+  --console-error: var(--color-red-soft);
+  --console-win: var(--color-white);
+  --console-button-line: var(--color-night-terminal-dot);
+
+  /* — The plugin in flight and the ⌘K modal — */
+  --flyer-label: rgb(10 11 18 / 0.85);
+  --flyer-shadow: rgb(0 0 0 / 0.45);
+  --backdrop: rgb(10 11 18 / 0.55);
+  --modal-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55);
+
+  /* — Tooltip on the world: inverted — */
+  --tooltip-surface: light-dark(var(--color-ink), var(--color-paper));
+  --tooltip-text: light-dark(var(--color-paper), var(--color-ink));
+  --tooltip-emphasis: light-dark(var(--color-pink-soft), var(--color-pink-deep));
+  --tooltip-lift: 0 14px 30px -12px rgb(0 0 0 / 0.5);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+  }
+}
+
+/*
+ * Docs mode: a docs page (its root carries data-mode="docs") re-points the chrome tokens, so the
+ * persistent header and footer switch with the page on client navigation, without a script.
+ */
+:root:has([data-mode="docs"]) {
+  --chrome-surface: var(--docs-sheet);
+  --chrome-line: var(--docs-line);
+  --chrome-text: var(--docs-muted);
+  --chrome-heading: var(--docs-heading);
+  --chrome-hover: var(--docs-inline);
+  --chrome-active: var(--docs-link);
+  --chrome-button: var(--docs-card);
+  --chrome-button-hover: var(--docs-link);
+  --chrome-blur: none;
+  --chrome-width: var(--width-docs);
+  --chrome-menu: var(--docs-sheet);
+  --chrome-button-text: var(--docs-muted);
+  --footer-surface: var(--docs-sheet);
+  --footer-text: var(--docs-muted);
+  --code-line: var(--docs-line);
+  --copy-text: var(--docs-text);
+}
+
+:root:not(:has([data-mode="docs"])) {
+  --chrome-surface: var(--surface-header);
+  --chrome-line: var(--line-default);
+  --chrome-text: var(--text-body);
+  --chrome-heading: var(--text-heading);
+  --chrome-hover: var(--surface-raised);
+  --chrome-active: var(--text-heading);
+  --chrome-button: var(--surface-card);
+  --chrome-button-hover: var(--accent-line);
+  --chrome-blur: blur(12px);
+  --chrome-width: var(--width-site);
+  --chrome-menu: var(--surface-page);
+  --chrome-button-text: var(--text-muted);
+  --footer-surface: transparent;
+  --footer-text: var(--text-muted);
+  --copy-text: var(--code-fg);
+}

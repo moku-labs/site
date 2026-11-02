@@ -1,0 +1,96 @@
+/* Element defaults and the page ground. The reset is in reset.css. */
+
+html {
+  /* Root scrolling stays instant: smooth scrolling strands the SPA's scroll-to-top. The padding
+     alone keeps an anchored heading clear of the sticky header: no scroll-margin on the headings,
+     or the two add up. */
+  scroll-padding-top: calc(var(--header-height) + 20px);
+}
+
+body {
+  min-height: 100dvh;
+  font: 400 17px/1.6 var(--font-body);
+  color: var(--text-body);
+  background-color: var(--surface-page);
+  background-image:
+    radial-gradient(1100px 640px at 74% -10%, var(--glow-primary) 0, transparent 62%),
+    radial-gradient(820px 520px at -12% 30%, var(--glow-secondary) 0, transparent 60%);
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Docs mode: the calm sheet ground with a fine isometric grid. */
+body:has([data-mode="docs"]) {
+  color: var(--docs-text);
+  background-color: var(--docs-page);
+  background-image:
+    repeating-linear-gradient(30deg, var(--docs-grid) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(150deg, var(--docs-grid) 0 1px, transparent 1px 30px);
+  background-repeat: repeat;
+}
+
+kbd {
+  font: 500 11px/1 var(--font-mono);
+  padding: 3px 6px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+main:focus {
+  outline: none;
+}
+
+/* The content width of the site chrome and the landing sections. */
+[data-wrap] {
+  max-width: var(--width-site);
+  margin: 0 auto;
+  padding: 0 var(--gutter-site);
+}
+
+@media (max-width: 520px) {
+  [data-wrap] {
+    padding: 0 var(--gutter-narrow);
+  }
+}
+
+/* F8: "Skip to content", visible on keyboard focus only. */
+[data-component="skip-link"] {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+
+  &:focus {
+    left: 12px;
+    z-index: 100;
+    background: var(--accent);
+    color: var(--on-accent);
+    padding: 8px 12px;
+  }
+}
+
+/* The SPA navigation progress bar (`spa.progressBar`): the framework prepends `<div data-progress>`
+   to the body, sets its width and marks it `data-active` while a page loads. */
+[data-progress] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    width var(--duration-normal) ease-out,
+    opacity var(--duration-fast);
+
+  &[data-active] {
+    opacity: 1;
+  }
+}
