@@ -31,7 +31,7 @@ function isExpectedMiss(url: string, status: number): boolean {
 
 export const test = base.extend<Fixtures>({
   errors: [
-    async ({ page }, use) => {
+    async ({ page, javaScriptEnabled }, use) => {
       const errors: string[] = [];
       page.on("pageerror", error => errors.push(`pageerror: ${error.message}`));
       page.on("console", message => {
@@ -51,6 +51,8 @@ export const test = base.extend<Fixtures>({
         // Aborted by a navigation or a cancelled prefetch: not a failure of the app.
         if (/ERR_ABORTED|cancelled|NS_BINDING_ABORTED|Load request cancelled/i.test(failure))
           return;
+        // With JavaScript off the browser refuses the modulepreload links: expected, not a bug.
+        if (!javaScriptEnabled && failure === "csp" && request.url().endsWith(".js")) return;
         errors.push(`requestfailed: ${request.url()} ${failure}`);
       });
       await page.clock.setFixedTime(new Date(`${FROZEN_DATE}T10:00:00Z`));
