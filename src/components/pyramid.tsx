@@ -28,6 +28,9 @@ const TONES: Readonly<Record<Brick["kind"], IsoTone>> = {
   demo: "terrace-2"
 };
 
+/** Brick labels that differ from the package id; the core brick shows the package name. */
+const BRICK_LABELS: Readonly<Record<string, string>> = { claude: "Claude" };
+
 /** What a brick says on its tooltip and where it leads. */
 type BrickInfo = {
   /** Tooltip title. */
@@ -156,7 +159,7 @@ function BrickShape(props: { brick: Brick; info: BrickInfo; stack: string | unde
 export function Pyramid(props: PyramidProperties): VNode {
   const labelled: PyramidPackage[] = props.packages.map(entry => ({
     id: entry.id,
-    label: entry.id === "core" ? entry.name : entry.id === "claude" ? "Claude" : entry.id
+    label: entry.id === "core" ? entry.name : (BRICK_LABELS[entry.id] ?? entry.id)
   }));
   const { bricks, height } = pyramidBricks(labelled, props.demos);
   // The base first: a lifted brick slides under the row above, never over it.

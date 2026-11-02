@@ -1,17 +1,36 @@
 /**
- * @file The `kernel-world` island: the hero's playable kernel (U6, design §7, F1–F3).
+ * @file The `kernel-world` island: the hero's playable kernel.
  *
  * The world, the tray and kernel.log are rendered at build in their first-paint state. This
  * island replays the kernel with the pure reducer of `src/lib/kernel-tray.ts` and the real
- * kernel messages from the hero's `data-props` (D9). It only sets `data-*` states, text and the
- * flyer's position; every look is in `src/components/hero.css`.
+ * kernel messages from the hero's `data-props`. The motion maths is in `src/lib/kernel-flight.ts`.
+ * It only sets `data-*` states, text and the flyer's position; every look is in
+ * `src/components/hero.css`.
  */
 import type { Spa } from "@moku-labs/web/browser";
 import { createIsland } from "@moku-labs/web/browser";
 import type { TrayPlugin } from "../data/tray";
+import type { HeroData } from "../lib/hero-props";
+import { parseHeroData } from "../lib/hero-props";
 import { fallPoint, kernelTop, socketCentre } from "../lib/hero-world";
 import type { Point } from "../lib/iso";
-import type { TrayMessages } from "../lib/kernel-errors";
+import type { FlightFrame, ScreenPoint } from "../lib/kernel-flight";
+import {
+  ARC_DURATION,
+  arcToKernel,
+  DROP_DURATION,
+  EASE_DROP,
+  EASE_RETURN,
+  EASE_THROW,
+  EASE_TUMBLE,
+  isWithinReach,
+  movedPastThreshold,
+  RETURN_DURATION,
+  straightFlight,
+  TUMBLE_DURATION,
+  tumbleDirection,
+  tumbleFrames
+} from "../lib/kernel-flight";
 import type { HeroState } from "../lib/kernel-tray";
 import {
   appLine,
@@ -23,24 +42,6 @@ import {
 } from "../lib/kernel-tray";
 import { readData } from "./dataset";
 import { hideTip, showTip } from "./world-tip";
-
-/** What the hero hands the island through `data-props`. */
-type HeroData = {
-  /** The tray in display order. */
-  tray: readonly TrayPlugin[];
-  /** The real kernel's messages for the tray. */
-  messages: TrayMessages;
-  /** Tray items plugged in before first paint. */
-  seed: readonly string[];
-};
-
-/** A point on the screen, in CSS px. */
-type ScreenPoint = {
-  /** Distance from the viewport's left edge. */
-  x: number;
-  /** Distance from the viewport's top edge. */
-  y: number;
-};
 
 /** A tray plugin being dragged. */
 type Drag = {
@@ -73,35 +74,6 @@ type WorldState = {
 /** The island context with its state. */
 type WorldContext = Spa.IslandContext<WorldState>;
 
-/** Pointer travel before a press becomes a drag. */
-const DRAG_THRESHOLD = 6;
-
-/** How far around the kernel a drop still counts. */
-const KERNEL_REACH = 28;
-
-/** Easing of the throw arc, the drop into a socket and the tumble. */
-const EASE_THROW = "cubic-bezier(.45,.1,.3,1)";
-const EASE_DROP = "cubic-bezier(.6,0,.9,.4)";
-const EASE_TUMBLE = "cubic-bezier(.3,.2,.6,1)";
-const EASE_RETURN = "cubic-bezier(.3,.7,.3,1)";
-
-/**
- * Whether a parsed value has the shape of the hero's props.
- *
- * @param value - The parsed `data-props`.
- * @returns `true` when it can drive the island.
- */
-function isHeroData(value: unknown): value is HeroData {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Partial<Record<keyof HeroData, unknown>>;
-  return (
-    Array.isArray(candidate.tray) &&
-    Array.isArray(candidate.seed) &&
-    typeof candidate.messages === "object" &&
-    candidate.messages !== null
-  );
-}
-
 /**
  * Read the hero's props.
  *
@@ -109,13 +81,7 @@ function isHeroData(value: unknown): value is HeroData {
  * @returns The props, or `undefined` when they are missing or malformed.
  */
 function readHeroData(root: Element): HeroData | undefined {
-  if (!(root instanceof HTMLElement) || root.dataset.props === undefined) return undefined;
-  try {
-    const parsed: unknown = JSON.parse(root.dataset.props);
-    return isHeroData(parsed) ? parsed : undefined;
-  } catch {
-    return undefined;
-  }
+  return root instanceof HTMLElement ? parseHeroData(root.dataset.props) : undefined;
 }
 
 /**
@@ -153,17 +119,6 @@ function centreOf(element: Element): ScreenPoint {
 }
 
 /**
- * A CSS translate (and optional rotation) for a keyframe.
- *
- * @param point - Where the flyer is.
- * @param turn - Rotation in degrees.
- * @returns The transform value.
- */
-function placeAt(point: ScreenPoint, turn = 0): string {
-  return `translate(${point.x}px, ${point.y}px) rotate(${turn}deg)`;
-}
-
-/**
  * Whether a screen point is on or near the kernel.
  *
  * @param root - The hero section.
@@ -172,14 +127,7 @@ function placeAt(point: ScreenPoint, turn = 0): string {
  */
 function overKernel(root: Element, point: ScreenPoint): boolean {
   const kernel = root.querySelector('[data-part="kernel"]');
-  if (kernel === null) return false;
-  const box = kernel.getBoundingClientRect();
-  return (
-    point.x > box.left - KERNEL_REACH &&
-    point.x < box.right + KERNEL_REACH &&
-    point.y > box.top - KERNEL_REACH - 20 &&
-    point.y < box.bottom + KERNEL_REACH
-  );
+  return kernel !== null && isWithinReach(point, kernel.getBoundingClientRect());
 }
 
 /**
@@ -237,7 +185,7 @@ function moveTo(flyer: HTMLElement, at: ScreenPoint): void {
  */
 async function fly(
   flyer: HTMLElement,
-  frames: Keyframe[],
+  frames: FlightFrame[],
   duration: number,
   easing: string
 ): Promise<void> {
@@ -349,16 +297,9 @@ type Flight = {
  * @param from - Where it starts.
  * @returns The point above the kernel where the verdict falls.
  */
-async function arcToKernel(flight: Flight, from: ScreenPoint): Promise<ScreenPoint> {
-  const top = toScreen(flight.svg, kernelTop());
-  const above = { x: top.x, y: top.y - 64 };
-  const peak = { x: (from.x + above.x) / 2, y: Math.min(from.y, above.y) - 70 };
-  await fly(
-    flight.flyer,
-    [{ transform: placeAt(from) }, { transform: placeAt(peak) }, { transform: placeAt(above) }],
-    560,
-    EASE_THROW
-  );
+async function throwAtKernel(flight: Flight, from: ScreenPoint): Promise<ScreenPoint> {
+  const { frames, above } = arcToKernel(from, toScreen(flight.svg, kernelTop()));
+  await fly(flight.flyer, frames, ARC_DURATION, EASE_THROW);
   return above;
 }
 
@@ -371,12 +312,7 @@ async function arcToKernel(flight: Flight, from: ScreenPoint): Promise<ScreenPoi
  */
 async function dropIntoSocket(flight: Flight, above: ScreenPoint, socket: number): Promise<void> {
   const target = toScreen(flight.svg, socketCentre(socket));
-  await fly(
-    flight.flyer,
-    [{ transform: placeAt(above) }, { transform: placeAt(target) }],
-    230,
-    EASE_DROP
-  );
+  await fly(flight.flyer, straightFlight(above, target), DROP_DURATION, EASE_DROP);
 }
 
 /**
@@ -387,21 +323,9 @@ async function dropIntoSocket(flight: Flight, above: ScreenPoint, socket: number
  * @param rejections - Refusals so far, this one included.
  */
 async function tumbleOff(flight: Flight, above: ScreenPoint, rejections: number): Promise<void> {
-  const direction = rejections % 2 === 1 ? 1 : -1;
+  const direction = tumbleDirection(rejections);
   const edge = toScreen(flight.svg, fallPoint(direction === 1));
-  const lift = { x: (above.x + edge.x) / 2, y: above.y - 34 };
-  const gone = { x: edge.x + direction * 50, y: edge.y + 300 };
-  await fly(
-    flight.flyer,
-    [
-      { transform: placeAt(above), opacity: 1 },
-      { transform: placeAt(lift, direction * 25), opacity: 1, offset: 0.3 },
-      { transform: placeAt(edge, direction * 70), opacity: 1, offset: 0.6 },
-      { transform: placeAt(gone, direction * 200), opacity: 0 }
-    ],
-    1050,
-    EASE_TUMBLE
-  );
+  await fly(flight.flyer, tumbleFrames(above, edge, direction), TUMBLE_DURATION, EASE_TUMBLE);
 }
 
 /**
@@ -436,22 +360,27 @@ function showVerdict(root: Element, state: WorldState, next: HeroState, accepted
  * @param from - Where the throw starts.
  */
 async function plug(ctx: WorldContext, id: string, from: ScreenPoint): Promise<void> {
+  // Judge the plug first: the reducer decides, the motion only shows it.
   const { state, el: root } = ctx;
   if (state.busy || state.props === undefined) return;
   const { tray, messages } = state.props;
   const { state: next, judgement } = plugIn(state.hero, id, tray, messages);
   const item = tray.find(entry => entry.id === id);
   if (judgement === undefined || item === undefined) return;
+
+  // No world to fly over, or less motion asked: show the verdict at once.
   const svg = root.querySelector<SVGSVGElement>('svg[data-part="world"]');
   const flyer = svg === null || reducedMotion() ? undefined : launchFlyer(root, item, from);
   if (svg === null || flyer === undefined) {
     showVerdict(root, state, next, judgement.accepted);
     return;
   }
+
+  // Fly it: arc to the kernel, then into a socket or off the edge.
   const flight: Flight = { svg, flyer };
   state.busy = true;
   try {
-    const above = await arcToKernel(flight, from);
+    const above = await throwAtKernel(flight, from);
     if (judgement.accepted) await dropIntoSocket(flight, above, next.accepted.length - 1);
     showVerdict(root, state, next, judgement.accepted);
     if (!judgement.accepted) await tumbleOff(flight, above, next.rejections);
@@ -482,6 +411,27 @@ function pressPlug(state: WorldState, event: Event, button: Element): void {
 }
 
 /**
+ * Turn a press into a drag once the pointer has moved far enough: launch the ghost, mark the
+ * tray button and hide the tooltip.
+ *
+ * @param root - The hero section.
+ * @param state - The island state.
+ * @param drag - The press in progress, without a ghost yet.
+ * @param point - Where the pointer is.
+ * @returns `true` when the drag started.
+ */
+function startGhost(root: Element, state: WorldState, drag: Drag, point: ScreenPoint): boolean {
+  if (!movedPastThreshold(drag.start, point)) return false;
+  const item = state.props?.tray.find(entry => entry.id === drag.id);
+  if (item === undefined) return false;
+  drag.ghost = launchFlyer(root, item, point);
+  if (drag.ghost !== undefined) drag.ghost.dataset.ghost = "";
+  drag.button.dataset.dragging = "";
+  hideTip(root.querySelector('[data-component="world-tip"]'));
+  return true;
+}
+
+/**
  * Move the drag ghost with the pointer and light the kernel when the pointer is over it.
  *
  * @param root - The hero section.
@@ -493,15 +443,7 @@ function dragPlug(root: Element, state: WorldState, event: Event): void {
   if (!(event instanceof PointerEvent) || drag === undefined || event.pointerId !== drag.pointerId)
     return;
   const point = { x: event.clientX, y: event.clientY };
-  if (drag.ghost === undefined) {
-    if (Math.hypot(point.x - drag.start.x, point.y - drag.start.y) < DRAG_THRESHOLD) return;
-    const item = state.props?.tray.find(entry => entry.id === drag.id);
-    if (item === undefined) return;
-    drag.ghost = launchFlyer(root, item, point);
-    if (drag.ghost !== undefined) drag.ghost.dataset.ghost = "";
-    drag.button.dataset.dragging = "";
-    hideTip(root.querySelector('[data-component="world-tip"]'));
-  }
+  if (drag.ghost === undefined && !startGhost(root, state, drag, point)) return;
   if (drag.ghost !== undefined) moveTo(drag.ghost, point);
   const stage = root.querySelector<HTMLElement>('[data-part="stage"]');
   if (stage === null) return;
@@ -518,12 +460,15 @@ function dragPlug(root: Element, state: WorldState, event: Event): void {
  * @param cancelled - The browser cancelled the pointer.
  */
 function dropPlug(ctx: WorldContext, event: Event, cancelled: boolean): void {
+  // End the drag; a press that never became a drag is left to the click handler.
   const state = ctx.state;
   const drag = state.drag;
   if (!(event instanceof PointerEvent) || drag === undefined || event.pointerId !== drag.pointerId)
     return;
   state.drag = undefined;
   if (drag.ghost === undefined) return;
+
+  // Swallow the click that follows the drag, and clear the drag's marks.
   state.suppressClick = true;
   setTimeout(() => {
     state.suppressClick = false;
@@ -531,6 +476,8 @@ function dropPlug(ctx: WorldContext, event: Event, cancelled: boolean): void {
   delete drag.button.dataset.dragging;
   const stage = ctx.el.querySelector<HTMLElement>('[data-part="stage"]');
   if (stage !== null) delete stage.dataset.hot;
+
+  // Dropped on the kernel: throw it from there. Anywhere else: fly the ghost home.
   const point = { x: event.clientX, y: event.clientY };
   const ghost = drag.ghost;
   if (!cancelled && overKernel(ctx.el, point)) {
@@ -541,7 +488,7 @@ function dropPlug(ctx: WorldContext, event: Event, cancelled: boolean): void {
   const home = centreOf(drag.button);
   const back = reducedMotion()
     ? Promise.resolve()
-    : fly(ghost, [{ transform: placeAt(point) }, { transform: placeAt(home) }], 260, EASE_RETURN);
+    : fly(ghost, straightFlight(point, home), RETURN_DURATION, EASE_RETURN);
   void back.finally(() => ghost.remove());
 }
 
@@ -583,8 +530,9 @@ function openBlock(ctx: WorldContext, block: Element): void {
 }
 
 /**
- * Hero (U6): drag a tray plugin onto the kernel, or click it; accepted plugins snap into a
- * socket, refused ones tumble off the edge with the kernel's exact message in kernel.log.
+ * The hero's kernel world: drag a tray plugin onto the kernel, or click it; accepted plugins
+ * snap into a socket, refused ones tumble off the edge with the kernel's exact message in
+ * kernel.log. Every listener is declared in `events`, so the framework removes them on destroy.
  */
 export const kernelWorldIsland = createIsland("kernel-world", {
   state: (ctx): WorldState => {

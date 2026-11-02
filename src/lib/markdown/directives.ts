@@ -27,6 +27,14 @@ const CONTAINER_TAGS: ReadonlyMap<string, string> = new Map([
 ]);
 const FRAMEWORK_DIRECTIVES: ReadonlySet<string> = new Set(["pullquote", "embed", "gallery"]);
 const TONES: ReadonlySet<string> = new Set(["neutral", "warn", "good"]);
+/** A terminal command line; group 1 is the command without the `$` prompt. */
+const COMMAND_LINE = /^\$\s?(.*)$/;
+/** The kind of a terminal output line, by its first character. */
+const OUTPUT_MARKERS: ReadonlyMap<string, string> = new Map([
+  ["✓", "ok"],
+  ["✕", "error"],
+  ["✗", "error"]
+]);
 
 /**
  * An mdast text node.
@@ -131,6 +139,49 @@ function markDirective(node: MdastNode): void {
 }
 
 /**
+ * The kind of one terminal line: a `$` command, a `✓` line, a `✕` / `✗` line, or other output.
+ *
+ * @param line - The line as written.
+ * @param command - The command on the line, when it is one.
+ * @returns `command`, `ok`, `error` or `output`.
+ */
+function lineKind(line: string, command: string | undefined): string {
+  if (command !== undefined) return "command";
+  return OUTPUT_MARKERS.get(line.charAt(0)) ?? "output";
+}
+
+/**
+ * One line of the terminal screen.
+ *
+ * @param kind - The line kind, for the colour.
+ * @param value - The text shown; a command without its `$`.
+ * @returns The `<span data-kind>` element.
+ */
+function screenLine(kind: string, value: string): HastNode {
+  return {
+    type: "element",
+    tagName: "span",
+    properties: { dataKind: kind },
+    children: [hastText(value)]
+  };
+}
+
+/**
+ * The title bar of a terminal figure.
+ *
+ * @param title - The fence's `title` value.
+ * @returns The `<figcaption data-part="title">`.
+ */
+function terminalTitle(title: string): HastNode {
+  return {
+    type: "element",
+    tagName: "figcaption",
+    properties: { dataPart: "title" },
+    children: [hastText(title)]
+  };
+}
+
+/**
  * The terminal figure for a `terminal` fence: `$` commands, `✓` / `✕` lines, other output.
  *
  * @param code - The `code` node.
@@ -138,35 +189,22 @@ function markDirective(node: MdastNode): void {
  * @returns A node that becomes `<figure data-component="terminal">`.
  */
 function terminalFigure(code: MdastNode, meta: FenceMeta): MdastNode {
+  // Build the screen, one line per span, and collect the commands for Copy.
   const screen: HastNode[] = [];
   const commands: string[] = [];
   for (const line of (code.value ?? "").split("\n")) {
-    const command = /^\$\s?(.*)$/.exec(line)?.[1];
+    const command = COMMAND_LINE.exec(line)?.[1];
     if (command !== undefined) commands.push(command);
-    let kind = "output";
-    if (command !== undefined) kind = "command";
-    else if (line.startsWith("✓")) kind = "ok";
-    else if (/^[✕✗]/.test(line)) kind = "error";
     if (screen.length > 0) screen.push(hastText("\n"));
-    screen.push({
-      type: "element",
-      tagName: "span",
-      properties: { dataKind: kind },
-      children: [hastText(command ?? line)]
-    });
+    screen.push(screenLine(lineKind(line, command), command ?? line));
   }
+
+  // Assemble the figure: the optional title bar above the screen.
+  const title = meta.attributes.title;
   const children: HastNode[] = [
+    ...(title === undefined ? [] : [terminalTitle(title)]),
     { type: "element", tagName: "pre", properties: { dataPart: "screen" }, children: screen }
   ];
-  const title = meta.attributes.title;
-  if (title !== undefined) {
-    children.unshift({
-      type: "element",
-      tagName: "figcaption",
-      properties: { dataPart: "title" },
-      children: [hastText(title)]
-    });
-  }
   return figure({ dataComponent: "terminal", dataCopy: commands.join("\n") }, children);
 }
 

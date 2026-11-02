@@ -1,5 +1,14 @@
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { contentPlugin, createApp, fileSystemContent } from "@moku-labs/web";
+import {
+  buildPlugin,
+  contentPlugin,
+  createApp,
+  createPlugin,
+  fileSystemContent
+} from "@moku-labs/web";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { SITE } from "../../../../config";
 import { docsPlugin } from "../..";
@@ -23,13 +32,21 @@ vi.mock("../../../../data/packages", () => ({
 const fixture = (name: string): string =>
   fileURLToPath(new URL(`../fixtures/${name}`, import.meta.url));
 
-function createDocsApp() {
+/** Fires `build:phase` the way the build plugin does at each phase boundary. */
+const phaseSignal = createPlugin("phaseSignal", {
+  depends: [buildPlugin],
+  api: ctx => ({
+    start: (phase: "bundle" | "pages") => ctx.emit("build:phase", { phase, status: "start" })
+  })
+});
+
+function createDocsApp(directory = fixture("docs")) {
   return createApp({
-    plugins: [contentPlugin, docsPlugin],
+    plugins: [contentPlugin, buildPlugin, docsPlugin, phaseSignal],
     pluginConfigs: {
       site: SITE,
       content: { providers: [fileSystemContent({ contentDir: fixture("articles") })] },
-      docs: { dir: fixture("docs") }
+      docs: { dir: directory }
     }
   });
 }
@@ -51,6 +68,33 @@ describe("docs plugin in a real app", () => {
     });
 
     await app.stop();
+  });
+
+  // Bug: the page cache outlives a build run, so a `bun run dev` rebuild after a content/docs edit
+  // serves the old page; or a later phase empties it, and the build:complete writers render the
+  // whole tree a second time.
+  it("reads the edited Markdown when a build run starts, and keeps the cache within a run", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "docs-rebuild-"));
+    await cp(fixture("docs"), directory, { recursive: true });
+    const file = path.join(directory, "core", "index.md");
+    const app = createDocsApp(directory);
+    await app.start();
+    const coreTitle = async (): Promise<string | undefined> => {
+      const page = await app.docs.get("/docs/core/");
+      return page?.title;
+    };
+    expect(await coreTitle()).toBe("Core");
+
+    const source = await readFile(file, "utf8");
+    await writeFile(file, source.replace("title: Core", "title: Kernel"));
+    app.phaseSignal.start("pages");
+    expect(await coreTitle()).toBe("Core");
+
+    app.phaseSignal.start("bundle");
+    expect(await coreTitle()).toBe("Kernel");
+
+    await app.stop();
+    await rm(directory, { recursive: true, force: true });
   });
 
   it("types the public API for consumers", () => {

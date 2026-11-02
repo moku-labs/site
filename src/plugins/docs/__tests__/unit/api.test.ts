@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { createDocumentationApi } from "../../api";
-import { createDocumentationState } from "../../state";
+import { createDocumentationState, resetDocumentationState } from "../../state";
 import type { DocumentationContext } from "../../types";
 
 const captureKernelErrors = vi.hoisted(() =>
@@ -98,6 +98,20 @@ describe("docs api: loading", () => {
     renderMarkdown.mockRejectedValueOnce(new Error("shiki down"));
     await expect(api.all()).rejects.toThrow("shiki down");
     expect(await api.all()).toHaveLength(10);
+  });
+
+  // Bug: a load that started before a build run's reset ends after it and puts the old pages
+  // back, so the new run serves the stale tree.
+  it("drops a load that the reset overtook", async () => {
+    const { api, ctx, renderMarkdown } = setup();
+    const overtaken = api.all();
+    resetDocumentationState(ctx.state);
+    await overtaken;
+    expect(ctx.state.pages).toBeUndefined();
+
+    await api.all();
+    expect(renderMarkdown).toHaveBeenCalledTimes(20);
+    expect(ctx.state.pages?.size).toBe(10);
   });
 
   // Bug: the "What the kernel checks" page ships with an empty list.

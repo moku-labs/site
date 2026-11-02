@@ -14,7 +14,10 @@ type WalkNode = { type: string; children?: WalkNode[] | undefined };
  * @param visit - Called with each parent node.
  * @example
  * ```ts
- * eachParent(tree, parent => console.log(parent.children.length));
+ * const seen: string[] = [];
+ * const tree = { type: "root", children: [{ type: "paragraph", children: [{ type: "text" }] }] };
+ * eachParent(tree, parent => seen.push(parent.type));
+ * seen; // ["root", "paragraph"]: the text node has no children
  * ```
  */
 export function eachParent<T extends WalkNode>(
@@ -35,7 +38,9 @@ export function eachParent<T extends WalkNode>(
  * @returns The matching parents in document order.
  * @example
  * ```ts
- * const parents = collectParents(tree, parent => parent.children.length > 0);
+ * const pre: HastElement = { type: "element", tagName: "pre", properties: {}, children: [] };
+ * collectParents({ type: "root", children: [pre] }, parent => parent.type === "element");
+ * // [pre]: the root fails the test
  * ```
  */
 export function collectParents(
@@ -78,8 +83,9 @@ export function textContent(node: HastNode | HastParent): string {
  * @param transform - The mdast transform.
  * @example
  * ```ts
- * function myPlugin(this: ProcessorLike) {
- *   onParse(this, tree => console.log(tree.type));
+ * // A remark plugin whose transform must see mdast, whatever its place in the plugin list:
+ * function directives(this: ProcessorLike): void {
+ *   onParse(this, transformDirectives);
  * }
  * ```
  */

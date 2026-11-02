@@ -1,5 +1,5 @@
 /**
- * Nano tier — the kernel's exact messages for the site pages, captured at build.
+ * Micro tier — the kernel's exact messages for the site pages, captured at build.
  * Emits no events, no state, no lifecycle. Composed only in `src/app.ts` (Node).
  *
  * @see README.md

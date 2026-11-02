@@ -26,6 +26,12 @@ export const LINKS = {
   llmsFull: "/llms-full.txt"
 } as const;
 
+/**
+ * The build output directory. The static build, the search shard and the agent files land here;
+ * preview and deploy serve it.
+ */
+export const OUT_DIRECTORY = "dist";
+
 /** Where the ⌘K index lives: the search plugin writes it, the palette island reads it. */
 export const SEARCH_INDEX = {
   /** Base URL of the collection files. */

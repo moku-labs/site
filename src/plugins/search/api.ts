@@ -9,6 +9,7 @@ import { resolvePackages } from "../../lib/packages";
 import { docsPlugin } from "../docs";
 import type { DocumentPage } from "../docs/types";
 import type {
+  PendingWrite,
   SearchApi,
   SearchContext,
   SearchEntry,
@@ -172,9 +173,35 @@ async function indexEntries(ctx: SearchContext, sources: SearchSources): Promise
 }
 
 /**
+ * Start the shard write of a finished build and keep it in state, so `write()` for the same
+ * directory returns it instead of writing again. Every build starts a fresh write; a failed one
+ * is dropped from state, so the next `write()` tries again.
+ *
+ * @param ctx - Plugin context: config, state, and `require` for the docs and collection plugins.
+ * @param outputDirectory - The finished build's output directory.
+ * @param sources - Packages and demos; defaults to `src/data/*`.
+ * @returns The write, the same promise `write()` hands out.
+ */
+export function startBuildWrite(
+  ctx: SearchContext,
+  outputDirectory: string,
+  sources: SearchSources = defaultSources
+): Promise<{ count: number }> {
+  const pending: PendingWrite = {
+    outDir: outputDirectory,
+    promise: writeSearchIndex(ctx, outputDirectory, sources)
+  };
+  ctx.state.pending = pending;
+  pending.promise.catch(() => {
+    if (ctx.state.pending === pending) ctx.state.pending = undefined;
+  });
+  return pending.promise;
+}
+
+/**
  * Build the search API.
  *
- * @param ctx - Plugin context: config, and `require` for the docs and collection plugins.
+ * @param ctx - Plugin context: config, state, and `require` for the docs and collection plugins.
  * @param sources - Packages and demos; defaults to `src/data/*`.
  * @returns The API mounted at `app.search`.
  */
@@ -184,6 +211,12 @@ export function createSearchApi(
 ): SearchApi {
   return {
     entries: () => indexEntries(ctx, sources),
-    write: (outputDirectory = ctx.config.outDir) => writeSearchIndex(ctx, outputDirectory, sources)
+    write: (outputDirectory = ctx.config.outDir) => {
+      // The build's own directory: hand out the write its build:complete hook started.
+      const pending = ctx.state.pending;
+      if (pending?.outDir === outputDirectory) return pending.promise;
+
+      return writeSearchIndex(ctx, outputDirectory, sources);
+    }
   };
 }

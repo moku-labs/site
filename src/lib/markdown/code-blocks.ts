@@ -245,45 +245,78 @@ function figureProperties(meta: FenceMeta, lines: CodeLine[]): HastProperties {
 }
 
 /**
+ * The code body: the gutter with each line's number, highlight, diff row and notes, next to the
+ * `<pre>`.
+ *
+ * @param pre - The `<pre>` of a fenced block.
+ * @param lines - The displayed lines.
+ * @param list - The fence's `hl` list, if any.
+ * @returns The `<div data-part="body">`.
+ * @throws {Error} When `hl` is not a line list or names a line past the end.
+ */
+function codeBody(pre: HastElement, lines: CodeLine[], list: string | undefined): HastElement {
+  const highlighted = list === undefined ? new Set<number>() : parseLineList(list, lines.length);
+  const gutter = lines.map((line, index) =>
+    gutterLine(line, index + 1, highlighted.has(index + 1))
+  );
+  return element("div", { dataPart: "body" }, [
+    element("div", { dataPart: "gutter", ariaHidden: "true" }, gutter),
+    pre
+  ]);
+}
+
+/**
+ * The file tab label above a code block.
+ *
+ * @param file - The fence's `file` value.
+ * @returns The `<figcaption data-part="file">`.
+ */
+function fileCaption(file: string): HastElement {
+  return element("figcaption", { dataPart: "file" }, [{ type: "text", value: file }]);
+}
+
+/**
+ * The numbered note list under a code block.
+ *
+ * @param notes - The note texts, in marker order.
+ * @returns The `<ol data-component="code-notes">`.
+ */
+function notesList(notes: string[]): HastElement {
+  const items = notes.map((text, index) =>
+    element("li", { dataNote: index + 1 }, [noteContent(text)])
+  );
+  return element("ol", { dataComponent: "code-notes" }, items);
+}
+
+/**
  * Turn one `<pre><code>` into the code figure: file label, gutter, code, note list.
  *
  * @param pre - The `<pre>` of a fenced block.
  * @returns The `<figure data-component="code">`.
  */
 function toFigure(pre: HastElement & { children: [HastElement] }): HastElement {
+  // Read the fence meta off the <code>; a diff block is highlighted in the language of its `lang`.
   const code = pre.children[0];
   const meta = parseFenceMeta(String(code.properties.dataMeta ?? ""));
   code.properties.dataMeta = undefined;
   const language = languageOf(code);
-  if (language === "diff")
+  if (language === "diff") {
     code.properties.className = [`language-${meta.attributes.lang ?? "text"}`];
-  const { lines, notes } = splitCodeLines(
-    textContent(code).replace(/\n$/, ""),
-    language === "diff" || meta.flags.has("diff")
-  );
-  const hl = meta.attributes.hl;
-  const highlighted = hl === undefined ? new Set<number>() : parseLineList(hl, lines.length);
+  }
+
+  // Take the notes and diff signs out; the <code> keeps only the displayed text.
+  const diff = language === "diff" || meta.flags.has("diff");
+  const { lines, notes } = splitCodeLines(textContent(code).replace(/\n$/, ""), diff);
+  const body = codeBody(pre, lines, meta.attributes.hl);
   code.children = [{ type: "text", value: `${lines.map(line => line.text).join("\n")}\n` }];
 
-  const gutter = lines.map((line, index) =>
-    gutterLine(line, index + 1, highlighted.has(index + 1))
-  );
-  const children: HastNode[] = [
-    element("div", { dataPart: "body" }, [
-      element("div", { dataPart: "gutter", ariaHidden: "true" }, gutter),
-      pre
-    ])
-  ];
+  // Assemble the figure: the file label, the body, then the note list.
   const file = meta.attributes.file;
-  if (file !== undefined) {
-    children.unshift(element("figcaption", { dataPart: "file" }, [{ type: "text", value: file }]));
-  }
-  if (notes.length > 0) {
-    const items = notes.map((text, index) =>
-      element("li", { dataNote: index + 1 }, [noteContent(text)])
-    );
-    children.push(element("ol", { dataComponent: "code-notes" }, items));
-  }
+  const children: HastNode[] = [
+    ...(file === undefined ? [] : [fileCaption(file)]),
+    body,
+    ...(notes.length > 0 ? [notesList(notes)] : [])
+  ];
   return element("figure", figureProperties(meta, lines), children);
 }
 
@@ -326,13 +359,18 @@ function groupTabs(parent: HastParent): void {
   const children: HastNode[] = [];
   let open: HastElement | undefined;
   for (const child of parent.children) {
+    // Whitespace between two figures of an open group is dropped.
     if (open !== undefined && child.type === "text" && child.value.trim() === "") continue;
+
+    // Anything that is not a grouped figure closes the group and stays as it is.
     const name = groupOf(child);
     if (name === undefined) {
       open = undefined;
       children.push(child);
       continue;
     }
+
+    // A new group name opens a new tab group; the figure becomes its next tab.
     if (name !== open?.properties.dataGroup) {
       open = element("div", { dataComponent: "code-group", dataGroup: name }, [
         element("div", { dataPart: "tabs", role: "tablist" })

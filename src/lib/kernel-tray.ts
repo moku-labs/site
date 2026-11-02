@@ -92,7 +92,9 @@ export function initialHeroState(): HeroState {
  * @returns Accepted, or refused with a short reason and the kernel's message.
  * @example
  * ```ts
- * judgePlugin(start, [], messages); // { accepted: false, reason: "reserved name", message: "[web] Plugin name \"start\" …" }
+ * // The visitor drops the "start" plugin on an empty kernel:
+ * judgePlugin({ id: "start", plugin: "start", note: "", glyph: "deploy" }, [], messages);
+ * // { accepted: false, reason: "reserved name", message: messages.reserved.start }
  * ```
  */
 export function judgePlugin(
@@ -138,8 +140,10 @@ function itemsOf(ids: readonly string[], tray: readonly TrayPlugin[]): TrayPlugi
  * @returns The next state and, when the kernel judged, its judgement.
  * @example
  * ```ts
- * const { state: next, judgement } = plugIn(state, "auth", trayPlugins, messages);
- * if (judgement?.accepted === false) shakeKernel();
+ * // The visitor drops "auth" before "session" is in:
+ * const { state, judgement } = plugIn(initialHeroState(), "auth", trayPlugins, messages);
+ * judgement; // { accepted: false, reason: "missing session", message: messages.missing.auth }
+ * state.rejections; // 1
  * ```
  */
 export function plugIn(
@@ -148,8 +152,11 @@ export function plugIn(
   tray: readonly TrayPlugin[],
   messages: TrayMessages
 ): { state: HeroState; judgement?: Judgement } {
+  // A locked item or an unknown id changes nothing.
   const item = tray.find(entry => entry.id === id);
   if (item === undefined || state.verdicts[id]?.state === "locked") return { state };
+
+  // Refused: mark the item, log the kernel's message, count the refusal.
   const judgement = judgePlugin(item, itemsOf(state.accepted, tray), messages);
   if (!judgement.accepted) {
     return {
@@ -162,6 +169,8 @@ export function plugIn(
       }
     };
   }
+
+  // Accepted: lock it in, log the count, and log the win once enough plugins are in.
   const accepted = [...state.accepted, id];
   const log: LogLine[] = [
     ...state.log,

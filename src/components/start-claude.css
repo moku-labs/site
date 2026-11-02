@@ -29,7 +29,8 @@
     list-style: none;
   }
 
-  [data-component="prompt"] {
+  /* `figure` outweighs the prompt's own scoped `:scope` rules in code.css. */
+  figure[data-component="prompt"] {
     margin: 0;
     background: var(--surface-card);
     border-color: var(--line-default);

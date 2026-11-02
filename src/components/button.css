@@ -1,31 +1,33 @@
 /* Primary and ghost buttons (links styled as buttons). A global atom. */
-[data-component="button"] {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-card);
-  font: 600 15px var(--font-body);
-  text-decoration: none;
-  cursor: pointer;
+@scope ([data-component="button"]) {
+  :scope {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-card);
+    font: 600 15px var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
 
-  &[data-variant="primary"] {
-    background: var(--accent);
-    color: var(--on-accent);
+    &[data-variant="primary"] {
+      background: var(--accent);
+      color: var(--on-accent);
 
-    &:hover {
-      background: var(--accent-hover);
+      &:hover {
+        background: var(--accent-hover);
+      }
     }
-  }
 
-  &[data-variant="ghost"] {
-    border-color: var(--line-strong);
-    background: var(--surface-card);
-    color: var(--text-heading);
+    &[data-variant="ghost"] {
+      border-color: var(--line-strong);
+      background: var(--surface-card);
+      color: var(--text-heading);
 
-    &:hover {
-      border-color: var(--accent-hover);
+      &:hover {
+        border-color: var(--accent-hover);
+      }
     }
   }
 }

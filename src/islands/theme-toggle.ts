@@ -46,7 +46,7 @@ function flipTheme(button: Element): void {
 }
 
 /**
- * Light/dark switch in the header (B1). The label needs no script: the sheet shows the one that
+ * Light/dark switch in the header. The label needs no script: the sheet shows the one that
  * matches `html[data-theme]`.
  */
 export const themeToggleIsland = createIsland("theme-toggle", {

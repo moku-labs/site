@@ -2,7 +2,7 @@
  * @file Pure renderers for the `.md` pages, `llms.txt`, `llms-full.txt` and the per-package
  * `llms.txt` (llmstxt.org format).
  */
-import { toAgentMarkdown } from "./markdown";
+import { toAgentMarkdown } from "../../lib/markdown/agent-markdown";
 import type { LlmsDocument, LlmsFile, LlmsPackage, LlmsPage, LlmsSite } from "./types";
 
 /** Everything `renderLlmsFiles` renders. */
@@ -208,6 +208,48 @@ function renderPackageIndex(context: IndexContext, id: string, own: readonly Llm
 }
 
 /**
+ * A page with its `Source:` line and its body converted to agent Markdown.
+ *
+ * @param context - Index inputs: the site URL and the resolved packages.
+ * @param page - The page.
+ * @returns The rendered page.
+ */
+function renderPage(context: IndexContext, page: LlmsPage): RenderedPage {
+  return {
+    page,
+    source: sourceLine(context.url, page, context.packages),
+    body: toAgentMarkdown(page.markdown)
+  };
+}
+
+/**
+ * The `.md` twin of each page: title, description, body, then the `Source:` line.
+ *
+ * @param rendered - Pages already rendered once.
+ * @returns One file per page, at the path its HTML page links.
+ */
+function buildPageFiles(rendered: readonly RenderedPage[]): LlmsFile[] {
+  return rendered.map(({ page, source, body }) => ({
+    path: markdownPathOf(page.path),
+    content: `${blocks(`# ${page.title}`, `> ${page.description}`, body, source)}\n`
+  }));
+}
+
+/**
+ * The `llms-full.txt` text: every docs page in the given order, each opening with its title and
+ * its `Source:` line.
+ *
+ * @param documents - Docs pages already rendered once, in nav order.
+ * @returns The file content.
+ */
+function buildFullText(documents: readonly RenderedPage[]): string {
+  const pages = documents.map(({ page, source, body }) =>
+    blocks(`# ${page.title}`, source, `> ${page.description}`, body)
+  );
+  return `${pages.join("\n\n")}\n`;
+}
+
+/**
  * Render every agent-facing file: one `.md` per page, `llms.txt`, `llms-full.txt` and one
  * `docs/<pkg>/llms.txt` per package.
  *
@@ -222,33 +264,23 @@ function renderPackageIndex(context: IndexContext, id: string, own: readonly Llm
  * ```
  */
 export function renderLlmsFiles(input: RenderInput): LlmsFile[] {
+  // The inputs every index shares; the site URL is checked once here.
   const context: IndexContext = {
     site: input.site,
     url: checkSiteUrl(input.site.url),
     packages: input.packages
   };
-  const rendered = (page: LlmsPage): RenderedPage => ({
-    page,
-    source: sourceLine(context.url, page, context.packages),
-    body: toAgentMarkdown(page.markdown)
-  });
-  const documents = input.documents.map(page => rendered(page));
-  const pageFiles = [...documents, ...input.pages.map(page => rendered(page))].map(
-    ({ page, source, body }) => ({
-      path: markdownPathOf(page.path),
-      content: `${blocks(`# ${page.title}`, `> ${page.description}`, body, source)}\n`
-    })
-  );
-  const full = documents
-    .map(({ page, source, body }) =>
-      blocks(`# ${page.title}`, source, `> ${page.description}`, body)
-    )
-    .join("\n\n");
+
+  // Every page is converted once: a docs page feeds its own twin and llms-full.txt.
+  const documents = input.documents.map(page => renderPage(context, page));
+  const sitePages = input.pages.map(page => renderPage(context, page));
+
+  // The page twins first, then the site index, the full text and one index per package.
   const groups = byPackage(input.documents);
   return [
-    ...pageFiles,
+    ...buildPageFiles([...documents, ...sitePages]),
     { path: "llms.txt", content: `${renderIndex(context, groups, input.pages)}\n` },
-    { path: "llms-full.txt", content: `${full}\n` },
+    { path: "llms-full.txt", content: buildFullText(documents) },
     ...[...groups].map(([id, own]) => renderPackageIndex(context, id, own))
   ];
 }

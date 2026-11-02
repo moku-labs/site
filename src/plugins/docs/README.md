@@ -1,8 +1,16 @@
 # docs
 
-Standard-tier Layer-3 plugin. Reads the docs Markdown under `content/docs/`, builds the sidebar,
+Complex-tier Layer-3 plugin. Reads the docs Markdown under `content/docs/`, builds the sidebar,
 renders HTML through the content plugin's renderer, and keeps the raw Markdown for the `.md` and
-`llms.txt` output. Pages load once, lazily, on the first API call. No events, no lifecycle.
+`llms.txt` output. Pages load once per build run, lazily, on the first API call. No events, no
+lifecycle.
+
+## State and hooks
+
+State holds the page cache and the load in flight. The `build:phase` hook drops both when the
+`bundle` phase starts, the first phase of every run, so a `bun run dev` rebuild reads the edited
+Markdown. The later phases keep the cache, so every page renders once per run. A load that the
+reset overtook does not put the old pages back.
 
 ## Config
 
@@ -29,9 +37,9 @@ renders HTML through the content plugin's renderer, and keeps the raw Markdown f
   index page, or its first page when it has no index.
 - `<!-- kernel-errors -->` in a body is replaced by the list from `src/lib/kernel-errors.ts`
   before rendering. The capture runs only when a page has the marker.
-- TOC: h2/h3 outside fenced code. Ids use the same slug as `headingSlug` in
-  `src/lib/markdown/heading-ids.ts` (`markdown.ts` keeps a local copy until both are unified).
+- TOC: h2/h3 outside fenced code. Ids use `headingSlug` from `src/lib/markdown/heading-ids.ts`,
+  the same slug the renderer puts on the heading.
 
 ## Dependencies
 
-`content` (for `renderMarkdown`).
+`content` (for `renderMarkdown`), `build` (the `build:phase` event).

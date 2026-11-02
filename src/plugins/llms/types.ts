@@ -87,6 +87,20 @@ export type LlmsSources = SiteData & {
   nodeModules: string;
 };
 
+/** A write the `build:complete` hook started; `write()` for the same directory returns it. */
+export type PendingWrite = {
+  /** The output directory of the finished build. */
+  outDir: string;
+  /** The write, as `write()` returns it. */
+  promise: Promise<{ count: number }>;
+};
+
+/** Plugin state. */
+export type LlmsState = {
+  /** The write of the last `build:complete`; replaced by the next build, dropped when it fails. */
+  pending: PendingWrite | undefined;
+};
+
 /** The structural log API the hook reports a failed write to. */
 export type LlmsLog = {
   /** Record an error entry. */
@@ -97,6 +111,8 @@ export type LlmsLog = {
 export type LlmsContext = {
   /** Resolved plugin config. */
   readonly config: Readonly<LlmsConfig>;
+  /** Mutable plugin state. */
+  readonly state: LlmsState;
   /** Resolve the docs plugin to its API. */
   readonly require: (plugin: typeof docsPlugin) => Pick<DocumentationApi, "all">;
   /** The log core plugin. */
@@ -119,7 +135,9 @@ export type LlmsApi = {
    */
   files: () => Promise<LlmsFile[]>;
   /**
-   * Write every agent-facing file into the output directory.
+   * Write every agent-facing file into the output directory. After a build, a call for that
+   * build's output directory returns the write the `build:complete` hook started instead of
+   * writing the files a second time.
    *
    * @param outputDirectory - Output directory; defaults to the configured `outDir`.
    * @returns How many files were written.
@@ -128,8 +146,8 @@ export type LlmsApi = {
    * ```ts
    * // scripts/build.ts, after the HTML build: the framework does not await build hooks.
    * await app.cli.build();
-   * const { count } = await app.llms.emit("dist"); // count === (await app.llms.files()).length
+   * const { count } = await app.llms.write("dist"); // count === (await app.llms.files()).length
    * ```
    */
-  emit: (outputDirectory?: string) => Promise<{ count: number }>;
+  write: (outputDirectory?: string) => Promise<{ count: number }>;
 };

@@ -1,5 +1,5 @@
 /**
- * @file The `demo-filter` island: the demos page package filter (U11, F7).
+ * @file The `demo-filter` island: the demos page package filter.
  */
 import { createIsland } from "@moku-labs/web/browser";
 import { ALL_DEMOS, usesPackage } from "../lib/demos";
@@ -27,7 +27,7 @@ function applyFilter(root: Element, filter: string): void {
 }
 
 /**
- * Demos (A11): a chip filters the cards by package; "Show all six demos" in an empty state resets.
+ * Demos: a chip filters the cards by package; "Show all six demos" in an empty state resets.
  */
 export const demoFilterIsland = createIsland("demo-filter", {
   events: {

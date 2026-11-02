@@ -5,7 +5,7 @@
  */
 import type { VNode } from "preact";
 import type { TrayPlugin } from "../data/tray";
-import type { BlockPlace } from "../lib/hero-world";
+import type { BlockPlace, WorldItem } from "../lib/hero-world";
 import {
   BLOCK_INSET,
   CLAUDE_BOX,
@@ -22,6 +22,7 @@ import type { HomePackage } from "../lib/home-data";
 import type { IsoBoxSpec } from "../lib/iso";
 import { formatPoints } from "../lib/iso";
 import type { UrlBuilder } from "../lib/url-builder";
+import type { IsoTone } from "./iso-shapes";
 import { IsoBox, IsoGlyph } from "./iso-shapes";
 
 /** Props of {@link KernelWorld}. */
@@ -38,6 +39,60 @@ type KernelWorldProperties = {
 
 /** Gap between a block's lid and its label. */
 const LABEL_GAP = 13;
+
+/** Gap between a socket's plugin block and its label. */
+const SOCKET_LABEL_GAP = 16;
+
+/** Offset from a cell's corner to its middle, where labels stand. */
+const CELL_MIDDLE = 0.5;
+
+/** A package block's shadow inside its cell: shifted toward the front corner. */
+const SHADOW_SQUARE: CellSquare = { near: 0.2, far: 0.9 };
+
+/** A socket's dashed outline inside its cell. */
+const SOCKET_OUTLINE_SQUARE: CellSquare = { near: 0.12, far: 0.88 };
+
+/** Stroke weight of the glyph on a package or plugin block. */
+const BLOCK_GLYPH_WEIGHT = 13;
+
+/** Stroke weight of the glyph on the kernel, thinner since the cube is larger. */
+const KERNEL_GLYPH_WEIGHT = 6;
+
+/** Stroke weight of the glyph on the floating Claude block. */
+const CLAUDE_GLYPH_WEIGHT = 12;
+
+/** Grid x and y of the point the Claude block floats over, and its wire starts from. */
+const CLAUDE_ANCHOR = 0.6;
+
+/** Tone of a terrace cell, by ring: the outer ring first. */
+const TERRACE_TONES: readonly [IsoTone, IsoTone] = ["terrace-1", "terrace-2"];
+
+/** A square on the ground inside one cell, as offsets from the cell's corner. */
+type CellSquare = {
+  /** Offset of the back corner along x and y. */
+  near: number;
+  /** Offset of the front corner along x and y. */
+  far: number;
+};
+
+/**
+ * The points of a square inside a cell, at a height.
+ *
+ * @param x - Cell along x.
+ * @param y - Cell along y.
+ * @param z - Height of the square.
+ * @param square - Its offsets inside the cell.
+ * @returns The polygon points.
+ */
+function cellSquarePoints(x: number, y: number, z: number, square: CellSquare): string {
+  const { near, far } = square;
+  return formatPoints([
+    world.point(x + near, y + near, z),
+    world.point(x + far, y + near, z),
+    world.point(x + far, y + far, z),
+    world.point(x + near, y + far, z)
+  ]);
+}
 
 /**
  * The platform: a slab under the ground, the cell grid and the pink rim on the two front edges.
@@ -124,12 +179,7 @@ function PackageBlock(props: { entry: HomePackage; place: BlockPlace; href: stri
     depth: size,
     height
   };
-  const shadow = formatPoints([
-    world.point(x + 0.2, y + 0.2, level),
-    world.point(x + 0.9, y + 0.2, level),
-    world.point(x + 0.9, y + 0.9, level),
-    world.point(x + 0.2, y + 0.9, level)
-  ]);
+  const shadow = cellSquarePoints(x, y, level, SHADOW_SQUARE);
   return (
     <>
       <polygon data-part="shadow" points={shadow} />
@@ -147,11 +197,11 @@ function PackageBlock(props: { entry: HomePackage; place: BlockPlace; href: stri
         style={{ "--depth": x + y }}
       >
         <IsoBox projection={world} box={box} tone="block">
-          <IsoGlyph projection={world} box={box} glyph={entry.id} weight={13} />
+          <IsoGlyph projection={world} box={box} glyph={entry.id} weight={BLOCK_GLYPH_WEIGHT} />
         </IsoBox>
         <GridLabel
-          x={x + 0.5}
-          y={y + 0.5}
+          x={x + CELL_MIDDLE}
+          y={y + CELL_MIDDLE}
           z={level + height}
           gap={LABEL_GAP}
           text={entry.id}
@@ -180,12 +230,7 @@ function Socket(props: {
   plugin: TrayPlugin | undefined;
 }): VNode {
   const { index, x, y, plugin } = props;
-  const outline = formatPoints([
-    world.point(x + 0.12, y + 0.12, 0),
-    world.point(x + 0.88, y + 0.12, 0),
-    world.point(x + 0.88, y + 0.88, 0),
-    world.point(x + 0.12, y + 0.88, 0)
-  ]);
+  const outline = cellSquarePoints(x, y, 0, SOCKET_OUTLINE_SQUARE);
   const size = 1 - 2 * SOCKET_BLOCK_INSET;
   const box: IsoBoxSpec = {
     x: x + SOCKET_BLOCK_INSET,
@@ -200,13 +245,18 @@ function Socket(props: {
       <polygon data-part="outline" points={outline} />
       <g data-part="plugin">
         <IsoBox projection={world} box={box} tone="block">
-          <IsoGlyph projection={world} box={box} glyph={plugin?.glyph ?? "none"} weight={13} />
+          <IsoGlyph
+            projection={world}
+            box={box}
+            glyph={plugin?.glyph ?? "none"}
+            weight={BLOCK_GLYPH_WEIGHT}
+          />
         </IsoBox>
         <GridLabel
-          x={x + 0.5}
-          y={y + 0.5}
+          x={x + CELL_MIDDLE}
+          y={y + CELL_MIDDLE}
           z={SOCKET_BLOCK_HEIGHT}
-          gap={16}
+          gap={SOCKET_LABEL_GAP}
           text={plugin?.plugin ?? ""}
           part="plugin-label"
         />
@@ -234,7 +284,7 @@ function Kernel(props: { version: string }): VNode {
       data-tip-action="Drop a plugin on it"
     >
       <IsoBox projection={world} box={KERNEL_BOX} tone="kernel">
-        <IsoGlyph projection={world} box={KERNEL_BOX} glyph="kernel" weight={6} />
+        <IsoGlyph projection={world} box={KERNEL_BOX} glyph="kernel" weight={KERNEL_GLYPH_WEIGHT} />
       </IsoBox>
     </g>
   );
@@ -250,8 +300,12 @@ function Kernel(props: { version: string }): VNode {
  */
 function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
   const { entry, href } = props;
-  const [fromX, fromY] = world.point(0.6, 0.6, CLAUDE_BOX.z);
-  const [toX, toY] = world.point(5, 5, KERNEL_BOX.height);
+  const [fromX, fromY] = world.point(CLAUDE_ANCHOR, CLAUDE_ANCHOR, CLAUDE_BOX.z);
+  const [toX, toY] = world.point(
+    KERNEL_BOX.x + KERNEL_BOX.width / 2,
+    KERNEL_BOX.y + KERNEL_BOX.depth / 2,
+    KERNEL_BOX.height
+  );
   return (
     <>
       <line data-part="wire" x1={fromX} y1={fromY} x2={toX} y2={toY} />
@@ -269,11 +323,17 @@ function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
         aria-label={`${entry.name} ${entry.versionLabel}. ${entry.tagline}`}
       >
         <IsoBox projection={world} box={CLAUDE_BOX} tone="block">
-          <IsoGlyph projection={world} box={CLAUDE_BOX} glyph="claude" weight={12} accent />
+          <IsoGlyph
+            projection={world}
+            box={CLAUDE_BOX}
+            glyph="claude"
+            weight={CLAUDE_GLYPH_WEIGHT}
+            accent
+          />
         </IsoBox>
         <GridLabel
-          x={0.6}
-          y={0.6}
+          x={CLAUDE_ANCHOR}
+          y={CLAUDE_ANCHOR}
           z={CLAUDE_BOX.z + CLAUDE_BOX.height}
           gap={LABEL_GAP}
           text="claude plugin"
@@ -282,6 +342,47 @@ function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
       </g>
     </>
   );
+}
+
+/**
+ * One item of the world in painter's order: a terrace cell, a socket, the kernel or a package
+ * block.
+ *
+ * @param item - The world item.
+ * @param props - The world's props.
+ * @param docsOf - The docs page of a package id.
+ * @returns The item's shape; nothing for a block whose package is not in the family.
+ */
+function renderWorldItem(
+  item: WorldItem,
+  props: KernelWorldProperties,
+  docsOf: (id: string) => string
+): VNode | undefined {
+  if (item.kind === "terrace") {
+    return (
+      <IsoBox
+        key={`t${item.x}-${item.y}`}
+        projection={world}
+        box={{ x: item.x, y: item.y, z: 0, width: 1, depth: 1, height: item.level }}
+        tone={TERRACE_TONES[item.ring]}
+      />
+    );
+  }
+  if (item.kind === "socket") {
+    return (
+      <Socket
+        key={`s${item.index}`}
+        index={item.index}
+        x={item.x}
+        y={item.y}
+        plugin={props.accepted[item.index]}
+      />
+    );
+  }
+  if (item.kind === "kernel") return <Kernel key="kernel" version={props.kernelVersion} />;
+  const entry = props.packages.find(candidate => candidate.id === item.id);
+  if (entry === undefined) return undefined;
+  return <PackageBlock key={item.id} entry={entry} place={item.place} href={docsOf(item.id)} />;
 }
 
 /**
@@ -295,7 +396,7 @@ function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
  * ```
  */
 export function KernelWorld(props: KernelWorldProperties): VNode {
-  const { packages, accepted, url } = props;
+  const { packages, url } = props;
   const docsOf = (id: string): string => url("docsPackage", { pkg: id });
   const claude = packages.find(entry => entry.id === "claude");
   return (
@@ -307,34 +408,9 @@ export function KernelWorld(props: KernelWorldProperties): VNode {
       aria-label="Isometric map of the Moku family around the kernel"
     >
       <Platform />
-      {worldItems(packages.map(entry => entry.id)).map(item => {
-        if (item.kind === "terrace") {
-          return (
-            <IsoBox
-              key={`t${item.x}-${item.y}`}
-              projection={world}
-              box={{ x: item.x, y: item.y, z: 0, width: 1, depth: 1, height: item.level }}
-              tone={item.ring === 0 ? "terrace-1" : "terrace-2"}
-            />
-          );
-        }
-        if (item.kind === "socket") {
-          return (
-            <Socket
-              key={`s${item.index}`}
-              index={item.index}
-              x={item.x}
-              y={item.y}
-              plugin={accepted[item.index]}
-            />
-          );
-        }
-        if (item.kind === "kernel") return <Kernel key="kernel" version={props.kernelVersion} />;
-        const entry = packages.find(candidate => candidate.id === item.id);
-        return entry ? (
-          <PackageBlock key={item.id} entry={entry} place={item.place} href={docsOf(item.id)} />
-        ) : undefined;
-      })}
+      {worldItems(packages.map(entry => entry.id)).map(item =>
+        renderWorldItem(item, props, docsOf)
+      )}
       {claude ? <ClaudeBlock entry={claude} href={docsOf(claude.id)} /> : undefined}
     </svg>
   );

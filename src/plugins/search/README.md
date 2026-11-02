@@ -2,7 +2,7 @@
 
 Standard-tier Layer-3 plugin. Builds the ⌘K index from docs pages (title, description, h2 sections),
 packages, demos and fixed pages, and writes it as one `collection` shard after every build. No
-events, no state, no lifecycle.
+events, no lifecycle. State holds the write the last build started.
 
 ## Config
 
@@ -40,9 +40,12 @@ second row.
 
 ## Hooks
 
-`build:complete` → writes the index into the payload's `outDir`, so `bun run dev` rebuilds have it
-too. The kernel does not await hook handlers, so a failure is logged as `search:write-failed` through
-`ctx.log.error` instead of rejecting. `scripts/build.ts` also awaits `app.search.write()`.
+`build:complete` → starts writing the index into the payload's `outDir` and returns at once, so
+`bun run dev` rebuilds have it too and the next plugin's hook is not held back. The kernel does not
+await hook handlers, so a failure is logged as `search:write-failed` through `ctx.log.error`
+instead of rejecting. `scripts/build.ts` also awaits `app.search.write()`: for the build's `outDir`
+it returns the write the hook started, so the shard is written once. Every build starts a fresh
+write; a failed one is not reused.
 
 ## Dependencies
 

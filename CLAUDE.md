@@ -41,17 +41,19 @@ Entries:
 - `src/app.ts` — Node SSG composition: web's browser-safe defaults plus the Node-only framework
   plugins (content, collection, data, build, deploy, cli) and the site's four plugins. Driven by the
   thin `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`. `scripts/build.ts` also
-  calls `app.search.write()` and `app.llms.emit()` after `app.cli.build()`.
+  awaits `app.search.write()` and `app.llms.write()` after `app.cli.build()`: the writes the
+  `build:complete` hooks started, not a second write.
 - `src/spa.tsx` — browser bundle entry (`@moku-labs/web/browser`). It omits every Node plugin.
 - `src/routes.tsx` — the single route table, shared by both entries and by `urls`. Docs routes
   have fixed depth: `/docs/`, `/docs/{pkg}/`, `/docs/{pkg}/{page}/`, `/docs/{pkg}/{section}/{page}/`.
-- `src/config.ts` — `SITE`, `LINKS`, `SEARCH_INDEX` constants (browser-safe).
+- `src/config.ts` — `SITE`, `LINKS`, `SEARCH_INDEX`, `OUT_DIRECTORY` constants (browser-safe).
 - `src/index.html` / `src/404.html` — the document shell and the Cloudflare 404 page.
 
 Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
 
 - `docs` — walks `content/docs/**`, parses frontmatter, enforces the depth rule, renders through
   `contentPlugin.renderMarkdown`. API: `all`, `get`, `byPackage`, `nav`, `neighbours`, `params`.
+  Pages load once per build run: the `build:phase` that starts a run empties the cache.
 - `search` — builds the ⌘K index (pages, packages, docs headings, demos) and writes
   `dist/search/en.json` through `collectionPlugin`.
 - `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
@@ -72,8 +74,8 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
   (CSS-variable Shiki theme).
 - Markdown pipeline (`lib/markdown/`): `directives` (remark: callout, steps, flow, gotchas,
   diagram, terminal, prompt), `code-blocks` (rehype: file, group, hl, notes, diff), `heading-ids`,
-  `tables`.
-- Island logic: `kernel-tray`, `hero-world`, `iso`, `pyramid`, `demos`, `search-results`.
+  `tables`, and `agent-markdown` (docs Markdown to plain Markdown for the llms files).
+- Island logic: `kernel-tray`, `kernel-flight`, `hero-world`, `hero-props`, `iso`, `pyramid`, `demos`, `search-results`, `search-palette`.
 - `url-builder`, and the three `*-reference` modules above.
 
 UI:

@@ -17,7 +17,10 @@ const DIAGRAM_FIGURE = /<figure data-component="diagram" data-diagram="([^"]*)">
  * @throws {Error} When a figure names a diagram that has no drawing.
  * @example
  * ```ts
- * expandDiagrams(page.html, { pipeline: pipelineSvg });
+ * expandDiagrams('<figure data-component="diagram" data-diagram="pipeline"><figcaption>Build</figcaption></figure>', {
+ *   pipeline: "<svg></svg>"
+ * });
+ * // '<figure data-component="diagram" data-diagram="pipeline"><svg></svg><figcaption>Build</figcaption></figure>'
  * ```
  */
 export function expandDiagrams(html: string, drawings: Readonly<Record<string, string>>): string {

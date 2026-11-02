@@ -1,11 +1,14 @@
 /*
  * CSS bundle entry (the framework build picks up src/styles/main.css). The @layer order controls
  * cascade priority; every sheet is imported into its layer here, so a new component sheet is one
- * @import line in the components block.
+ * @import line in the components block. The animations layer sits above the components so a
+ * shared motion sheet can win over a component's resting state; the keyframes of one component
+ * stay in its own sheet.
  */
 
-@layer reset, tokens, base, components, utilities;
+@layer reset, tokens, base, components, animations, utilities;
 
+@import "./reset.css" layer(reset);
 @import "./tokens.css" layer(tokens);
 @import "./base.css" layer(base);
 

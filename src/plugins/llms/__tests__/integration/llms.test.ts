@@ -9,10 +9,11 @@ import {
   createPlugin,
   fileSystemContent
 } from "@moku-labs/web";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { SITE } from "../../../../config";
 import { docsPlugin } from "../../../docs";
 import { llmsPlugin } from "../..";
+import type { LlmsFile } from "../../types";
 
 // The real family is filled in the data wave; the docs fixture tree uses core and web.
 vi.mock("../../../../data/packages", () => ({
@@ -43,27 +44,27 @@ const buildSignal = createPlugin("buildSignal", {
   })
 });
 
-function createLlmsApp() {
+function createLlmsApp(siteUrl: string = SITE.url) {
   return createApp({
     plugins: [contentPlugin, buildPlugin, docsPlugin, llmsPlugin, buildSignal],
     pluginConfigs: {
       site: SITE,
       content: { providers: [fileSystemContent({ contentDir: fixture("articles") })] },
       docs: { dir: fixture("docs") },
-      llms: { siteUrl: SITE.url, outDir: temporary() }
+      llms: { siteUrl, outDir: temporary() }
     }
   });
 }
 
 describe("llms plugin in a real app", () => {
-  // Bug: the plugin is not wired to the docs plugin or the installed versions, or emit reports a
+  // Bug: the plugin is not wired to the docs plugin or the installed versions, or write reports a
   // count that differs from the files on disk.
-  it("emit(dir) writes the agent files for the docs tree and returns their count", async () => {
+  it("write(dir) writes the agent files for the docs tree and returns their count", async () => {
     const app = createLlmsApp();
     await app.start();
     const target = temporary();
 
-    const { count } = await app.llms.emit(target);
+    const { count } = await app.llms.write(target);
     const written = readdirSync(target, { recursive: true, withFileTypes: true }).filter(entry =>
       entry.isFile()
     );
@@ -91,5 +92,20 @@ describe("llms plugin in a real app", () => {
     await vi.waitFor(() => expect(existsSync(path.join(target, "llms-full.txt"))).toBe(true));
 
     await app.stop();
+  });
+
+  // Bug: an app without llms.siteUrl passes createApp and fails only inside the unawaited
+  // build:complete hook, where the error is just logged and the build ships no agent files.
+  it("refuses an empty siteUrl at createApp", () => {
+    expect(() => createLlmsApp("")).toThrow(
+      "[llms] siteUrl is empty.\n  Set pluginConfigs.llms.siteUrl."
+    );
+  });
+
+  it("types the public API for consumers", () => {
+    const app = createLlmsApp();
+    expectTypeOf(app.llms.files).returns.toEqualTypeOf<Promise<LlmsFile[]>>();
+    // @ts-expect-error write takes an output directory, not a file count
+    expectTypeOf(app.llms.write).toBeCallableWith(3);
   });
 });

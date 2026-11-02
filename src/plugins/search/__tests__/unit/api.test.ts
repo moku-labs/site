@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { docsPlugin } from "../../../docs";
 import type { DocumentationApi, DocumentHeading, DocumentPage } from "../../../docs/types";
 import { buildSearchIndex, createSearchApi } from "../../api";
+import { createSearchState } from "../../state";
 import type { SearchContext, SearchEntry, SearchSources } from "../../types";
 
 function page(path: string, title: string, headings: DocumentHeading[] = []): DocumentPage {
@@ -149,6 +150,7 @@ function setup() {
     plugin === docsPlugin ? docs : collection) as unknown as SearchContext["require"];
   const ctx: SearchContext = {
     config: { collection: "search", shard: "en", outDir: "site-out" },
+    state: createSearchState(),
     require,
     log: { error: vi.fn() }
   };

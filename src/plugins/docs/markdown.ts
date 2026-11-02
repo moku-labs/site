@@ -2,6 +2,7 @@
  * @file Markdown helpers of the docs plugin: TOC headings and the kernel-errors marker.
  */
 import type { KernelError } from "../../lib/kernel-errors";
+import { headingSlug } from "../../lib/markdown/heading-ids";
 import type { DocumentHeading } from "./types";
 
 /** The marker a page puts where the generated kernel-error list goes. */
@@ -9,8 +10,6 @@ export const KERNEL_ERRORS_MARKER = "<!-- kernel-errors -->";
 
 const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
 const HEADING = /^(#{2,3})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/;
-
-import { headingSlug } from "../../lib/markdown/heading-ids";
 
 export { headingSlug as slugify } from "../../lib/markdown/heading-ids";
 

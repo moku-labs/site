@@ -127,6 +127,7 @@ function fencedBlocks(markdown: string): FencedBlock[] {
   const blocks: FencedBlock[] = [];
   let open: OpenFence | undefined;
   for (const line of markdown.split(/\r?\n/)) {
+    // Outside a block: look for an opening fence.
     if (open === undefined) {
       const match = FENCE_OPEN.exec(line);
       if (match !== null) {
@@ -135,11 +136,15 @@ function fencedBlocks(markdown: string): FencedBlock[] {
       }
       continue;
     }
+
+    // Inside a block: a closing fence ends it.
     if (closesFence(line, open.fence)) {
       blocks.push(open);
       open = undefined;
       continue;
     }
+
+    // Any other line is code, with the fence's indent removed.
     const indent = Math.min(open.indent, line.length - line.trimStart().length);
     open.lines.push(line.slice(indent));
   }
@@ -176,6 +181,50 @@ function prepareBlock(
   return { code, language, extension: EXTENSIONS.get(language) };
 }
 
+/** A fenced block tagged `check`, with its parsed fence meta. */
+type CheckFence = {
+  /** The block as written. */
+  block: FencedBlock;
+  /** Its parsed fence meta. */
+  meta: FenceMeta;
+};
+
+/**
+ * The fenced blocks of a page tagged `check`, in page order.
+ *
+ * @param markdown - Raw Markdown of the page.
+ * @returns The blocks with their parsed meta.
+ */
+function checkFences(markdown: string): CheckFence[] {
+  return fencedBlocks(markdown)
+    .map(block => ({ block, meta: parseFenceMeta(block.meta) }))
+    .filter(({ meta }) => meta.flags.has("check"));
+}
+
+/**
+ * One `check` block as the checker runs it: a temp file name when tsc can check its language, a
+ * `problem` otherwise.
+ *
+ * @param file - Source file of the page.
+ * @param index - Index of the block among the page's `check` blocks.
+ * @param compiled - How many blocks of all pages got a temp file before this one.
+ * @param fence - The block and its meta.
+ * @returns The checked block.
+ */
+function toCheckedBlock(
+  file: string,
+  index: number,
+  compiled: number,
+  fence: CheckFence
+): CheckedBlock {
+  const { code, language, extension } = prepareBlock(fence.block, fence.meta);
+  if (extension === undefined) {
+    const problem = `check works on ts and tsx blocks, not on "${language}".`;
+    return { file, index, name: "", code, problem };
+  }
+  return { file, index, name: `${compiled}.${extension}`, code };
+}
+
 /**
  * Collect the `check` blocks of every page, in page order. A block in a language tsc cannot check
  * carries a `problem` instead of a temp file name.
@@ -185,21 +234,13 @@ function prepareBlock(
  */
 function collectBlocks(sources: readonly SnippetSource[]): CheckedBlock[] {
   const blocks: CheckedBlock[] = [];
+  // The temp file number runs over all pages; the index restarts on every page.
   let compiled = 0;
   for (const { file, markdown } of sources) {
-    let index = 0;
-    for (const block of fencedBlocks(markdown)) {
-      const meta = parseFenceMeta(block.meta);
-      if (!meta.flags.has("check")) continue;
-      const { code, language, extension } = prepareBlock(block, meta);
-      if (extension === undefined) {
-        const problem = `check works on ts and tsx blocks, not on "${language}".`;
-        blocks.push({ file, index, name: "", code, problem });
-      } else {
-        blocks.push({ file, index, name: `${compiled}.${extension}`, code });
-        compiled += 1;
-      }
-      index += 1;
+    for (const [index, fence] of checkFences(markdown).entries()) {
+      const block = toCheckedBlock(file, index, compiled, fence);
+      blocks.push(block);
+      if (block.problem === undefined) compiled += 1;
     }
   }
   return blocks;
@@ -231,6 +272,17 @@ function runCompiler(projectDirectory: string, runDirectory: string): Promise<Co
 }
 
 /**
+ * Whether a compiler output line continues the message before it: indented, after a diagnostic.
+ *
+ * @param line - A line of tsc output.
+ * @param current - The message lines of the last diagnostic, if one is open.
+ * @returns `true` when the line belongs to the open message.
+ */
+function isContinuation(line: string, current: string[] | undefined): current is string[] {
+  return current !== undefined && /^\s/.test(line);
+}
+
+/**
  * Group the compiler output by temp file: one message per block, lines as `line:column text`.
  *
  * @param output - tsc output with `--pretty false`.
@@ -242,18 +294,24 @@ function parseDiagnostics(output: string): { messages: Map<string, string[]>; st
   let current: string[] | undefined;
   for (const line of output.split(/\r?\n/)) {
     if (line.trim() === "") continue;
+
+    // A diagnostic opens a message for its temp file.
     const match = DIAGNOSTIC.exec(line);
     if (match !== null) {
       const [, name = "", row, column, text] = match;
       current = messages.get(name) ?? [];
       messages.set(name, current);
       current.push(`${row}:${column} ${text}`);
-    } else if (current !== undefined && /^\s/.test(line)) {
-      current.push(line);
-    } else {
-      current = undefined;
-      stray.push(line);
+      continue;
     }
+
+    // An indented line continues the open message; any other line belongs to no block.
+    if (isContinuation(line, current)) {
+      current.push(line);
+      continue;
+    }
+    current = undefined;
+    stray.push(line);
   }
   return { messages, stray };
 }

@@ -2,7 +2,7 @@
  * @file Clipboard copy and the "Copied" flash, shared by the copy islands. Not an island.
  */
 
-/** How long a copy button shows its result (design F4). */
+/** How long a copy button shows its result, in ms. */
 const FLASH_MS = 1600;
 
 /**
@@ -12,7 +12,9 @@ const FLASH_MS = 1600;
  * @returns `true` when the clipboard took it, `false` when the browser refused.
  * @example
  * ```ts
- * if (await copyText(figure.dataset.copy ?? "")) flashButton(button, "Copied");
+ * // The visitor clicks Copy on a terminal figure with data-copy="bun add @moku-labs/web".
+ * const copied = await copyText(figure.dataset.copy ?? "");
+ * flashButton(button, copied); // the button reads "Copied", or "Copy failed" when refused
  * ```
  */
 export async function copyText(text: string): Promise<boolean> {
@@ -32,7 +34,9 @@ export async function copyText(text: string): Promise<boolean> {
  * @param copied - Whether the copy worked.
  * @example
  * ```ts
- * flashButton(button, await copyText(text));
+ * // A "Copy" button after a copy the browser accepted:
+ * flashButton(copyButton, true);
+ * // copyButton reads "Copied" and has data-copied; after 1.6 s it reads "Copy" again.
  * ```
  */
 export function flashButton(button: HTMLElement, copied: boolean): void {

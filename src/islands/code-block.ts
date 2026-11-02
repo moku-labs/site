@@ -106,7 +106,7 @@ function highlightNote(item: Element, active: boolean): void {
 }
 
 /**
- * Code blocks (G, F4): Copy flips to "Copied" for 1.6 s, file tabs switch the shown file, and
+ * Code blocks: Copy flips to "Copied" for 1.6 s, file tabs switch the shown file, and
  * hovering a note lights its line.
  */
 export const codeBlockIsland = createIsland("code-block", {

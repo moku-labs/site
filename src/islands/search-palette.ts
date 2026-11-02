@@ -1,27 +1,27 @@
 /**
- * @file The `search-palette` island: the ⌘K modal over the search collection shard (U9, E1).
+ * @file The `search-palette` island: the ⌘K modal over the search collection shard.
  *
  * Opens on ⌘K / Ctrl+K and on a click of any `[data-search-open]` button; loads the shard once
  * with `loadCollectionShard`; suggests pages for an empty query, filters live with the match
  * highlighted; arrows move, Enter opens, Esc closes; focus stays in the modal and returns to the
- * opener on close.
+ * opener on close. The state maths is in `src/lib/search-palette.ts`.
  */
 import type { Spa } from "@moku-labs/web/browser";
 import { createIsland, loadCollectionShard } from "@moku-labs/web/browser";
+import type { PaletteData } from "../lib/search-palette";
+import {
+  ICON_SIZE,
+  isPaletteShortcut,
+  isSuggestionLabelHidden,
+  nextTabStop,
+  OPTION_ID,
+  packageIconUrl,
+  parsePaletteData,
+  statusMessage,
+  stepSelection
+} from "../lib/search-palette";
 import { markMatch, searchResults } from "../lib/search-results";
 import type { SearchEntry } from "../plugins/search/types";
-
-/** What the palette hands the island through `data-props`. */
-type PaletteData = {
-  /** Base URL of the collection files. */
-  baseUrl: string;
-  /** Collection name. */
-  collection: string;
-  /** Shard name. */
-  shard: string;
-  /** Hrefs suggested for an empty query. */
-  suggested: readonly string[];
-};
 
 /** Per-instance state of the island. */
 type PaletteState = {
@@ -42,9 +42,6 @@ type PaletteState = {
 /** The island context with its state. */
 type PaletteContext = Spa.IslandContext<PaletteState>;
 
-/** Prefix of the result option ids, for `aria-activedescendant`. */
-const OPTION_ID = "search-option-";
-
 /**
  * Read the palette's props.
  *
@@ -52,15 +49,7 @@ const OPTION_ID = "search-option-";
  * @returns The props; empty suggestions and the default shard when they are missing.
  */
 function readPaletteData(root: Element): PaletteData {
-  const fallback: PaletteData = { baseUrl: "/", collection: "search", shard: "en", suggested: [] };
-  if (!(root instanceof HTMLElement) || root.dataset.props === undefined) return fallback;
-  try {
-    const parsed: unknown = JSON.parse(root.dataset.props);
-    if (typeof parsed !== "object" || parsed === null) return fallback;
-    return { ...fallback, ...(parsed as Partial<PaletteData>) };
-  } catch {
-    return fallback;
-  }
+  return parsePaletteData(root instanceof HTMLElement ? root.dataset.props : undefined);
 }
 
 /**
@@ -110,9 +99,9 @@ function iconFor(root: Element, icon: string): Element {
   const generic = root.querySelector(`[data-part="icons"] [data-icon="${icon}"]`);
   if (generic !== null) return generic.cloneNode(true) as Element;
   const image = document.createElement("img");
-  image.src = `/art/icon-${icon}-256.webp`;
-  image.width = 34;
-  image.height = 34;
+  image.src = packageIconUrl(icon);
+  image.width = ICON_SIZE;
+  image.height = ICON_SIZE;
   image.alt = "";
   image.loading = "lazy";
   return image;
@@ -182,25 +171,27 @@ function paintSelection(root: Element, state: PaletteState): void {
  * @param state - The island state.
  */
 function paint(root: Element, state: PaletteState): void {
+  // Match the query and reset the selection.
   const query = inputOf(root)?.value ?? "";
-  const label = root.querySelector<HTMLElement>('[data-part="label"]');
-  const status = root.querySelector('[data-part="status"]');
-  const list = root.querySelector('[data-part="results"]');
+  const loaded = state.entries !== undefined;
   state.results =
     state.entries === undefined ? [] : searchResults(state.entries, query, state.props.suggested);
   state.selected = 0;
-  if (label !== null) label.hidden = query.trim() !== "" || state.entries === undefined;
-  list?.replaceChildren(
-    ...state.results.map((entry, index) => optionFor(root, entry, index, query))
-  );
+
+  // Show the label, the rows and the status line.
+  const label = root.querySelector<HTMLElement>('[data-part="label"]');
+  if (label !== null) label.hidden = isSuggestionLabelHidden(query, loaded);
+  root
+    .querySelector('[data-part="results"]')
+    ?.replaceChildren(...state.results.map((entry, index) => optionFor(root, entry, index, query)));
+  const status = root.querySelector('[data-part="status"]');
   if (status !== null) {
-    let message = "";
-    if (state.failed) message = "The search index did not load. Try again in a moment.";
-    else if (state.entries === undefined) message = "Loading the index…";
-    else if (state.results.length === 0) {
-      message = `Nothing matches "${query}". Try a package name, a plugin like "content", or "route".`;
-    }
-    status.textContent = message;
+    status.textContent = statusMessage({
+      failed: state.failed,
+      loaded,
+      resultCount: state.results.length,
+      query
+    });
   }
   paintSelection(root, state);
 }
@@ -270,8 +261,21 @@ function trapFocus(root: Element, event: KeyboardEvent): void {
   event.preventDefault();
   const active = document.activeElement;
   const current = active instanceof HTMLElement ? stops.indexOf(active) : -1;
-  const step = event.shiftKey ? -1 : 1;
-  stops.at((current + step + stops.length) % stops.length)?.focus();
+  stops.at(nextTabStop(current, event.shiftKey, stops.length))?.focus();
+}
+
+/**
+ * Enter: open the selected result through its link, so the SPA router handles it.
+ *
+ * @param ctx - The island context.
+ * @param event - The Enter keydown.
+ */
+function openSelected(ctx: PaletteContext, event: KeyboardEvent): void {
+  const link = ctx.el.querySelectorAll('[role="option"] a')[ctx.state.selected];
+  if (!(link instanceof HTMLAnchorElement)) return;
+  event.preventDefault();
+  closePalette(ctx);
+  link.click();
 }
 
 /**
@@ -284,27 +288,27 @@ function trapFocus(root: Element, event: KeyboardEvent): void {
 function onKey(ctx: PaletteContext, event: Event): void {
   if (!(event instanceof KeyboardEvent) || !isOpen(ctx.el)) return;
   const state = ctx.state;
-  const count = state.results.length;
   if (event.key === "Escape") {
     event.preventDefault();
     closePalette(ctx);
-  } else if ((event.key === "ArrowDown" || event.key === "ArrowUp") && count > 0) {
-    event.preventDefault();
-    state.selected = (state.selected + (event.key === "ArrowDown" ? 1 : -1) + count) % count;
-    paintSelection(ctx.el, state);
-  } else if (event.key === "Enter") {
-    const link = ctx.el.querySelectorAll('[role="option"] a')[state.selected];
-    if (!(link instanceof HTMLAnchorElement)) return;
-    event.preventDefault();
-    closePalette(ctx);
-    link.click();
-  } else if (event.key === "Tab") {
-    trapFocus(ctx.el, event);
+    return;
   }
+  const selected = stepSelection(state.selected, event.key, state.results.length);
+  if (selected !== undefined) {
+    event.preventDefault();
+    state.selected = selected;
+    paintSelection(ctx.el, state);
+    return;
+  }
+  if (event.key === "Enter") {
+    openSelected(ctx, event);
+    return;
+  }
+  if (event.key === "Tab") trapFocus(ctx.el, event);
 }
 
 /**
- * The ⌘K palette (E1). Global shortcuts and the open buttons live outside the island's element,
+ * The ⌘K palette. Global shortcuts and the open buttons live outside the island's element,
  * so their listeners go on the document and are removed on destroy.
  */
 export const searchPaletteIsland = createIsland("search-palette", {
@@ -324,7 +328,7 @@ export const searchPaletteIsland = createIsland("search-palette", {
   },
   onMount: ctx => {
     const onShortcut = (event: KeyboardEvent): void => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      if (!isPaletteShortcut(event)) return;
       event.preventDefault();
       if (isOpen(ctx.el)) closePalette(ctx);
       else openPalette(ctx);

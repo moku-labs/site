@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toAgentMarkdown } from "../../markdown";
+import { toAgentMarkdown } from "../../../../src/lib/markdown/agent-markdown";
 
 const lines = (...parts: string[]): string => parts.join("\n");
 

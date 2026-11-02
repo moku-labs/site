@@ -1,6 +1,6 @@
 # kernel
 
-Nano-tier Layer-3 plugin. Gives route loaders the kernel's exact error messages at build. No
+Micro-tier Layer-3 plugin. Gives route loaders the kernel's exact error messages at build. No
 config, no state, no events, no lifecycle.
 
 ## Why a plugin

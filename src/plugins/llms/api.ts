@@ -20,7 +20,8 @@ import type {
   LlmsDocument,
   LlmsFile,
   LlmsPackage,
-  LlmsSources
+  LlmsSources,
+  PendingWrite
 } from "./types";
 
 /** The concepts pages describe the kernel, so their release is the installed `@moku-labs/core`. */
@@ -120,43 +121,65 @@ async function writeFiles(files: readonly LlmsFile[], directory: string): Promis
 }
 
 /**
- * Build the llms API. `files()` renders from `docs.all()` and the site data on every call;
- * `emit()` writes the same files.
+ * Render every file and write it under a directory.
  *
- * @param ctx - Plugin context: config, `require` for the docs plugin, log.
+ * @param ctx - Plugin context: config and `require` for the docs plugin.
+ * @param outputDirectory - Output directory.
+ * @param sources - Site identity, data and `node_modules`.
+ * @returns How many files were written.
+ * @throws {Error} When `siteUrl` is empty or a package with pages is not installed.
+ */
+async function writeLlms(
+  ctx: LlmsContext,
+  outputDirectory: string,
+  sources: LlmsSources
+): Promise<{ count: number }> {
+  return { count: await writeFiles(await collectFiles(ctx, sources), outputDirectory) };
+}
+
+/**
+ * Start the write of a finished build and keep it in state, so `write()` for the same directory
+ * returns it instead of writing again. Every build starts a fresh write; a failed one is dropped
+ * from state, so the next `write()` tries again.
+ *
+ * @param ctx - Plugin context: config, state, `require` for the docs plugin.
+ * @param outputDirectory - The finished build's output directory.
+ * @param sources - Site identity, data and `node_modules`; defaults to the real ones.
+ * @returns The write, the same promise `write()` hands out.
+ */
+export function startBuildWrite(
+  ctx: LlmsContext,
+  outputDirectory: string,
+  sources: LlmsSources = defaultSources
+): Promise<{ count: number }> {
+  const pending: PendingWrite = {
+    outDir: outputDirectory,
+    promise: writeLlms(ctx, outputDirectory, sources)
+  };
+  ctx.state.pending = pending;
+  pending.promise.catch(() => {
+    if (ctx.state.pending === pending) ctx.state.pending = undefined;
+  });
+  return pending.promise;
+}
+
+/**
+ * Build the llms API. `files()` renders from `docs.all()` and the site data on every call;
+ * `write()` writes the same files, or hands out the write the last build started.
+ *
+ * @param ctx - Plugin context: config, state, `require` for the docs plugin.
  * @param sources - Site identity, data and `node_modules`; defaults to the real ones.
  * @returns The API mounted at `app.llms`.
  */
 export function createLlmsApi(ctx: LlmsContext, sources: LlmsSources = defaultSources): LlmsApi {
-  const files = (): Promise<LlmsFile[]> => collectFiles(ctx, sources);
   return {
-    files,
-    emit: async (outputDirectory = ctx.config.outDir) => ({
-      count: await writeFiles(await files(), outputDirectory)
-    })
-  };
-}
+    files: () => collectFiles(ctx, sources),
+    write: (outputDirectory = ctx.config.outDir) => {
+      // The build's own directory: hand out the write its build:complete hook started.
+      const pending = ctx.state.pending;
+      if (pending?.outDir === outputDirectory) return pending.promise;
 
-/**
- * Write the agent files after a build; the `build:complete` handler. The kernel does not await
- * hooks, so a failure is logged as `llms:emit` instead of rejecting into nowhere.
- *
- * @param ctx - Plugin context.
- * @param outputDirectory - The build's output directory.
- * @param sources - Site identity, data and `node_modules`; defaults to the real ones.
- */
-export async function emitLlms(
-  ctx: LlmsContext,
-  outputDirectory: string,
-  sources: LlmsSources = defaultSources
-): Promise<void> {
-  try {
-    await createLlmsApi(ctx, sources).emit(outputDirectory);
-  } catch (error: unknown) {
-    ctx.log.error(
-      "llms:emit",
-      { outDir: outputDirectory },
-      error instanceof Error ? error : undefined
-    );
-  }
+      return writeLlms(ctx, outputDirectory, sources);
+    }
+  };
 }

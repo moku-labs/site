@@ -24,7 +24,8 @@ export type SearchConfig = {
 };
 
 /**
- * Kind of a search result, shown as its label.
+ * What a search result is. `buildSearchIndex` derives it from the docs path (or the data source),
+ * and the ⌘K palette prints it as the row's label, so a reader tells a guide from a plugin page.
  */
 export type SearchKind = "Package" | "Guide" | "Plugin" | "Concept" | "API" | "Page" | "Section";
 
@@ -50,7 +51,8 @@ export type SearchEntry = {
 };
 
 /**
- * The fields of a package the index shows.
+ * The part of a `src/data/packages.ts` entry a `Package` row needs. Structural, so the resolved
+ * entries of `resolvePackages` and the plain objects of a test both fit.
  */
 export type SearchPackage = {
   /** Package id, e.g. `web`; its docs live at `/docs/<id>/`. */
@@ -62,7 +64,8 @@ export type SearchPackage = {
 };
 
 /**
- * Everything the index is built from.
+ * Everything `buildSearchIndex` merges into one row list. Plain data, so the index is built and
+ * tested without an app or a file system.
  */
 export type SearchIndexInput = {
   /** Every docs page, in sidebar order. */
@@ -74,7 +77,8 @@ export type SearchIndexInput = {
 };
 
 /**
- * Where the packages and demos come from; the defaults read `src/data/*`, tests inject their own.
+ * The inputs the API reads besides the docs plugin. The defaults read `src/data/*` and resolve
+ * versions from `node_modules`; a test injects its own, so it needs no installed family.
  */
 export type SearchSources = {
   /** The package family; called on every index build. */
@@ -98,12 +102,28 @@ export type SearchRequire = <Plugin extends typeof docsPlugin | typeof collectio
   plugin: Plugin
 ) => PluginApiOf<Plugin>;
 
+/** A shard write the `build:complete` hook started; `write()` for the same directory returns it. */
+export type PendingWrite = {
+  /** The output directory of the finished build. */
+  outDir: string;
+  /** The write, as `write()` returns it. */
+  promise: Promise<{ count: number }>;
+};
+
+/** Plugin state. */
+export type SearchState = {
+  /** The write of the last `build:complete`; replaced by the next build, dropped when it fails. */
+  pending: PendingWrite | undefined;
+};
+
 /**
  * The plugin context fields the search plugin reads; the framework's `ctx` satisfies it structurally.
  */
 export type SearchContext = {
   /** Resolved plugin config. */
   readonly config: Readonly<SearchConfig>;
+  /** Mutable plugin state. */
+  readonly state: SearchState;
   /** Resolve the docs and collection plugins. */
   readonly require: SearchRequire;
   /** The core logger, for a failed write after a build. */
@@ -130,7 +150,9 @@ export type SearchApi = {
    */
   entries: () => Promise<SearchEntry[]>;
   /**
-   * Persist the index as one collection shard, `<outDir>/<collection>/<shard>.json`.
+   * Persist the index as one collection shard, `<outDir>/<collection>/<shard>.json`. After a
+   * build, a call for that build's output directory returns the write the `build:complete` hook
+   * started instead of writing the shard a second time.
    *
    * @param outputDirectory - Output directory; defaults to the configured `outDir`.
    * @returns How many rows were written.
@@ -138,7 +160,7 @@ export type SearchApi = {
    * @example
    * ```ts
    * // scripts/build.ts, after app.cli.build(): the kernel does not await the build:complete hook.
-   * await app.search.write(); // writes dist/search/en.json
+   * await app.search.write(); // awaits the hook's write of dist/search/en.json
    * (await app.search.write("preview")).count; // rows written to preview/search/en.json
    * ```
    */

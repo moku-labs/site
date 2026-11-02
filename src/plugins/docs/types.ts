@@ -74,10 +74,12 @@ export type NavGroup = {
   pages: readonly DocumentLink[];
 };
 
-/** Plugin state. */
+/** Plugin state: the page cache of one build run. */
 export type DocumentationState = {
-  /** Pages by path, loaded lazily on the first API call. */
+  /** Pages by path, loaded lazily on the first API call; dropped when a build run starts. */
   pages: Map<string, DocumentPage> | undefined;
+  /** The load in flight, shared by concurrent first calls; dropped together with the pages. */
+  pending: Promise<Map<string, DocumentPage>> | undefined;
 };
 
 /** The part of the content plugin API the docs plugin uses. */

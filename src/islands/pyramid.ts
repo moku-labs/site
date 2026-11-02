@@ -1,5 +1,5 @@
 /**
- * @file The `pyramid` island: relation highlight, tooltip and links of the bricks (U7).
+ * @file The `pyramid` island: relation highlight, tooltip and links of the bricks.
  */
 import type { Spa } from "@moku-labs/web/browser";
 import { createIsland } from "@moku-labs/web/browser";
@@ -98,7 +98,7 @@ function open(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
 }
 
 /**
- * Pyramid (A1): hover or focus a demo to light the packages it is built from and the core;
+ * Pyramid: hover or focus a demo to light the packages it is built from and the core;
  * hover a package to light the demos built with it. Click or Enter opens the page.
  */
 export const pyramidIsland = createIsland("pyramid", {

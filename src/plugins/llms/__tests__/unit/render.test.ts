@@ -121,6 +121,12 @@ describe("renderLlmsFiles", () => {
     expect(full).not.toContain("Demos");
   });
 
+  // Bug: the pages of llms-full.txt run together, so an agent reads the end of one page as the
+  // start of the next.
+  it("separates the pages of llms-full.txt with a blank line", () => {
+    expect(fileAt("llms-full.txt")).toContain("## Three layers body\n\n# Overview\n\nSource:");
+  });
+
   // Bug: a package's llms.txt lists the whole family instead of its own pages.
   it("writes a per-package llms.txt with only that package's pages", () => {
     const web = fileAt("docs/web/llms.txt");

@@ -1,79 +1,83 @@
-/* The isometric cube icon: a global atom, identical in every context (no @scope). */
-[data-component="cube-icon"] {
-  [data-part="glyph"] {
-    fill: none;
-    stroke-width: 13;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  &[data-tone="kernel"] {
-    [data-face="top"] {
-      fill: var(--kernel-top);
-    }
-
-    [data-face="left"] {
-      fill: var(--kernel-left);
-    }
-
-    [data-face="right"] {
-      fill: var(--kernel-right);
-    }
-
+/* The isometric cube icon: a global atom, identical in every context. */
+@scope ([data-component="cube-icon"]) {
+  :scope {
     [data-part="glyph"] {
-      stroke: var(--kernel-glyph);
-    }
-  }
-
-  &[data-tone="docs"] {
-    [data-face] {
-      stroke: var(--iso-docs-stroke);
-      stroke-width: 3;
+      fill: none;
+      stroke-width: 13;
+      stroke-linecap: round;
       stroke-linejoin: round;
     }
 
-    [data-face="top"] {
-      fill: var(--iso-docs-top);
+    &[data-tone="kernel"] {
+      [data-face="top"] {
+        fill: var(--kernel-top);
+      }
+
+      [data-face="left"] {
+        fill: var(--kernel-left);
+      }
+
+      [data-face="right"] {
+        fill: var(--kernel-right);
+      }
+
+      [data-part="glyph"] {
+        stroke: var(--kernel-glyph);
+      }
     }
 
-    [data-face="left"] {
-      fill: var(--iso-docs-left);
+    &[data-tone="docs"] {
+      [data-face] {
+        stroke: var(--iso-docs-stroke);
+        stroke-width: 3;
+        stroke-linejoin: round;
+      }
+
+      [data-face="top"] {
+        fill: var(--iso-docs-top);
+      }
+
+      [data-face="left"] {
+        fill: var(--iso-docs-left);
+      }
+
+      [data-face="right"] {
+        fill: var(--iso-docs-right);
+      }
+
+      [data-part="glyph"] {
+        stroke: var(--iso-docs-glyph);
+      }
     }
 
-    [data-face="right"] {
-      fill: var(--iso-docs-right);
-    }
+    &[data-tone="block"] {
+      [data-face] {
+        stroke: var(--iso-block-stroke);
+        stroke-width: 1.5;
+      }
 
-    [data-part="glyph"] {
-      stroke: var(--iso-docs-glyph);
-    }
-  }
+      [data-face="top"] {
+        fill: var(--iso-block-top);
+      }
 
-  &[data-tone="block"] {
-    [data-face] {
-      stroke: var(--iso-block-stroke);
-      stroke-width: 1.5;
-    }
+      [data-face="left"] {
+        fill: var(--iso-block-left);
+      }
 
-    [data-face="top"] {
-      fill: var(--iso-block-top);
-    }
+      [data-face="right"] {
+        fill: var(--iso-block-right);
+      }
 
-    [data-face="left"] {
-      fill: var(--iso-block-left);
-    }
-
-    [data-face="right"] {
-      fill: var(--iso-block-right);
-    }
-
-    [data-part="glyph"] {
-      stroke: var(--iso-block-glyph);
+      [data-part="glyph"] {
+        stroke: var(--iso-block-glyph);
+      }
     }
   }
 }
 
 /* Package art keeps its square box. */
-[data-component="package-icon"] {
-  object-fit: contain;
+@scope ([data-component="package-icon"]) {
+  :scope {
+    object-fit: contain;
+  }
 }

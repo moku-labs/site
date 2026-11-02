@@ -3,9 +3,10 @@
  * italic lines; fences lose their meta and their `// [!note]` comments.
  *
  * Line-based on purpose: the docs directives are block-level and written at the start of a line
- * (`src/lib/markdown/directives.ts`), and an agent needs readable Markdown, not a syntax tree.
+ * (`./directives.ts`), and an agent needs readable Markdown, not a syntax tree. The llms plugin
+ * runs every page body through it for the `.md` twins and `llms-full.txt`.
  */
-import { parseFenceMeta, splitCodeLines } from "../../lib/markdown/code-blocks";
+import { parseFenceMeta, splitCodeLines } from "./code-blocks";
 
 const FENCE_OPEN = /^(\s*)(`{3,}|~{3,})\s*([^\s`]*)/;
 const FENCE_CLOSE = /^\s*(`{3,}|~{3,})\s*$/;
@@ -142,12 +143,15 @@ function openContainer(state: Converter, match: RegExpExecArray): void {
  * @param line - The line.
  */
 function readLine(state: Converter, line: string): void {
+  // A code fence opens: its lines go to the fence until it closes.
   const fence = FENCE_OPEN.exec(line);
   if (fence) {
     const [, indent = "", marker = "```", language = ""] = fence;
     state.fence = { indent, marker, language, body: [] };
     return;
   }
+
+  // A container directive closes or opens: only its fence line goes.
   const close = CONTAINER_CLOSE.exec(line)?.[1];
   const frame = state.frames.at(-1);
   if (close !== undefined && frame !== undefined && close.length >= frame.colons) {
@@ -159,6 +163,8 @@ function readLine(state: Converter, line: string): void {
     openContainer(state, container);
     return;
   }
+
+  // A diagram becomes its caption; any other line is prose.
   const leaf = LEAF.exec(line);
   if (leaf?.[1] === "diagram") {
     const caption = leaf[2] || parseFenceMeta(leaf[3] ?? "").attributes.name || "diagram";

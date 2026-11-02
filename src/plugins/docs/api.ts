@@ -125,8 +125,9 @@ function neighboursOf(
 }
 
 /**
- * Build the docs API. Pages load once, lazily, on the first call; concurrent first calls share
- * the load, and a failed load is retried by the next call.
+ * Build the docs API. Pages load once per build run, lazily, on the first call; concurrent first
+ * calls share the load, and a failed load is retried by the next call. The `build:phase` hook
+ * empties the cache when a run starts.
  *
  * @param ctx - Plugin context: config, state and `require` for the content renderer.
  * @param packageIds - Package ids in display order; defaults to `src/data/packages.ts`.
@@ -137,26 +138,36 @@ export function createDocumentationApi(
   packageIds: readonly string[] = packages.map(entry => entry.id)
 ): DocumentationApi {
   const packageOrder = documentationPackageOrder(packageIds);
-  let pending: Promise<Map<string, DocumentPage>> | undefined;
+  const content = ctx.require(contentPlugin);
 
-  const load = (): Promise<Map<string, DocumentPage>> => {
-    if (ctx.state.pages) return Promise.resolve(ctx.state.pages);
-    pending ??= loadDocuments({
+  const startLoad = (): Promise<Map<string, DocumentPage>> => {
+    const pending = loadDocuments({
       directory: ctx.config.dir,
       packageOrder,
-      render: markdown => ctx.require(contentPlugin).renderMarkdown(markdown),
+      render: markdown => content.renderMarkdown(markdown),
       capture: () => captureKernelErrors()
     }).then(
+      // A load the reset dropped while it ran must not put the old pages back.
       loaded => {
-        ctx.state.pages = loaded;
+        if (ctx.state.pending === pending) ctx.state.pages = loaded;
         return loaded;
       },
+      // A failed load is forgotten, so the next call retries it.
       (error: unknown) => {
-        pending = undefined;
+        if (ctx.state.pending === pending) ctx.state.pending = undefined;
         throw error;
       }
     );
     return pending;
+  };
+
+  const load = (): Promise<Map<string, DocumentPage>> => {
+    // Loaded in this run: serve the cache.
+    if (ctx.state.pages) return Promise.resolve(ctx.state.pages);
+
+    // Not loaded yet: every caller shares the one load in flight.
+    ctx.state.pending ??= startLoad();
+    return ctx.state.pending;
   };
   const all = (): Promise<DocumentPage[]> => load().then(pages => [...pages.values()]);
   const byPackage = (pkg: string): Promise<DocumentPage[]> =>

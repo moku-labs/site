@@ -35,10 +35,12 @@
   --color-night-code-bar: #110d24;
   --color-night-card: #151129;
   --color-night-raised: #17122f;
+  --color-night-glow-deep: #1a1240;
   --color-night-inline: #1e1938;
   --color-night-terminal-line: #241e44;
   --color-night-docs-line: #262046;
   --color-night-line: #2b2452;
+  --color-night-glow: #2b1d5f;
   --color-night-terminal-dot: #2e2756;
   --color-night-line-strong: #3a3170;
   --color-night-gutter: #827bb3;
@@ -53,9 +55,11 @@
   --color-day-code: #fbfaff;
   --color-day-raised: #f8f6fd;
   --color-day-inline: #ece8f8;
+  --color-day-glow-soft: #ebe6fc;
   --color-day-code-bar: #efecf8;
   --color-day-docs: #e9e5f5;
   --color-day-docs-line: #e2dcf2;
+  --color-day-glow: #ded4fa;
   --color-day-line: #dcd6f0;
   --color-day-line-strong: #c6bee6;
   --color-day-gutter: #6c668f;
@@ -127,9 +131,18 @@
   --surface-page: light-dark(var(--color-paper), var(--color-ink));
   --surface-card: light-dark(var(--color-white), var(--color-night-surface));
   --surface-raised: light-dark(var(--color-day-raised), var(--color-night-raised));
-  --surface-header: light-dark(rgb(242 239 249 / 0.9), rgb(10 11 18 / 0.84));
-  --glow-primary: light-dark(rgb(222 212 250 / 0.95), rgb(43 29 95 / 0.95));
-  --glow-secondary: light-dark(rgb(235 230 252 / 0.9), rgb(26 18 64 / 0.9));
+  --surface-header: light-dark(
+    color-mix(in srgb, var(--color-paper) 90%, transparent),
+    color-mix(in srgb, var(--color-ink) 84%, transparent)
+  );
+  --glow-primary: light-dark(
+    color-mix(in srgb, var(--color-day-glow) 95%, transparent),
+    color-mix(in srgb, var(--color-night-glow) 95%, transparent)
+  );
+  --glow-secondary: light-dark(
+    color-mix(in srgb, var(--color-day-glow-soft) 90%, transparent),
+    color-mix(in srgb, var(--color-night-glow-deep) 90%, transparent)
+  );
   --line-default: light-dark(var(--color-day-line), var(--color-night-line));
   --line-strong: light-dark(var(--color-day-line-strong), var(--color-night-line-strong));
   --text-body: light-dark(var(--color-day-text), var(--color-lavender));
@@ -232,6 +245,7 @@
   --iso-plugin-glyph: light-dark(var(--color-lavender), #1b1640);
   --iso-shadow: light-dark(rgb(42 36 80 / 0.16), rgb(0 0 0 / 0.42));
   --iso-rim: light-dark(rgb(255 46 99 / 0.65), rgb(255 46 99 / 0.55));
+  --demo-thumb-saturation: 45%;
   --demo-thumb-lightness: light-dark(88%, 24%);
 
   --iso-block-stroke: light-dark(#cfc8ea, transparent);

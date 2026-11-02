@@ -32,19 +32,25 @@ export type BlockPlace = {
   height: number;
 };
 
+/** Terrace height of the outer ring, the highest. */
+const OUTER_TERRACE_LEVEL = 1.6;
+
+/** Terrace height of the second ring, half the outer one. */
+const INNER_TERRACE_LEVEL = 0.8;
+
 /** Package blocks: core and common on the ground, frameworks on the middle ring, the rest on top. */
 const BLOCK_PLACES: Readonly<Record<string, BlockPlace>> = {
   core: { x: 3, y: 7, level: 0, height: 0.8 },
   common: { x: 7, y: 3, level: 0, height: 0.64 },
-  web: { x: 1, y: 4, level: 0.8, height: 0.64 },
-  worker: { x: 1, y: 1, level: 0.8, height: 0.64 },
-  room: { x: 4, y: 1, level: 0.8, height: 0.64 },
-  system: { x: 0, y: 7, level: 1.6, height: 0.64 },
-  native: { x: 0, y: 5, level: 1.6, height: 0.64 },
-  game: { x: 0, y: 2, level: 1.6, height: 0.64 },
-  editor: { x: 2, y: 0, level: 1.6, height: 0.64 },
-  ai: { x: 5, y: 0, level: 1.6, height: 0.64 },
-  ci: { x: 7, y: 0, level: 1.6, height: 0.64 }
+  web: { x: 1, y: 4, level: INNER_TERRACE_LEVEL, height: 0.64 },
+  worker: { x: 1, y: 1, level: INNER_TERRACE_LEVEL, height: 0.64 },
+  room: { x: 4, y: 1, level: INNER_TERRACE_LEVEL, height: 0.64 },
+  system: { x: 0, y: 7, level: OUTER_TERRACE_LEVEL, height: 0.64 },
+  native: { x: 0, y: 5, level: OUTER_TERRACE_LEVEL, height: 0.64 },
+  game: { x: 0, y: 2, level: OUTER_TERRACE_LEVEL, height: 0.64 },
+  editor: { x: 2, y: 0, level: OUTER_TERRACE_LEVEL, height: 0.64 },
+  ai: { x: 5, y: 0, level: OUTER_TERRACE_LEVEL, height: 0.64 },
+  ci: { x: 7, y: 0, level: OUTER_TERRACE_LEVEL, height: 0.64 }
 };
 
 /** Inset of a package block inside its cell; the block is `1 - 2 × inset` wide. */
@@ -77,6 +83,26 @@ export const SOCKET_BLOCK_INSET = 0.16;
 
 /** Height of a plugin block in a socket. */
 export const SOCKET_BLOCK_HEIGHT = 0.62;
+
+/** Offset from a cell's corner to its middle. */
+const CELL_MIDDLE = 0.5;
+
+/** Height above the ground where an accepted plugin lands in its socket. */
+const SOCKET_LANDING_LEVEL = 0.7;
+
+/** Grid distance from the back edge to the fall point: past the platform's front edge. */
+const FALL_OUTWARD = 11.2;
+
+/** Grid distance along the front edge to the fall point, a little past its middle. */
+const FALL_ALONG = 6.2;
+
+/** Painter's layer of each item kind at one depth: the kernel first, then terraces, sockets, blocks. */
+const DRAW_LAYERS: Readonly<Record<WorldItem["kind"], number>> = {
+  kernel: -1,
+  terrace: 0,
+  socket: 0.5,
+  block: 1
+};
 
 /** One thing the world draws, in painter's order. */
 export type WorldItem =
@@ -129,8 +155,8 @@ export type WorldItem =
  */
 export function terraceLevel(x: number, y: number): number {
   const ring = Math.min(x, y);
-  if (ring === 0) return 1.6;
-  if (ring === 1) return 0.8;
+  if (ring === 0) return OUTER_TERRACE_LEVEL;
+  if (ring === 1) return INNER_TERRACE_LEVEL;
   return 0;
 }
 
@@ -160,11 +186,11 @@ function terraces(): WorldItem[] {
  */
 function drawKey(item: WorldItem): readonly [number, number] {
   if (item.kind === "kernel") {
-    return [KERNEL_BOX.x + KERNEL_BOX.width / 2 + KERNEL_BOX.y + KERNEL_BOX.depth / 2, -1];
+    const depth = KERNEL_BOX.x + KERNEL_BOX.width / 2 + KERNEL_BOX.y + KERNEL_BOX.depth / 2;
+    return [depth, DRAW_LAYERS.kernel];
   }
-  if (item.kind === "terrace") return [item.x + item.y, 0];
-  if (item.kind === "socket") return [item.x + item.y, 0.5];
-  return [item.place.x + item.place.y, 1];
+  if (item.kind === "block") return [item.place.x + item.place.y, DRAW_LAYERS.block];
+  return [item.x + item.y, DRAW_LAYERS[item.kind]];
 }
 
 /**
@@ -223,7 +249,7 @@ export function kernelTop(): Point {
  */
 export function socketCentre(index: number): Point {
   const [x, y] = SOCKETS[Math.min(index, SOCKETS.length - 1)] ?? [0, 0];
-  return world.point(x + 0.5, y + 0.5, 0.7);
+  return world.point(x + CELL_MIDDLE, y + CELL_MIDDLE, SOCKET_LANDING_LEVEL);
 }
 
 /**
@@ -233,9 +259,12 @@ export function socketCentre(index: number): Point {
  * @returns The SVG point.
  * @example
  * ```ts
- * fallPoint(state.rejections % 2 === 1);
+ * // A refused plugin tumbles off the right edge:
+ * fallPoint(true); // about [150, 261], past the right front edge
  * ```
  */
 export function fallPoint(toRight: boolean): Point {
-  return toRight ? world.point(11.2, 6.2, 0) : world.point(6.2, 11.2, 0);
+  return toRight
+    ? world.point(FALL_OUTWARD, FALL_ALONG, 0)
+    : world.point(FALL_ALONG, FALL_OUTWARD, 0);
 }

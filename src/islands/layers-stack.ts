@@ -1,5 +1,5 @@
 /**
- * @file The `layers-stack` island: slab, step and code line stay in step (U8).
+ * @file The `layers-stack` island: slab, step and code line stay in step.
  */
 import { createIsland } from "@moku-labs/web/browser";
 import { readData } from "./dataset";
@@ -33,7 +33,7 @@ function layerOfLine(line: Element): string {
 }
 
 /**
- * Three layers (A1): hovering, focusing or tapping a slab, a step or a code line lights the same
+ * Three layers: hovering, focusing or tapping a slab, a step or a code line lights the same
  * layer in all three. The app layer is lit at first paint and on mount.
  */
 export const layersStackIsland = createIsland("layers-stack", {

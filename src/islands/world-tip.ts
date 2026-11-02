@@ -1,5 +1,5 @@
 /**
- * @file Fill and place the world tooltip (D1), shared by the hero and pyramid islands. Not an
+ * @file Fill and place the world tooltip, shared by the hero and pyramid islands. Not an
  * island.
  */
 
@@ -22,13 +22,16 @@ function setPart(tip: Element, part: string, text: string | undefined): void {
 
 /**
  * Show the tooltip above an element, filled from its `data-tip-*` attributes (`title`,
- * `version`, `text`, `action`, and `art`, an image URL).
+ * `version`, `text`, `action`, and `art`, an image URL). The island places it through
+ * `--tip-x` / `--tip-y`, kept clear of the viewport's side edges.
  *
  * @param tip - The `[data-component="world-tip"]` element.
  * @param target - The hovered or focused element.
  * @example
  * ```ts
- * showTip(tip, block); // block has data-tip-title="@moku-labs/web" …
+ * // The visitor hovers the web block: <g data-tip-title="@moku-labs/web" data-tip-version="v2.4.11">
+ * showTip(tip, webBlock);
+ * // tip is visible above the block; its title reads "@moku-labs/web", its version "v2.4.11"
  * ```
  */
 export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): void {
@@ -55,7 +58,8 @@ export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): voi
  * @param tip - The tooltip, if the section has one.
  * @example
  * ```ts
- * hideTip(root.querySelector('[data-component="world-tip"]'));
+ * // The pointer leaves the pyramid while a brick's tooltip shows.
+ * hideTip(root.querySelector('[data-component="world-tip"]')); // the tooltip is hidden
  * ```
  */
 export function hideTip(tip: HTMLElement | null): void {

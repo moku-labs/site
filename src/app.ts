@@ -16,7 +16,7 @@ import {
   fileSystemContent,
   processEnv
 } from "@moku-labs/web";
-import { SEARCH_INDEX, SITE } from "./config";
+import { OUT_DIRECTORY, SEARCH_INDEX, SITE } from "./config";
 import { islands } from "./islands";
 import { mokuCodeTheme } from "./lib/code-theme";
 import { codeBlocks } from "./lib/markdown/code-blocks";
@@ -72,10 +72,14 @@ export const app = createApp({
     },
     collection: { baseUrl: SEARCH_INDEX.baseUrl },
     docs: { dir: "content/docs" },
-    search: { collection: SEARCH_INDEX.collection, shard: SEARCH_INDEX.shard, outDir: "dist" },
-    llms: { siteUrl: SITE.url, outDir: "dist" },
+    search: {
+      collection: SEARCH_INDEX.collection,
+      shard: SEARCH_INDEX.shard,
+      outDir: OUT_DIRECTORY
+    },
+    llms: { siteUrl: SITE.url, outDir: OUT_DIRECTORY },
     build: {
-      outDir: "dist",
+      outDir: OUT_DIRECTORY,
       sitemap: true,
       feeds: false,
       injectAssets: true,
@@ -89,8 +93,13 @@ export const app = createApp({
     data: { outputDir: "_data", baseUrl: "/_data/" },
     // `ci: false`: the GitHub workflow is the thin `.github/workflows/ci.yml` caller of
     // `moku-labs/ci` app-deploy, so the deploy plugin must not scaffold a second one.
-    deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: false },
-    cli: { outDir: "dist", port: 4173 },
+    deploy: {
+      target: "cloudflare-pages",
+      outDir: OUT_DIRECTORY,
+      productionBranch: "main",
+      ci: false
+    },
+    cli: { outDir: OUT_DIRECTORY, port: 4173 },
     // Process env first so CI secrets win; .env (gitignored) is the local fallback.
     env: { providers: [processEnv(), dotenv(".env")] }
   }

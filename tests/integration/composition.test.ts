@@ -19,12 +19,13 @@ describe("custom plugin composition", () => {
       plugins: [contentPlugin, collectionPlugin, buildPlugin, docsPlugin, searchPlugin, llmsPlugin],
       pluginConfigs: {
         site: SITE,
-        content: { providers: [fileSystemContent({ contentDir: "content/articles" })] }
+        content: { providers: [fileSystemContent({ contentDir: "content/articles" })] },
+        llms: { siteUrl: SITE.url }
       }
     });
 
     expect(typeof app.docs.get).toBe("function");
     expect(typeof app.search.write).toBe("function");
-    expect(typeof app.llms.emit).toBe("function");
+    expect(typeof app.llms.write).toBe("function");
   });
 });
