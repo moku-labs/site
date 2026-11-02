@@ -10,7 +10,7 @@ order: 4
 Events are notifications: fire-and-forget, typed, no return value. Only known event names compile,
 and the payload must match.
 
-```ts
+```ts no-check="a fragment inside a plugin spec"
 ctx.emit("auth:login", { userId: "123" }); // OK
 ctx.emit("auth:login", { wrongKey: true }); // compile error: wrong payload
 ctx.emit("unknown:event", {}); // compile error: unknown event
@@ -57,7 +57,7 @@ app.auth.login("ada");
 
 With a separate event-map type, use `register.map`:
 
-```ts
+```ts no-check="a fragment inside a plugin spec"
 type AuthEvents = { "auth:login": { userId: string }; "auth:logout": { userId: string } };
 
 events: register =>

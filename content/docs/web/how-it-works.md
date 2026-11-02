@@ -76,7 +76,7 @@ next page's HTML and swaps the `main > section` region.
 
 ## Two apps, one route table
 
-```ts file="src/app.ts" group="two-apps" hl="2"
+```ts file="src/app.ts" group="two-apps" hl="2" no-check="imports ./routes from the reader's project"
 import { buildPlugin, contentPlugin, createApp, dataPlugin, fileSystemContent } from "@moku-labs/web";
 import { routes } from "./routes"; // [!note] The Node app imports the routes with their loaders.
 
@@ -91,7 +91,7 @@ export const app = createApp({
 });
 ```
 
-```ts file="src/client.ts" group="two-apps" hl="1-2"
+```ts file="src/client.ts" group="two-apps" hl="1-2" no-check="imports ./routes from the reader's project"
 import { createApp, dataPlugin } from "@moku-labs/web/browser"; // [!note] The browser entry cannot pull in `node:fs`.
 import { routes } from "./routes"; // [!note] The same table. Its loaders ship but never run here.
 

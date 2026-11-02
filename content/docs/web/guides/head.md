@@ -28,7 +28,7 @@ The `build` plugin adds the site-wide files: feeds, `sitemap.xml`, `robots.txt` 
 
 ## Example
 
-```ts file="src/app.ts" group="head" hl="8-13"
+```ts file="src/app.ts" group="head" hl="8-13" no-check="imports ./routes from the reader's project"
 import { buildPlugin, contentPlugin, createApp, fileSystemContent } from "@moku-labs/web";
 import { routes } from "./routes";
 
@@ -133,7 +133,7 @@ replaces the generated `og:title`.
 
 ## Site-wide outputs
 
-```ts file="src/app.ts"
+```ts file="src/app.ts" no-check="a fragment of the createApp options"
 pluginConfigs: {
   head: { defaultOgImage: "/og-default.png" }, // [!note] Points every page without its own image at the card the build renders.
   build: {

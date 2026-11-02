@@ -59,7 +59,7 @@ export const greeterPlugin = coreConfig.createPlugin("greeter", {
 
 Pick the env provider that matches each target:
 
-```ts
+```ts check
 import { dotenv, processEnv } from "@moku-labs/common"; // Node
 import { browserEnv } from "@moku-labs/common/browser"; // browser, node-free
 ```
