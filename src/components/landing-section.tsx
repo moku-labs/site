@@ -25,7 +25,7 @@ type LandingSectionProperties = {
  * @returns The `<section data-component="landing-section">`.
  * @example
  * ```tsx
- * <LandingSection id="checks" title="Errors at startup, not in production." lede="…">…</LandingSection>
+ * <LandingSection id="layers" title="Three layers. Nothing reaches back down." lede="…">…</LandingSection>
  * ```
  */
 export function LandingSection(props: LandingSectionProperties): VNode {

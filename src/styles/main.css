@@ -23,7 +23,6 @@
 @import "../components/search-palette.css" layer(components);
 @import "../components/hero.css" layer(components);
 @import "../components/landing-section.css" layer(components);
-@import "../components/kernel-checks.css" layer(components);
 @import "../components/layers-stack.css" layer(components);
 @import "../components/pyramid.css" layer(components);
 @import "../components/package-grid.css" layer(components);

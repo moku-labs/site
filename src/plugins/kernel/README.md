@@ -15,11 +15,10 @@ in `src/app.ts`, and loaders reach it by name through `src/lib/kernel-reference.
 
 | Member | Returns |
 |---|---|
-| `errors()` | Every kernel check with its exact message, in display order (`captureKernelErrors`) |
 | `trayMessages(tray)` | The messages the hero tray can show, captured with the tray's own plugin names (`captureTrayMessages`) |
 
 Every call runs the kernel again. A check that stops throwing fails the build.
 
 ## Used by
 
-- The home route: the startup-error check cards and the hero tray (`src/lib/home-data.ts`).
+- The home route: the hero tray (`src/lib/home-data.ts`).
