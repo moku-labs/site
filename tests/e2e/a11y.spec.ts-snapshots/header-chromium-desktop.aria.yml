@@ -1,0 +1,26 @@
+- banner:
+  - link "Moku Labs home":
+    - /url: /
+    - text: ""
+  - navigation "Main":
+    - list:
+      - listitem:
+        - link "Docs":
+          - /url: /docs/
+      - listitem:
+        - link "Packages":
+          - /url: /#packages
+      - listitem:
+        - link "Demos":
+          - /url: /demos/
+      - listitem:
+        - link "About":
+          - /url: /about/
+      - listitem:
+        - link "GitHub":
+          - /url: https://github.com/moku-labs
+      - listitem:
+        - link "llms.txt":
+          - /url: /llms.txt
+  - button "Search docs ⌘K"
+  - button "Switch to light theme": Light

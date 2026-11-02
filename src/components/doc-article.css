@@ -1,0 +1,61 @@
+/* The article column of a docs page: breadcrumbs, title, lead. The body is in content.css. */
+@scope ([data-component="doc-article"]) {
+  :scope {
+    min-width: 0;
+    max-width: 880px;
+    padding: 34px 52px 96px;
+  }
+
+  [data-part="crumbs"] {
+    font-size: 13.5px;
+    color: var(--docs-muted);
+    margin: 0 0 16px;
+
+    a {
+      color: var(--docs-link);
+      text-underline-offset: 3px;
+    }
+  }
+
+  h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 12px;
+    font: 600 clamp(28px, 3.6vw, 42px) / 1.08 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--docs-heading);
+    overflow-wrap: anywhere;
+  }
+
+  [data-part="lead"] {
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--docs-muted);
+    margin: 0 0 20px;
+    max-width: 60ch;
+  }
+
+  @media (max-width: 860px) {
+    :scope {
+      padding: 24px 20px 72px;
+    }
+  }
+}
+
+/* D13: crumbs are 40px targets on a phone. */
+@scope ([data-component="doc-article"]) {
+  @media (max-width: 760px) {
+    [data-part="crumbs"] a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding-inline: 4px;
+    }
+
+    [data-part="crumbs"] {
+      margin-bottom: 4px;
+    }
+  }
+}

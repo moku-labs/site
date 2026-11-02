@@ -6,17 +6,102 @@
     <meta name="robots" content="noindex">
     <!-- Title mirrors SITE.name in src/config.ts; a static page cannot import it. -->
     <title>404 — Moku Labs</title>
+    <!-- The same theme rule as src/index.html: ?theme= → sessionStorage → OS preference. -->
+    <script>
+      (() => {
+        const key = "moku-theme";
+        const valid = value => (value === "light" || value === "dark" ? value : undefined);
+        let theme;
+        try {
+          const forced = valid(new URLSearchParams(location.search).get("theme"));
+          if (forced) sessionStorage.setItem(key, forced);
+          theme = forced ?? valid(sessionStorage.getItem(key));
+        } catch {}
+        theme ??= matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <!-- Bundle filenames carry a content hash, so the build substitutes the stylesheet link here.
-         CSS-only on purpose: this page ships no JS. -->
+         CSS-only on purpose: this page ships no bundle. -->
     <!--moku:assets:css-->
   </head>
   <body>
-    <main>
-      <section data-page="not-found">
-        <h1>404</h1>
-        <p>This page does not exist.</p>
-        <p><a href="/">Back to the start</a></p>
-      </section>
+    <a data-component="skip-link" href="#content">Skip to content</a>
+    <header data-component="site-header">
+      <div data-part="bar">
+        <a data-part="logo" href="/" aria-label="Moku Labs home">
+          <svg data-component="cube-icon" data-tone="kernel" viewBox="0 0 100 104" width="28" height="29" aria-hidden="true">
+            <polygon data-face="left" points="8,30 50,52 50,96 8,74" />
+            <polygon data-face="right" points="50,52 92,30 92,74 50,96" />
+            <polygon data-face="top" points="50,8 92,30 50,52 8,30" />
+          </svg>
+          <span>Moku Labs</span>
+        </a>
+      </div>
+    </header>
+    <main id="content" tabindex="-1">
+      <div data-page="not-found">
+        <div data-component="not-found">
+          <div data-part="art">
+            <img src="/art/not-found.webp" width="1200" height="800" alt="An empty isometric platform with a dashed path that leads off its edge past a small pink cube" decoding="async">
+          </div>
+          <div>
+            <h1>404</h1>
+            <p data-part="lead">Nothing is registered at this address.</p>
+            <p>The page may have moved when the docs were reorganized. The kernel would have caught it, but pages are not plugins.</p>
+            <div data-part="actions">
+              <a data-component="button" data-variant="primary" href="/">Back to the cube city</a>
+              <a data-component="button" data-variant="ghost" href="/docs/">Open the docs</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
+    <!-- Static copy of SiteFooter (src/components/site-footer.tsx): keep the two in step. -->
+    <footer data-component="site-footer">
+      <div data-part="inner">
+        <div data-part="columns">
+          <div data-part="brand">
+            <a data-part="logo" href="/">
+              <svg data-component="cube-icon" data-tone="kernel" viewBox="0 0 100 104" width="26" height="27" aria-hidden="true">
+                <polygon data-face="left" points="8,30 50,52 50,96 8,74" />
+                <polygon data-face="right" points="50,52 92,30 92,74 50,96" />
+                <polygon data-face="top" points="50,8 92,30 50,52 8,30" />
+              </svg>
+              <span>Moku Labs</span>
+            </a>
+            <p>Slop doesn't spread. A one-person lab by Alex Kucherenko, building frameworks an AI agent can write without making a mess.</p>
+          </div>
+          <div>
+            <h2>Site</h2>
+            <ul>
+              <li><a href="/docs/">Docs</a></li>
+              <li><a href="/#packages">Packages</a></li>
+              <li><a href="/demos/">Demos</a></li>
+              <li><a href="/about/">About</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>For agents</h2>
+            <ul>
+              <li><a href="/llms.txt" target="_blank" rel="noopener">llms.txt</a></li>
+              <li><a href="/llms-full.txt" target="_blank" rel="noopener">Docs as .md</a></li>
+              <li><a href="/docs/claude/">Claude plugin</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Elsewhere</h2>
+            <ul>
+              <li><a href="https://github.com/moku-labs" target="_blank" rel="noopener">GitHub</a></li>
+              <li><a href="https://alexblog.net" target="_blank" rel="noopener">alexblog.net</a></li>
+            </ul>
+          </div>
+        </div>
+        <div data-part="bottom">
+          <span>© 2026 Moku Labs</span>
+          <span>Built with @moku-labs/web. Not an ORM.</span>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

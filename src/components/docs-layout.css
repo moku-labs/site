@@ -1,0 +1,26 @@
+/* The docs sheet (§5): 1400px with side rules; 268px nav / content / 220px TOC. */
+@scope ([data-component="docs-layout"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr) 220px;
+    align-items: start;
+    max-width: var(--width-docs);
+    min-height: calc(100vh - var(--header-height));
+    margin: 0 auto;
+    background: var(--docs-sheet);
+    border-left: 1px solid var(--docs-line);
+    border-right: 1px solid var(--docs-line);
+  }
+
+  @media (max-width: 1200px) {
+    :scope {
+      grid-template-columns: 250px minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 860px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

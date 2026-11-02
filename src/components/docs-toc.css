@@ -1,0 +1,126 @@
+/* B4 "On this page": heading links (toc-spy marks the current one), then agent and edit links. */
+@scope ([data-component="docs-toc"]) {
+  :scope {
+    position: sticky;
+    top: var(--header-height);
+    padding: 34px 20px 30px 8px;
+    font-size: 13.5px;
+  }
+
+  [data-part="title"] {
+    font-weight: 600;
+    color: var(--docs-heading);
+    margin: 0 0 10px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--docs-line);
+  }
+
+  a {
+    display: block;
+    padding: 5px 0 5px 14px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--docs-muted);
+    text-decoration: none;
+    line-height: 1.35;
+
+    &:hover {
+      color: var(--docs-heading);
+    }
+  }
+
+  li[data-depth="3"] a {
+    padding-left: 26px;
+  }
+
+  a[data-current] {
+    color: var(--docs-link);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  [data-part="meta"] {
+    display: grid;
+    gap: 6px;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--docs-line);
+
+    a {
+      color: var(--docs-link);
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    :scope {
+      display: none;
+    }
+  }
+}
+
+/* The same links for a phone: a closed disclosure at the top of the article, under the docs
+   breakpoint only (the side column shows above it). */
+@scope ([data-component="docs-toc-inline"]) {
+  :scope {
+    display: none;
+    margin: 0 0 24px;
+    border: 1px solid var(--docs-line);
+    border-radius: var(--radius-card);
+    font-size: 15px;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    font-weight: 600;
+    color: var(--docs-heading);
+    cursor: pointer;
+  }
+
+  summary::after {
+    content: "+";
+    margin-left: auto;
+    color: var(--docs-muted);
+  }
+
+  &[open] summary::after {
+    content: "−";
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 16px 8px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--docs-link);
+    text-decoration: none;
+    line-height: 1.35;
+  }
+
+  li[data-depth="3"] a {
+    padding-left: 16px;
+    color: var(--docs-muted);
+  }
+
+  @media (max-width: 860px) {
+    :scope {
+      display: block;
+    }
+  }
+}

@@ -1,0 +1,504 @@
+/*
+ * Code figures from src/lib/markdown/code-blocks.ts and directives.ts: code (file tab, gutter
+ * with line numbers, highlight and diff rows, notes), tab groups, terminal and prompt. Syntax
+ * colours come from Shiki's inline styles, which point at the --code-* tokens (tokens.css).
+ * The code-block island adds the Copy buttons and the note markers.
+ */
+
+/* — Shared: the Copy button the island adds — */
+@scope (
+  [data-component="code"],
+  [data-component="code-group"],
+  [data-component="terminal"]
+) {
+  :scope > [data-part="copy"] {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 2;
+  }
+}
+
+/*
+ * A figure re-colours its button through the --copy-* properties only, so the Copied and failed
+ * states below always win, whatever the figure's selector weight.
+ */
+@scope (
+  [data-component="code"],
+  [data-component="code-group"],
+  [data-component="terminal"],
+  [data-component="prompt"]
+) {
+  [data-part="copy"] {
+    font: 500 12px var(--font-mono);
+    background: var(--copy-surface, var(--code-bar));
+    color: var(--copy-text);
+    border: 1px solid var(--copy-line, var(--code-line));
+    padding: 5px 10px;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: var(--copy-line-hover, var(--accent-hover));
+    }
+
+    &[data-copied] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+    }
+
+    &[data-failed] {
+      border-color: var(--drift-line);
+      color: var(--drift-text);
+    }
+  }
+}
+
+/* — Code figure — */
+@scope ([data-component="code"]) {
+  :scope {
+    position: relative;
+    min-width: 0;
+    margin: 18px 0;
+    border: 1px solid var(--code-line);
+    border-radius: var(--radius-card);
+    background: var(--code-bg);
+    overflow: hidden;
+
+    /* The file label is drawn as the active tab of a 40px bar. */
+    &:has(> [data-part="file"]) {
+      background:
+        linear-gradient(var(--code-line) 0 0) 0 40px / 100% 1px no-repeat,
+        linear-gradient(var(--code-bar) 0 0) 0 0 / 100% 40px no-repeat,
+        var(--code-bg);
+    }
+
+    > [data-part="file"] {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      height: 40px;
+      margin-bottom: 1px;
+      padding: 0 14px;
+      font: 500 12.5px var(--font-mono);
+      color: var(--code-fg);
+      background: var(--code-bg);
+      border-right: 1px solid var(--code-line);
+      box-shadow: inset 0 2px var(--accent);
+      white-space: nowrap;
+
+      &::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--accent);
+        transform: rotate(45deg);
+      }
+    }
+
+    [data-part="body"] {
+      display: flex;
+      container-type: inline-size;
+      font: 13.5px/1.72 var(--font-mono);
+    }
+
+    [data-part="gutter"] {
+      flex: none;
+      width: 46px;
+      padding: 12px 16px 12px 0;
+      text-align: right;
+      color: var(--code-gutter);
+      user-select: none;
+
+      > span {
+        position: relative;
+        display: block;
+        height: 1.72em;
+
+        &::before {
+          content: attr(data-line);
+        }
+
+        /* A row band across the whole block: highlight, diff row or the hovered note's line. */
+        &::after {
+          position: absolute;
+          inset: 0 auto 0 0;
+          width: 100cqw;
+          pointer-events: none;
+        }
+
+        &:is([data-highlight], [data-active])::after {
+          content: "";
+          background: var(--code-highlight);
+          box-shadow: inset 3px 0 var(--accent);
+        }
+
+        &[data-diff="add"] {
+          color: var(--code-add);
+          font-weight: 700;
+
+          &::before {
+            content: "+";
+          }
+
+          &::after {
+            content: "";
+            background: var(--code-add-bg);
+          }
+        }
+
+        &[data-diff="del"] {
+          color: var(--code-del);
+          font-weight: 700;
+
+          &::before {
+            content: "−";
+          }
+
+          &::after {
+            content: "";
+            background: var(--code-del-bg);
+          }
+        }
+      }
+    }
+
+    pre {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      padding: 12px 18px 12px 0;
+      overflow-x: auto;
+      font: inherit;
+      color: var(--code-fg);
+      font-variant-ligatures: none;
+    }
+
+    pre code {
+      display: block;
+      min-width: max-content;
+      font: inherit;
+    }
+
+    [data-part="note-marker"] {
+      display: inline-grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      margin-left: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--on-accent);
+      font: 700 10.5px/1 var(--font-mono);
+      vertical-align: 1px;
+    }
+  }
+}
+
+@scope ([data-component="code-notes"]) {
+  :scope {
+    list-style: none;
+    margin: 0;
+    padding: 12px 16px 14px;
+    border-top: 1px dashed var(--code-line);
+    display: grid;
+    gap: 7px;
+    font: 14px/1.5 var(--font-body);
+    color: inherit;
+
+    li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 8px;
+      align-items: start;
+      max-width: none;
+
+      &::before {
+        content: attr(data-note);
+        display: inline-grid;
+        place-items: center;
+        width: 19px;
+        height: 19px;
+        margin-top: 1px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--on-accent);
+        font: 700 10.5px/1 var(--font-mono);
+      }
+    }
+  }
+}
+
+/* — Tab group: one bordered block, tabs on top, the selected file below — */
+@scope ([data-component="code-group"]) {
+  :scope {
+    position: relative;
+    min-width: 0;
+    margin: 18px 0;
+    border: 1px solid var(--code-line);
+    border-radius: var(--radius-card);
+    background: var(--code-bg);
+    overflow: hidden;
+
+    > [data-part="tabs"] {
+      display: flex;
+      align-items: stretch;
+      padding-right: 72px;
+      background: var(--code-bar);
+      border-bottom: 1px solid var(--code-line);
+      overflow-x: auto;
+    }
+
+    [role="tab"] {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 0;
+      border-right: 1px solid var(--code-line);
+      background: none;
+      font: 500 12.5px var(--font-mono);
+      color: var(--code-fg);
+      opacity: 0.75;
+      white-space: nowrap;
+      cursor: pointer;
+
+      &::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: currentColor;
+        transform: rotate(45deg);
+        opacity: 0.6;
+      }
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      &[aria-selected="true"] {
+        opacity: 1;
+        background: var(--code-bg);
+        box-shadow: inset 0 2px var(--accent);
+
+        &::before {
+          background: var(--accent);
+          opacity: 1;
+        }
+      }
+    }
+
+    /* `figure` outweighs the code figure's own `:has(> [data-part="file"])` tab-bar ground. */
+    > figure[data-component="code"] {
+      display: none;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: var(--code-bg);
+
+      > [data-part="file"] {
+        display: none;
+      }
+    }
+
+    /* The figure in the selected tab's position shows: tab state lives in aria-selected only. */
+    &:has(> [data-part="tabs"] > :nth-child(1)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(1),
+    &:has(> [data-part="tabs"] > :nth-child(2)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(2),
+    &:has(> [data-part="tabs"] > :nth-child(3)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(3),
+    &:has(> [data-part="tabs"] > :nth-child(4)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(4),
+    &:has(> [data-part="tabs"] > :nth-child(5)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(5),
+    &:has(> [data-part="tabs"] > :nth-child(6)[aria-selected="true"])
+      > [data-component="code"]:nth-of-type(6) {
+      display: block;
+    }
+  }
+}
+
+/* — Terminal: a dark panel in both themes, three dots and a title — */
+@scope ([data-component="terminal"]) {
+  :scope {
+    position: relative;
+    margin: 18px 0;
+    border: 1px solid var(--terminal-line);
+    border-radius: var(--radius-card);
+    background: var(--terminal-bg);
+    color: var(--terminal-text);
+    overflow: hidden;
+
+    > [data-part="title"] {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      padding-left: 14px;
+      border-bottom: 1px solid var(--terminal-line);
+      font: 12px var(--font-mono);
+      color: var(--terminal-bar-text);
+
+      &::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        margin-right: 42px;
+        border-radius: 50%;
+        background: var(--terminal-dot);
+        box-shadow:
+          15px 0 var(--terminal-dot),
+          30px 0 var(--terminal-dot);
+      }
+    }
+
+    /* No title: the same bar, dots only. */
+    &:not(:has(> [data-part="title"]))::before {
+      content: "";
+      display: block;
+      height: 40px;
+      border-bottom: 1px solid var(--terminal-line);
+      background:
+        radial-gradient(circle, var(--terminal-dot) 4.5px, transparent 5px) 14px 50% / 9px 9px
+          no-repeat,
+        radial-gradient(circle, var(--terminal-dot) 4.5px, transparent 5px) 29px 50% / 9px 9px
+          no-repeat,
+        radial-gradient(circle, var(--terminal-dot) 4.5px, transparent 5px) 44px 50% / 9px 9px
+          no-repeat;
+    }
+
+    > [data-part="copy"] {
+      --copy-surface: transparent;
+      --copy-text: var(--terminal-button);
+      --copy-line: var(--terminal-dot);
+      --copy-line-hover: var(--terminal-dot);
+    }
+
+    [data-part="screen"] {
+      margin: 0;
+      padding: 12px 16px 14px;
+      overflow-x: auto;
+      font: 13px/1.75 var(--font-mono);
+      font-variant-ligatures: none;
+    }
+
+    [data-kind="command"] {
+      color: var(--terminal-command);
+
+      &::before {
+        content: "$ ";
+        color: var(--terminal-prompt);
+      }
+    }
+
+    [data-kind="output"] {
+      color: var(--terminal-output);
+    }
+
+    [data-kind="ok"] {
+      color: var(--terminal-ok);
+    }
+
+    [data-kind="error"] {
+      color: var(--terminal-error);
+    }
+  }
+}
+
+/* — Prompt bubble: "›" text and a Copy button — */
+@scope ([data-component="prompt"]) {
+  :scope {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 18px 0;
+    padding: 13px 12px 13px 18px;
+    background: var(--docs-card);
+    border: 1px solid var(--docs-line);
+    border-radius: 14px 14px 14px 3px;
+
+    [data-part="text"] {
+      margin: 0;
+      color: var(--docs-heading);
+      font-size: 15px;
+      line-height: 1.4;
+
+      &::before {
+        content: "› ";
+        color: var(--docs-link);
+        font-family: var(--font-mono);
+      }
+    }
+
+    > [data-part="copy"] {
+      --copy-surface: transparent;
+
+      flex: none;
+      margin: 6px 8px;
+    }
+  }
+}
+
+/* D13: a code line that runs past the screen scrolls inside its block. A shade on the edge says
+   so: it shows on the side that has more and goes away at the end of the line. */
+@scope ([data-component="code"], [data-component="terminal"]) {
+  @media (max-width: 760px) {
+    pre,
+    [data-part="screen"] {
+      --shade: color-mix(in srgb, currentColor 26%, transparent);
+      --cover: var(--code-bg);
+      scrollbar-width: thin;
+      scrollbar-color: var(--code-gutter) transparent;
+      background:
+        linear-gradient(to right, var(--cover) 30%, transparent) left / 36px 100% no-repeat local,
+        linear-gradient(to left, var(--cover) 30%, transparent) right / 36px 100% no-repeat local,
+        linear-gradient(to right, var(--shade), transparent) left / 14px 100% no-repeat scroll,
+        linear-gradient(to left, var(--shade), transparent) right / 14px 100% no-repeat scroll;
+    }
+
+    [data-part="screen"] {
+      --cover: var(--terminal-bg);
+    }
+  }
+}
+
+/* D13: the Copy button is a 40px target on a phone, flush in the corner of the 40px bar. */
+@scope (
+  [data-component="code"],
+  [data-component="code-group"],
+  [data-component="terminal"]
+) {
+  @media (max-width: 760px) {
+    :scope > [data-part="copy"] {
+      top: 0;
+      right: 0;
+      min-width: 64px;
+      min-height: 40px;
+      border-width: 0 0 1px 1px;
+      border-radius: 0;
+    }
+  }
+}
+
+/* D13: file tabs are 40px targets on a phone. */
+@scope ([data-component="code-group"]) {
+  @media (max-width: 760px) {
+    [role="tab"] {
+      min-height: 40px;
+    }
+  }
+}
+
+/* D13: a prompt's Copy button is a 40px target on a phone. */
+@scope ([data-component="prompt"]) {
+  @media (max-width: 760px) {
+    [data-part="copy"] {
+      min-width: 64px;
+      min-height: 40px;
+    }
+  }
+}

@@ -1,0 +1,143 @@
+/* A1 "Three layers": the slab drawing, the numbered steps and the sample, lit together. */
+@scope ([data-component="layers-stack"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    gap: 56px;
+    align-items: center;
+  }
+
+  [data-part="drawing"] {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    overflow: visible;
+  }
+
+  [data-part="post"] {
+    stroke: var(--line-strong);
+    stroke-dasharray: 3 4;
+  }
+
+  g[data-layer] {
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.25s var(--ease-lift);
+
+    &[data-active] {
+      transform: translateY(-9px);
+    }
+
+    &:focus-visible [data-face="top"] {
+      stroke: var(--accent);
+      stroke-width: 2;
+    }
+  }
+
+  [data-part="call"] {
+    font: 600 12.5px var(--font-mono);
+    fill: var(--text-muted);
+    transition: fill var(--duration-normal);
+  }
+
+  [data-part="holds"] {
+    font: 400 11px var(--font-body);
+    fill: var(--text-muted);
+    transition: fill var(--duration-normal);
+  }
+
+  g[data-active] {
+    [data-part="call"] {
+      fill: var(--text-heading);
+    }
+
+    [data-part="holds"] {
+      fill: var(--text-link);
+    }
+  }
+
+  [data-part="steps"] {
+    display: grid;
+    gap: 4px;
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-card);
+      cursor: pointer;
+      transition:
+        background var(--duration-normal),
+        border-color var(--duration-normal);
+
+      &[data-active] {
+        border-color: var(--line-default);
+        background: var(--surface-card);
+      }
+    }
+
+    b {
+      display: block;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+
+    span {
+      font-size: 15px;
+    }
+
+    code {
+      font: 13px var(--font-mono);
+      color: var(--code-string);
+    }
+  }
+
+  [data-part="number"] {
+    font: 700 15px var(--font-display);
+    color: var(--text-link);
+  }
+
+  [data-part="code"] [data-component="code"] {
+    margin: 18px 0;
+  }
+
+  @media (max-width: 900px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* D13: on a phone the drawing is full width and its labels stay >= 11px (14.5 units at 0.76). */
+@scope ([data-component="layers-stack"]) {
+  @media (max-width: 760px) {
+    :scope {
+      gap: 28px;
+    }
+
+    [data-part="drawing"] {
+      max-width: none;
+    }
+
+    [data-part="call"] {
+      font-size: 15px;
+    }
+
+    [data-part="holds"] {
+      font-size: 14.5px;
+    }
+
+    [data-part="steps"] {
+      margin-top: 12px;
+
+      li {
+        padding: 12px 10px;
+      }
+    }
+  }
+}

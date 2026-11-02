@@ -1,0 +1,149 @@
+/* A12 about: portrait and bio, principles cards, the row of package cubes. */
+@scope ([data-component="about-page"]) {
+  :scope {
+    max-width: var(--width-site);
+    margin: 0 auto;
+    padding: 0 var(--gutter-site);
+  }
+
+  [data-part="intro"] {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    gap: 72px;
+    align-items: center;
+    padding: 80px 0 64px;
+
+    p {
+      max-width: 56ch;
+      margin: 0 0 16px;
+    }
+  }
+
+  [data-part="portrait"] {
+    max-width: 320px;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  h1 {
+    margin: 0 0 14px;
+    font: 800 clamp(38px, 5.4vw, 68px) / 0.95 var(--font-display);
+    letter-spacing: -0.035em;
+    color: var(--text-heading);
+  }
+
+  [data-part="intro"] [data-part="motto"] {
+    margin: 0 0 22px;
+    font: 500 clamp(19px, 2vw, 24px) / 1.3 var(--font-body);
+    color: var(--text-accent);
+  }
+
+  [data-part="links"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  [data-part="principles"] {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 0 0 56px;
+
+    div {
+      padding: 20px;
+      border: 1px solid var(--line-default);
+      border-radius: var(--radius-panel);
+      background: var(--surface-card);
+    }
+
+    b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-heading);
+    }
+
+    p {
+      font-size: 15px;
+    }
+  }
+
+  [data-part="ships"] {
+    padding: 0 0 104px;
+
+    h2 {
+      margin: 0 0 16px;
+      font: 600 18px var(--font-display);
+      color: var(--text-heading);
+    }
+
+    ul {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      padding: 6px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: var(--radius-card);
+      transition:
+        transform var(--duration-normal),
+        background var(--duration-normal);
+
+      &:hover,
+      &:focus-visible {
+        transform: translateY(-6px);
+        background: var(--surface-card);
+      }
+    }
+  }
+
+  /* The package name under each cube, so a finger can tell them apart. */
+  [data-part="ships"] [data-part="name"] {
+    font: 11.5px/1.25 var(--font-mono);
+    color: var(--text-muted);
+    text-decoration: none;
+
+    /* A long name breaks after its slash, never inside a word. */
+    span {
+      display: inline-block;
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 800px) {
+    [data-part="intro"] {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+      padding-top: 40px;
+    }
+
+    [data-part="portrait"] {
+      max-width: 200px;
+    }
+
+    [data-part="principles"] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 520px) {
+    :scope {
+      padding: 0 var(--gutter-narrow);
+    }
+  }
+}

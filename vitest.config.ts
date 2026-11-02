@@ -1,17 +1,22 @@
 import { defineConfig } from "vitest/config";
 
+// The first Shiki render of a file takes 6-8 s on a CI runner with coverage on.
+const SHIKI_WARMUP_TIMEOUT = 30_000;
+
 export default defineConfig({
   test: {
     projects: [
       {
         test: {
           name: "unit",
+          testTimeout: SHIKI_WARMUP_TIMEOUT,
           include: ["tests/unit/**/*.test.ts", "src/plugins/**/__tests__/unit/**/*.test.ts"]
         }
       },
       {
         test: {
           name: "integration",
+          testTimeout: SHIKI_WARMUP_TIMEOUT,
           include: [
             "tests/integration/**/*.test.ts",
             "src/plugins/**/__tests__/integration/**/*.test.ts"

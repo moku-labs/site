@@ -1,0 +1,21 @@
+/* Highest-priority overrides. The layer wins, so no !important. */
+
+[data-visually-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    animation-delay: 0ms;
+    transition-duration: 1ms;
+  }
+}

@@ -1,0 +1,61 @@
+/* A1 landing sections: hairline, air, heading and lede. */
+@scope ([data-component="landing-section"]) {
+  :scope {
+    padding: 104px 0;
+    border-top: 1px solid var(--line-default);
+  }
+
+  h2 {
+    max-width: 20ch;
+    margin: 0 0 16px;
+    font: 700 clamp(30px, 4vw, 48px) / 1.04 var(--font-display);
+    letter-spacing: -0.025em;
+    color: var(--text-heading);
+  }
+
+  [data-part="lede"] {
+    max-width: 58ch;
+    margin: 0 0 48px;
+    font-size: 19px;
+    color: var(--text-body);
+  }
+
+  [data-split] {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 56px;
+    align-items: start;
+
+    [data-part="lede"] {
+      margin-bottom: 22px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    [data-split] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* D13: phone sections keep 60px of air instead of 104px. */
+@scope ([data-component="landing-section"]) {
+  @media (max-width: 760px) {
+    :scope {
+      padding: 60px 0;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+    }
+
+    [data-part="lede"] {
+      margin-bottom: 28px;
+      font-size: 17px;
+    }
+
+    [data-split] {
+      gap: 32px;
+    }
+  }
+}
