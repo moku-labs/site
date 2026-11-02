@@ -8,7 +8,7 @@ import { createPlugin } from "@moku-labs/web";
 import { createKernelApi } from "./api";
 
 /**
- * The kernel plugin: `app.kernel.errors()` and `app.kernel.trayMessages(tray)` trigger the real
+ * The kernel plugin: `app.kernel.trayMessages(tray)` triggers the real
  * kernel through `@moku-labs/web` and return its words. Route loaders reach it by name through
  * `src/lib/kernel-reference.ts`, like the docs plugin.
  *

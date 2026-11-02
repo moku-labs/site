@@ -1,10 +1,9 @@
 /**
- * @file The landing (A1, U5): hero, the kernel's checks, three layers, the pyramid, the package
+ * @file The landing (A1, U5): hero, three layers, the pyramid, the package
  * family and Start with Claude.
  */
 import type { VNode } from "preact";
 import { Hero } from "../components/hero";
-import { KernelChecks } from "../components/kernel-checks";
 import { LandingSection } from "../components/landing-section";
 import { LayersStack } from "../components/layers-stack";
 import { PackageGrid } from "../components/package-grid";
@@ -37,17 +36,6 @@ export function HomePage(props: HomePageProperties): VNode {
   return (
     <div data-page="home">
       <Hero hero={view.hero} packages={view.packages} url={url} />
-      <LandingSection
-        id="checks"
-        title="Errors at startup, not in production."
-        lede="createApp checks the whole plugin list before anything runs. A bad plugin is a startup error with a sentence you can read, not a bug in production."
-      >
-        <KernelChecks
-          checks={view.checks}
-          count={view.checkCount}
-          href={url("docsPage", { pkg: "concepts", page: "kernel-checks" })}
-        />
-      </LandingSection>
       <LandingSection
         id="layers"
         title="Three layers. Nothing reaches back down."

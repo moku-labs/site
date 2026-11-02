@@ -128,7 +128,7 @@ async function captureMessage(scenario: KernelScenario): Promise<string> {
  * @throws {Error} When a scenario no longer throws, which means the kernel changed.
  * @example
  * ```ts
- * // At build, for the checks section of the home page:
+ * // At build, for the concepts page "What the kernel checks":
  * const errors = await captureKernelErrors();
  * errors[0]?.message; // '[web] Duplicate plugin name: "auth".\n  Each plugin must have a unique name.'
  * ```

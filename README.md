@@ -25,7 +25,7 @@ not a docs generator: the Markdown lives here, and the checks below make sure it
 
 - **Docs that cannot lie about versions.** Every version on the site is read from
   `node_modules/@moku-labs/*/package.json` at build. None is typed by hand.
-- **Kernel errors from the kernel.** The hero, the checks section and the concepts page show
+- **Kernel errors from the kernel.** The hero and the concepts page show
   the exact messages the real kernel throws, captured at build.
 - **Examples that compile.** A code block tagged `check` is compiled against the installed
   packages on every test run. A breaking release turns CI red, not the docs wrong.

@@ -1,23 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { trayPlugins } from "../../../src/data/tray";
 import { loadHome } from "../../../src/lib/home-data";
-import type { KernelError, TrayMessages } from "../../../src/lib/kernel-errors";
+import type { TrayMessages } from "../../../src/lib/kernel-errors";
 import type { ResolvedPackage } from "../../../src/lib/packages";
-
-const error = (id: string): KernelError => ({
-  id,
-  when: "createApp",
-  message: `[web] ${id}.\n  Fix it.`,
-  hint: "Fix it."
-});
-
-const allErrors = [
-  "duplicate-name",
-  "missing-dependency",
-  "dependency-order",
-  "reserved-name",
-  "core-plugin-clash"
-].map(id => error(id));
 
 const messages: TrayMessages = { duplicate: { router: "dup" }, missing: {}, reserved: {} };
 
@@ -44,14 +29,13 @@ const packages: ResolvedPackage[] = [
   }
 ];
 
-/** Sources whose kernel returns `errors`, and a renderer that records what it was given. */
-function sources(errors: KernelError[] = allErrors) {
+/** Sources with a kernel stub, and a renderer that records what it was given. */
+function sources() {
   const rendered: string[] = [];
   return {
     rendered,
     input: {
       kernel: {
-        errors: async () => errors,
         trayMessages: async () => messages
       },
       content: {
@@ -66,18 +50,6 @@ function sources(errors: KernelError[] = allErrors) {
 }
 
 describe("loadHome", () => {
-  // Bug: the cards show the wrong checks or another order, or the count drops checks.
-  it("picks the three card checks in card order and counts every check", async () => {
-    const view = await loadHome(sources().input);
-
-    expect(view.checks.map(check => check.id)).toEqual([
-      "duplicate-name",
-      "missing-dependency",
-      "reserved-name"
-    ]);
-    expect(view.checkCount).toBe(5);
-  });
-
   // Bug: the hero gets messages for another tray, or no kernel version for the tooltip.
   it("hands the hero the tray, the captured messages and the installed core version", async () => {
     const view = await loadHome(sources().input);
@@ -96,12 +68,5 @@ describe("loadHome", () => {
     expect(view.layersCode).toBe("<figure>code</figure>");
     expect(rendered[0]).toMatch(/^```ts file="my-site\.ts"/);
     expect(rendered[0]?.split("\n")).toHaveLength(5);
-  });
-
-  // Bug: a card check the kernel dropped renders an empty card instead of failing the build.
-  it("throws when a card check is gone", async () => {
-    await expect(loadHome(sources(allErrors.slice(0, 2)).input)).rejects.toThrow(
-      '[site] Kernel check "reserved-name" is gone.'
-    );
   });
 });

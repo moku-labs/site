@@ -13,7 +13,7 @@ import type { kernelPlugin } from "../plugins/kernel";
  *
  * @example
  * ```ts
- * route("/").load(ctx => ctx.require(kernelReference).errors());
+ * route("/").load(ctx => ctx.require(kernelReference).trayMessages(trayPlugins));
  * ```
  */
 export const kernelReference = { name: "kernel" } as typeof kernelPlugin;

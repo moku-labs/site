@@ -1,6 +1,6 @@
 /**
- * @file Build-time data of the home page: the hero tray and its kernel messages, the check
- * cards, the layers code, the package family, the demos and the Claude section.
+ * @file Build-time data of the home page: the hero tray and its kernel messages, the layers
+ * code, the package family, the demos and the Claude section.
  *
  * `routes.tsx` imports this module lazily inside the home loader, which runs only at build. The
  * kernel and the Markdown renderer come in as plugin APIs (`ctx.require`), the versions from the
@@ -13,11 +13,8 @@ import type { PackageGroup } from "../data/packages";
 import { claudeInstallCommands, claudePrompts } from "../data/prompts";
 import type { TrayPlugin } from "../data/tray";
 import { trayPlugins, traySeed } from "../data/tray";
-import type { KernelError, TrayMessages, TrayRule } from "./kernel-errors";
+import type { TrayMessages, TrayRule } from "./kernel-errors";
 import type { ResolvedPackage } from "./packages";
-
-/** The kernel checks shown as cards, in card order. */
-const CARD_CHECKS = ["duplicate-name", "missing-dependency", "reserved-name"] as const;
 
 /** The three-layer sample: config makes a framework, a framework makes apps. */
 const LAYERS_CODE = [
@@ -32,8 +29,6 @@ const LAYERS_CODE = [
 export type HomeSources = {
   /** The kernel plugin's API. */
   kernel: {
-    /** Every kernel check with its exact message. */
-    errors(): Promise<KernelError[]>;
     /** The hero tray's messages. */
     trayMessages(tray: readonly TrayRule[]): Promise<TrayMessages>;
   };
@@ -78,10 +73,6 @@ export type HeroView = {
 export type HomeView = {
   /** The hero tray and its kernel messages. */
   hero: HeroView;
-  /** The check cards, in card order, with the kernel's exact messages. */
-  checks: readonly KernelError[];
-  /** How many checks the kernel runs. */
-  checkCount: number;
   /** The layers code, rendered by the docs pipeline. */
   layersCode: string;
   /** The family in family order. */
@@ -100,25 +91,6 @@ export type HomeView = {
 };
 
 /**
- * The card checks out of every check, in card order.
- *
- * @param errors - Every kernel check.
- * @returns The three card checks.
- * @throws {Error} When the kernel no longer has one of them.
- */
-function cardChecks(errors: readonly KernelError[]): KernelError[] {
-  return CARD_CHECKS.map(id => {
-    const check = errors.find(error => error.id === id);
-    if (check === undefined) {
-      throw new Error(
-        `[site] Kernel check "${id}" is gone.\n  Update the check cards in src/lib/home-data.ts.`
-      );
-    }
-    return check;
-  });
-}
-
-/**
  * The version of one package of the family, or `""` when it is missing.
  *
  * @param packages - The family.
@@ -130,22 +102,21 @@ function versionOf(packages: readonly ResolvedPackage[], id: string): string {
 }
 
 /**
- * Load the home page at build: the real kernel's messages for the hero and the cards, the layers
+ * Load the home page at build: the real kernel's messages for the hero tray, the layers
  * code through the docs pipeline, and the family with installed versions.
  *
  * @param sources - The kernel and content plugin APIs and the resolved family.
  * @returns The home view.
- * @throws {Error} When a card check is gone or a kernel check stopped throwing.
+ * @throws {Error} When a kernel check stopped throwing.
  * @example
  * ```ts
  * // route("/").load(async ctx => loadHome({ kernel: ctx.require(kernelReference), content: ctx.require(contentReference), packages }))
  * const view = await loadHome({ kernel: app.kernel, content: app.content, packages: installedSources().packages });
- * view.checks.map(check => check.id); // ["duplicate-name", "missing-dependency", "reserved-name"]
+ * view.hero.tray.length; // 6
  * ```
  */
 export async function loadHome(sources: HomeSources): Promise<HomeView> {
-  const [errors, messages, layersCode] = await Promise.all([
-    sources.kernel.errors(),
+  const [messages, layersCode] = await Promise.all([
     sources.kernel.trayMessages(trayPlugins),
     sources.content.renderMarkdown(LAYERS_CODE)
   ]);
@@ -156,8 +127,6 @@ export async function loadHome(sources: HomeSources): Promise<HomeView> {
       seed: traySeed,
       kernelVersion: versionOf(sources.packages, "core")
     },
-    checks: cardChecks(errors),
-    checkCount: errors.length,
     layersCode,
     packages: sources.packages.map(({ id, name, version, versionLabel, tagline, group }) => ({
       id,
