@@ -342,7 +342,8 @@ test("doc meta keeps its actions in one row with the badge under them on a phone
   const tops = await meta
     .locator('[data-part="action"]')
     .evaluateAll(actions => actions.map(action => Math.round(action.getBoundingClientRect().top)));
-  expect(tops).toHaveLength(3);
+  // Copy as Markdown is the only action left in the row.
+  expect(tops).toHaveLength(1);
   expect(new Set(tops).size).toBe(1);
   if (!phone) return;
   const heights = await meta

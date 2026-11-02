@@ -1,7 +1,7 @@
 - contentinfo:
   - link "Moku Labs":
     - /url: /
-  - paragraph: Slop doesn't spread. A one-person lab by Alex Kucherenko, building frameworks an AI agent can write without making a mess.
+  - paragraph: Moku Labs builds Moku, an agentic TypeScript framework for reliable software written with LLMs.
   - heading "Site" [level=2]
   - list:
     - listitem:
@@ -22,11 +22,8 @@
       - link "llms.txt":
         - /url: /llms.txt
     - listitem:
-      - link "Docs as .md":
+      - link "llms-full.txt":
         - /url: /llms-full.txt
-    - listitem:
-      - link "Claude plugin":
-        - /url: /docs/claude/
   - heading "Elsewhere" [level=2]
   - list:
     - listitem:
@@ -35,4 +32,4 @@
     - listitem:
       - link "alexblog.net":
         - /url: https://alexblog.net
-  - text: /© \d+ Moku Labs Built with @moku-labs\/web\. Not an ORM\./
+  - text: /© \d+ Moku Labs Built with @moku-labs\/web\./
