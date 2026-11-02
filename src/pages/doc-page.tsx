@@ -90,13 +90,7 @@ export function DocumentationPage(props: DocumentationPageProperties): VNode {
             url={url}
           />
         }
-        toc={
-          <DocumentationToc
-            headings={page.headings}
-            markdownUrl={page.markdownUrl}
-            editUrl={page.editUrl}
-          />
-        }
+        toc={<DocumentationToc headings={page.headings} editUrl={page.editUrl} />}
       >
         <article data-component="doc-article">
           <Breadcrumbs view={view} url={url} />

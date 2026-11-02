@@ -64,7 +64,7 @@ const LAYERS: readonly Layer[] = [
     call: "createApp",
     holds: "your app + blogPlugin",
     title: "App",
-    text: "adds your plugins. Not an ORM. Not a meta-framework. A list the kernel checked.",
+    text: "adds your plugins. The kernel checks the list before start.",
     top: "plugin"
   }
 ];

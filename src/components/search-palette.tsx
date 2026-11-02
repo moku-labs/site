@@ -72,7 +72,6 @@ export function SearchPalette(props: { url: UrlBuilder }): VNode {
         <div data-part="foot">
           <span data-part="hint">↑ ↓ move</span>
           <span data-part="hint">enter opens</span>
-          <span>Every page is also plain text in llms.txt</span>
         </div>
       </div>
       <div data-part="icons" hidden>

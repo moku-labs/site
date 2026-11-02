@@ -22,4 +22,4 @@ Every call runs the kernel again. A check that stops throwing fails the build.
 
 ## Used by
 
-- The home route: the "kernel says no" cards and the hero tray (`src/lib/home-data.ts`).
+- The home route: the startup-error check cards and the hero tray (`src/lib/home-data.ts`).

@@ -1,10 +1,10 @@
 /**
- * @file The docs hub (A2): search, sync state, the concepts cards and the family by group.
+ * @file The docs hub (A2): sync state, the concepts cards and the family by group.
  */
 import type { VNode } from "preact";
 import { CubeIcon, conceptGlyph } from "../components/cube-icon";
 import { DocumentMeta } from "../components/doc-meta";
-import { PackageIcon, SearchIcon } from "../components/icons";
+import { PackageIcon } from "../components/icons";
 import { SyncBadge } from "../components/sync-badge";
 import type { PackageGroup } from "../data/packages";
 import type {
@@ -100,7 +100,7 @@ function GroupCard(props: { group: DocumentationPackageGroup }): VNode {
 }
 
 /**
- * The docs hub page. The search button opens the ⌘K palette (`data-search-open`).
+ * The docs hub page.
  *
  * @param props - Component props.
  * @param props.view - The hub view loaded at build.
@@ -119,15 +119,10 @@ export function DocumentationHubPage(props: { view: DocumentationHubView }): VNo
           <div>
             <h1>Docs</h1>
             <p data-part="intro">
-              {view.packageCount} packages, one kernel. If an agent writes your code, start with the
-              Claude plugin. If you write the framework, start with the concepts.
+              If an agent writes your code, start with the Claude plugin. If you write a framework,
+              start with the concepts.
             </p>
           </div>
-          <button type="button" data-part="search" data-search-open>
-            <SearchIcon size={18} />
-            Search packages, guides, plugins, APIs
-            <kbd>⌘K</kbd>
-          </button>
           <DocumentMeta markdownUrl={view.markdownUrl}>
             <SyncBadge
               state="synced"

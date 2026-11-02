@@ -52,7 +52,7 @@ export const packages: readonly PackageEntry[] = [
     id: "core",
     name: "@moku-labs/core",
     npm: "@moku-labs/core",
-    tagline: "Micro-kernel plugin framework. Under 8 KB, zero deps. The kernel says no",
+    tagline: "Micro-kernel plugin framework. Under 8 KB, zero dependencies.",
     group: "Core"
   },
   {
@@ -115,7 +115,7 @@ export const packages: readonly PackageEntry[] = [
     id: "ai",
     name: "@moku-labs/ai",
     npm: "@moku-labs/ai",
-    tagline: "Build system for AI assets. kill -9 is a supported workflow",
+    tagline: "Build system for AI assets. Resumable, with a cost estimate and a budget gate.",
     group: "Tooling"
   },
   {

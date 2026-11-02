@@ -16,7 +16,7 @@ type NavLink = {
   label: string;
   /** Target URL. */
   href: string;
-  /** Opens in a new tab: an outbound link or an agent file. */
+  /** Opens in a new tab: an outbound link. */
   external?: boolean;
 };
 
@@ -40,14 +40,13 @@ function navLinks(url: UrlBuilder): NavLink[] {
     { id: "packages", label: "Packages", href: `${url("home")}#packages` },
     { id: "demos", label: "Demos", href: url("demos") },
     { id: "about", label: "About", href: url("about") },
-    { id: "github", label: "GitHub", href: LINKS.github, external: true },
-    { id: "llms", label: "llms.txt", href: LINKS.llms, external: true }
+    { id: "github", label: "GitHub", href: LINKS.github, external: true }
   ];
 }
 
 /**
  * The site header. Persistent across SPA navigation: the `site-nav` island keeps the active link
- * and the mobile menu in sync. The "Docs" tag shows on docs pages only (see the sheet).
+ * and the mobile menu in sync.
  *
  * @param props - Component props.
  * @returns The `<header>`.
@@ -64,9 +63,6 @@ export function SiteHeader(props: SiteHeaderProperties): VNode {
         <a data-part="logo" href={url("home")} aria-label={`${SITE.name} home`}>
           <CubeIcon tone="kernel" size={28} />
           <span>{SITE.name}</span>
-        </a>
-        <a data-part="docs-tag" href={url("docsHub")}>
-          Docs
         </a>
         <nav aria-label="Main">
           <ul id="site-menu" data-part="links">

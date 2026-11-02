@@ -98,7 +98,7 @@ describe("plugIn", () => {
     state = plugIn(state, "auth", tray, messages).state;
     expect(state.log.at(-1)).toEqual({
       kind: "win",
-      text: "app.start() → ready. 4 plugins in, 0 slop."
+      text: "app.start() → ready. 4 plugins registered."
     });
   });
 });

@@ -1,5 +1,5 @@
 /**
- * @file "The kernel says no": three check cards with the kernel's exact messages (A1).
+ * @file "Errors at startup, not in production.": three check cards with the kernel's exact messages (A1).
  */
 import type { VNode } from "preact";
 import type { KernelError } from "../lib/kernel-errors";

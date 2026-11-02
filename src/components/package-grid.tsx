@@ -1,5 +1,5 @@
 /**
- * @file "Twelve packages. One kernel." (A1): one lot per package with its cube art.
+ * @file "Packages" (A1): one lot per package with its cube art.
  */
 import type { VNode } from "preact";
 import type { HomePackage } from "../lib/home-data";

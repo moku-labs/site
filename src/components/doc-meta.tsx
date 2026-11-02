@@ -1,20 +1,18 @@
 /**
- * @file The meta row under a docs title: Copy as Markdown, the `.md` twin, llms.txt, sync badges.
+ * @file The meta row under a docs title: Copy as Markdown and the sync badges.
  */
 import type { ComponentChildren, VNode } from "preact";
-import { LINKS } from "../config";
 
 /** Props of {@link DocumentMeta}. */
 type DocumentMetaProperties = {
   /** URL of the page's Markdown twin. */
   markdownUrl: string;
-  /** The sync badges after the links. */
+  /** The sync badges after the button. */
   children: ComponentChildren;
 };
 
 /**
- * The meta row of a docs page or the docs hub. "Copy as Markdown" is the `copy-page` island; the
- * agent files open in a new tab because they are plain text, not pages.
+ * The meta row of a docs page or the docs hub. "Copy as Markdown" is the `copy-page` island.
  *
  * @param props - Component props.
  * @returns The `<div data-component="doc-meta">`.
@@ -26,7 +24,6 @@ type DocumentMetaProperties = {
  * ```
  */
 export function DocumentMeta(props: DocumentMetaProperties): VNode {
-  const fileName = props.markdownUrl.split("/").at(-1);
   return (
     <div data-component="doc-meta">
       <div data-part="actions">
@@ -38,12 +35,6 @@ export function DocumentMeta(props: DocumentMetaProperties): VNode {
         >
           Copy as Markdown
         </button>
-        <a data-part="action" href={props.markdownUrl} target="_blank" rel="noopener">
-          {fileName}
-        </a>
-        <a data-part="action" href={LINKS.llms} target="_blank" rel="noopener">
-          llms.txt
-        </a>
       </div>
       {props.children}
     </div>
