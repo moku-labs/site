@@ -50,7 +50,7 @@ export const routes = defineRoutes({
 });
 ```
 
-```ts file="src/app.ts" group="data" hl="5-6" no-check="imports ./routes from the reader's project"
+```ts file="src/app.ts" group="data" hl="5-6" check
 import { buildPlugin, contentPlugin, createApp, dataPlugin, fileSystemContent } from "@moku-labs/web";
 import { routes } from "./routes";
 
@@ -65,7 +65,7 @@ export const app = createApp({
 });
 ```
 
-```ts file="src/client.ts" group="data" hl="5-6" no-check="imports ./routes from the reader's project"
+```ts file="src/client.ts" group="data" hl="5-6" check
 import { createApp, dataPlugin } from "@moku-labs/web/browser";
 import { routes } from "./routes";
 

@@ -56,7 +56,7 @@ export const app = createApp({
 
 The Worker entry is yours. It hands every request to `app.server`:
 
-```ts file="worker.ts" no-check="imports ./app from the reader's project"
+```ts file="worker.ts" no-check="ExecutionContext and ExportedHandler come from @cloudflare/workers-types, which clash with the DOM types the other examples use"
 import { app } from "./app";
 
 export default {

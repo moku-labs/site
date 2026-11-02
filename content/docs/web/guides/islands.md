@@ -67,7 +67,7 @@ export function PostFooter(props: { likes: number }) {
 }
 ```
 
-```ts file="src/client.ts" group="islands" hl="3,7" no-check="imports ./site from the reader's project"
+```ts file="src/client.ts" group="islands" hl="3,7" check
 import { createApp } from "@moku-labs/web/browser";
 import { site } from "./site";
 import { likeButton } from "./islands/like-button";
