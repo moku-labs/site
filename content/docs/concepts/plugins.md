@@ -9,7 +9,7 @@ order: 2
 
 Every field is optional. A plugin with only `api` works; a plugin with only `hooks` works.
 
-```ts
+```ts no-check="the shape of a plugin spec, not runnable code"
 createPlugin("name", {
   config:      { /* defaults, type C */ },
   events:      register => ({ "name:event": register<Payload>("description") }),

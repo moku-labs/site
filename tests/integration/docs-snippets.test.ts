@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkSnippets } from "../../src/lib/snippets";
+import { checkSnippets, ungatedSnippets } from "../../src/lib/snippets";
 
 const repository = path.resolve(import.meta.dirname, "..", "..");
 const documentsDirectory = path.join(repository, "content", "docs");
@@ -30,4 +30,9 @@ describe("docs code blocks", () => {
 
     expect(failures).toEqual([]);
   }, 120_000);
+
+  // Bug: an author adds a ts example without `check`, so it drifts with no test noticing.
+  it("every ts and tsx block in content/docs is `check` or `no-check` with a reason", async () => {
+    expect(ungatedSnippets(await readDocuments())).toEqual([]);
+  });
 });
