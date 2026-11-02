@@ -55,3 +55,34 @@ export function DocumentationToc(props: DocumentationTocProperties): VNode {
     </aside>
   );
 }
+
+/**
+ * "On this page" for a phone, where the side column is gone: the heading links in a closed
+ * `<details>` at the top of the article. It needs no script; CSS shows it under the docs
+ * breakpoint only.
+ *
+ * @param props - Component props.
+ * @param props.headings - h2/h3 headings of the page in document order.
+ * @returns The `<details data-component="docs-toc-inline">`; `undefined` for a page without headings.
+ * @example
+ * ```tsx
+ * <DocumentationTocInline headings={view.page.headings} />
+ * ```
+ */
+export function DocumentationTocInline(props: {
+  headings: readonly DocumentHeading[];
+}): VNode | undefined {
+  if (props.headings.length === 0) return undefined;
+  return (
+    <details data-component="docs-toc-inline">
+      <summary>On this page</summary>
+      <ul>
+        {props.headings.map(heading => (
+          <li key={heading.id} data-depth={heading.depth}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}

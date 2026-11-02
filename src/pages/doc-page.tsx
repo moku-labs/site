@@ -6,7 +6,7 @@ import { CubeIcon, conceptGlyph } from "../components/cube-icon";
 import { DocumentMeta } from "../components/doc-meta";
 import { DocumentationLayout } from "../components/docs-layout";
 import { DocumentationSidebar } from "../components/docs-sidebar";
-import { DocumentationToc } from "../components/docs-toc";
+import { DocumentationToc, DocumentationTocInline } from "../components/docs-toc";
 import { PackageIcon } from "../components/icons";
 import { PreviousNext } from "../components/previous-next";
 import { PageSyncBadge } from "../components/sync-badge";
@@ -112,6 +112,7 @@ export function DocumentationPage(props: DocumentationPageProperties): VNode {
               drift={page.drift}
             />
           </DocumentMeta>
+          <DocumentationTocInline headings={page.headings} />
           <div
             data-content
             data-island="code-block"

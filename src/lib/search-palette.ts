@@ -175,3 +175,53 @@ export function nextTabStop(current: number, backwards: boolean, stops: number):
 export function isPaletteShortcut(keys: ShortcutKeys): boolean {
   return (keys.metaKey || keys.ctrlKey) && keys.key.toLowerCase() === "k";
 }
+
+/**
+ * The URL fragment of the history entry an open palette owns. A fragment entry is a same-document
+ * entry the router leaves alone, so Back closes the palette instead of leaving the page.
+ */
+export const PALETTE_HASH = "#search";
+
+/**
+ * Whether the current history entry is the one the open palette pushed.
+ *
+ * @param hash - `location.hash`.
+ * @returns `true` for the palette's fragment.
+ * @example
+ * ```ts
+ * isPaletteEntry("#search"); // true
+ * isPaletteEntry("#define-routes"); // false
+ * ```
+ */
+export function isPaletteEntry(hash: string): boolean {
+  return hash === PALETTE_HASH;
+}
+
+/** What closing the palette does to the history entry it pushed. */
+export type CloseKind = "back" | "keep";
+
+/** The palette's history entry and what is asked of it. */
+export type HistoryNeed = {
+  /** The palette pushed an entry when it opened. */
+  pushed: boolean;
+  /** `location.hash` now. */
+  hash: string;
+  /** How the palette closes: `"back"` for Esc, backdrop and selection, `"keep"` after Back. */
+  kind: CloseKind;
+};
+
+/**
+ * Whether closing must call `history.back()`: only for an entry the palette pushed and that is
+ * still the current one, and only when the visitor did not already leave it with Back.
+ *
+ * @param need - The entry and the way the palette closes.
+ * @returns `true` when the entry is to be popped.
+ * @example
+ * ```ts
+ * shouldPopEntry({ pushed: true, hash: "#search", kind: "back" }); // true
+ * shouldPopEntry({ pushed: true, hash: "", kind: "keep" }); // false: Back already popped it
+ * ```
+ */
+export function shouldPopEntry(need: HistoryNeed): boolean {
+  return need.kind === "back" && need.pushed && isPaletteEntry(need.hash);
+}

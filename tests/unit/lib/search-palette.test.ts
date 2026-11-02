@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_PALETTE_DATA,
+  isPaletteEntry,
   isPaletteShortcut,
   isSuggestionLabelHidden,
   nextTabStop,
+  PALETTE_HASH,
   packageIconUrl,
   parsePaletteData,
+  shouldPopEntry,
   statusMessage,
   stepSelection
 } from "../../../src/lib/search-palette";
@@ -96,5 +99,32 @@ describe("isPaletteShortcut", () => {
     expect(isPaletteShortcut({ key: "K", metaKey: false, ctrlKey: true })).toBe(true);
     expect(isPaletteShortcut({ key: "k", metaKey: false, ctrlKey: false })).toBe(false);
     expect(isPaletteShortcut({ key: "j", metaKey: true, ctrlKey: false })).toBe(false);
+  });
+});
+
+describe("isPaletteEntry", () => {
+  // Bug: any fragment (a docs anchor) is taken for the palette's entry and Back pops the wrong one.
+  it("accepts only the palette's own fragment", () => {
+    expect(isPaletteEntry(PALETTE_HASH)).toBe(true);
+    expect(isPaletteEntry("#define-routes")).toBe(false);
+    expect(isPaletteEntry("")).toBe(false);
+  });
+});
+
+describe("shouldPopEntry", () => {
+  // Bug: Esc leaves a stray `#search` entry, so the next Back lands on the same page again.
+  it("pops the palette's own entry when it closes by Esc, backdrop or selection", () => {
+    expect(shouldPopEntry({ pushed: true, hash: "#search", kind: "back" })).toBe(true);
+  });
+
+  // Bug: closing after Back pops once more and the visitor leaves the page anyway.
+  it("leaves history alone after Back already popped the entry", () => {
+    expect(shouldPopEntry({ pushed: true, hash: "", kind: "keep" })).toBe(false);
+  });
+
+  // Bug: the palette pops an entry it never pushed (opened on a #search URL, or the page moved on).
+  it("never pops an entry it did not push or that is no longer current", () => {
+    expect(shouldPopEntry({ pushed: false, hash: "#search", kind: "back" })).toBe(false);
+    expect(shouldPopEntry({ pushed: true, hash: "#intro", kind: "back" })).toBe(false);
   });
 });

@@ -145,6 +145,28 @@ export const SOCKETS: readonly (readonly [x: number, y: number])[] = [
   [6, 6]
 ];
 
+/**
+ * How far each socket's label is lifted above the usual label gap, in SVG units, by socket index.
+ * The five labels stand close together (30 units apart along x, 15 along y), so a flat row of
+ * them overlaps once a name is longer than a block. Lifting them to staggered heights keeps
+ * the boxes apart even for the phone's bigger label text.
+ */
+const SOCKET_LABEL_LIFTS: readonly number[] = [17, 49, 34, 2, 0];
+
+/**
+ * Extra height of a socket's label above its block, so no two labels overlap.
+ *
+ * @param index - Socket fill order.
+ * @returns The lift in SVG units; `0` for an index past the end.
+ * @example
+ * ```ts
+ * socketLabelLift(1); // 49: the second plugin's name stands highest
+ * ```
+ */
+export function socketLabelLift(index: number): number {
+  return SOCKET_LABEL_LIFTS[index] ?? 0;
+}
+
 /** Inset of a plugin block inside its socket cell. */
 export const SOCKET_BLOCK_INSET = 0.16;
 

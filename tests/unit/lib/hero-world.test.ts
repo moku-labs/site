@@ -8,7 +8,9 @@ import {
   PHONE_MIN_DRAWING,
   PHONE_MIN_LABEL,
   PHONE_WINDOW,
+  SOCKETS,
   socketCentre,
+  socketLabelLift,
   terraceLevel,
   WORLD_SIZE,
   WORLD_VIEW_BOX,
@@ -163,5 +165,51 @@ describe("labelUnits", () => {
   it("asks for bigger units the narrower the drawing is", () => {
     expect(labelUnits(10, 250)).toBeGreaterThan(labelUnits(10, 400));
     expect(labelUnits(10, 500)).toBe(10);
+  });
+});
+
+describe("socketLabelLift", () => {
+  /** Widest plugin name in the tray, in characters. */
+  const LONGEST_NAME = 7;
+  /** Label box height (text plus its halo) and monospace glyph width, as multiples of the font size. */
+  const BOX_HEIGHT = 1.75;
+  const GLYPH_WIDTH = 0.6;
+  /** Gap above a socket block, as in the drawing. */
+  const BASE_GAP = 16;
+
+  /**
+   * Whether any two socket labels overlap at a font size.
+   *
+   * @param font - Label font size in SVG units.
+   * @returns `true` when two label boxes overlap.
+   */
+  function overlaps(font: number): boolean {
+    const boxes = SOCKETS.map(([x, y], index) => {
+      const [centreX, centreY] = world.point(x + 0.5, y + 0.5, 0);
+      return {
+        x: centreX,
+        y: centreY - BASE_GAP - socketLabelLift(index),
+        half: (LONGEST_NAME * GLYPH_WIDTH * font) / 2
+      };
+    });
+    return boxes.some((first, index) =>
+      boxes
+        .slice(index + 1)
+        .some(
+          second =>
+            Math.abs(first.x - second.x) < first.half + second.half &&
+            Math.abs(first.y - second.y) < BOX_HEIGHT * font
+        )
+    );
+  }
+
+  // Bug: after a full run two sockets' names (session over router, auth over blog) overprint.
+  it("keeps every pair of socket labels apart at the desktop and the phone font size", () => {
+    expect(overlaps(11)).toBe(false);
+    expect(overlaps(PHONE_LABEL_UNITS)).toBe(false);
+  });
+
+  it("does not lift a socket past the end", () => {
+    expect(socketLabelLift(99)).toBe(0);
   });
 });

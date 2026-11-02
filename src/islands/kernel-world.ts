@@ -227,6 +227,24 @@ function paintTray(root: Element, state: WorldState): void {
 }
 
 /**
+ * Show whether a plugin is flying: the tray says it is busy and its buttons look unavailable, so
+ * a tap that would be ignored is not offered.
+ *
+ * @param root - The hero section.
+ * @param busy - A plugin is in flight.
+ */
+function paintBusy(root: Element, busy: boolean): void {
+  const tray = root.querySelector<HTMLElement>('[data-part="tray"]');
+  if (tray === null) return;
+  if (busy) tray.dataset.busy = "";
+  else delete tray.dataset.busy;
+  for (const button of tray.querySelectorAll<HTMLButtonElement>("[data-plug]")) {
+    if (busy) button.setAttribute("aria-disabled", "true");
+    else button.removeAttribute("aria-disabled");
+  }
+}
+
+/**
  * Show the state in kernel.log: the live `createApp` line and the last six lines.
  *
  * @param root - The hero section.
@@ -381,6 +399,7 @@ async function plug(ctx: WorldContext, id: string, from: ScreenPoint): Promise<v
   // Fly it: arc to the kernel, then into a socket or off the edge.
   const flight: Flight = { svg, flyer };
   state.busy = true;
+  paintBusy(root, true);
   try {
     await flyVerdict(root, state, flight, from, { next, accepted: judgement.accepted });
   } finally {
@@ -430,6 +449,7 @@ async function flyVerdict(
  */
 function land(root: Element, state: WorldState): void {
   state.busy = false;
+  paintBusy(root, false);
   if (!state.resetQueued) return;
   state.resetQueued = false;
   commit(root, state, initialHeroState());

@@ -4,19 +4,24 @@
  * Opens on ⌘K / Ctrl+K and on a click of any `[data-search-open]` button; loads the shard once
  * with `loadCollectionShard`; suggests pages for an empty query, filters live with the match
  * highlighted; arrows move, Enter opens, Esc closes; focus stays in the modal and returns to the
- * opener on close. The state maths is in `src/lib/search-palette.ts`.
+ * opener on close. Opening pushes a `#search` history entry, so Back closes the palette instead
+ * of leaving the page; every other way of closing pops that entry again. The state maths is in
+ * `src/lib/search-palette.ts`.
  */
 import type { Spa } from "@moku-labs/web/browser";
 import { createIsland, loadCollectionShard } from "@moku-labs/web/browser";
-import type { PaletteData } from "../lib/search-palette";
+import type { CloseKind, PaletteData } from "../lib/search-palette";
 import {
   ICON_SIZE,
+  isPaletteEntry,
   isPaletteShortcut,
   isSuggestionLabelHidden,
   nextTabStop,
   OPTION_ID,
+  PALETTE_HASH,
   packageIconUrl,
   parsePaletteData,
+  shouldPopEntry,
   statusMessage,
   stepSelection
 } from "../lib/search-palette";
@@ -37,6 +42,8 @@ type PaletteState = {
   selected: number;
   /** The element that had focus before the palette opened. */
   opener: Element | undefined;
+  /** The palette pushed a history entry when it opened, so Back closes it. */
+  pushed: boolean;
 };
 
 /** The island context with its state. */
@@ -223,6 +230,9 @@ function openPalette(ctx: PaletteContext): void {
   const root = ctx.el;
   if (!(root instanceof HTMLElement) || isOpen(root)) return;
   ctx.state.opener = document.activeElement ?? undefined;
+  // A fragment entry is same-document and the router leaves it alone.
+  ctx.state.pushed = !isPaletteEntry(location.hash);
+  if (ctx.state.pushed) location.hash = PALETTE_HASH;
   root.hidden = false;
   const input = inputOf(root);
   if (input !== null) input.value = "";
@@ -232,17 +242,45 @@ function openPalette(ctx: PaletteContext): void {
 }
 
 /**
- * Close the palette and give focus back to the element that opened it.
+ * Close the palette and give focus back to the element that opened it. The history entry the
+ * palette pushed is popped, unless the visitor already left it with Back (`"keep"`).
  *
  * @param ctx - The island context.
+ * @param kind - `"back"` pops the entry; `"keep"` leaves history alone.
  */
-function closePalette(ctx: PaletteContext): void {
+function closePalette(ctx: PaletteContext, kind: CloseKind = "back"): void {
   const root = ctx.el;
   if (!(root instanceof HTMLElement) || !isOpen(root)) return;
   root.hidden = true;
+  const pop = shouldPopEntry({ pushed: ctx.state.pushed, hash: location.hash, kind });
+  ctx.state.pushed = false;
+  if (pop) history.back();
   const opener = ctx.state.opener;
   ctx.state.opener = undefined;
   if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+}
+
+/**
+ * A result was chosen: leave through its link. The palette's own history entry is replaced by the
+ * destination, so Back from there returns to the page the palette opened on.
+ *
+ * @param ctx - The island context.
+ * @param event - The click on the result.
+ * @param link - The result link.
+ */
+function chooseResult(ctx: PaletteContext, event: Event, link: Element): void {
+  const plain =
+    !(event instanceof MouseEvent) ||
+    (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey);
+  const href = link instanceof HTMLAnchorElement ? link.getAttribute("href") : undefined;
+  if (!plain || href === undefined || href === null) {
+    closePalette(ctx);
+    return;
+  }
+  event.preventDefault();
+  const replace = ctx.state.pushed && isPaletteEntry(location.hash);
+  closePalette(ctx, "keep");
+  ctx.navigate(href, { replace });
 }
 
 /**
@@ -273,7 +311,6 @@ function openSelected(ctx: PaletteContext, event: KeyboardEvent): void {
   const link = ctx.el.querySelectorAll('a[role="option"]')[ctx.state.selected];
   if (!(link instanceof HTMLAnchorElement)) return;
   event.preventDefault();
-  closePalette(ctx);
   link.click();
 }
 
@@ -317,12 +354,13 @@ export const searchPaletteIsland = createIsland("search-palette", {
     failed: false,
     results: [],
     selected: 0,
-    opener: undefined
+    opener: undefined,
+    pushed: false
   }),
   events: {
     "input [data-part='field'] input": ctx => paint(ctx.el, ctx.state),
     "click [data-close]": ctx => closePalette(ctx),
-    "click a[role='option']": ctx => closePalette(ctx),
+    "click a[role='option']": (ctx, event, link) => chooseResult(ctx, event, link),
     keydown: (ctx, event) => onKey(ctx, event)
   },
   onMount: ctx => {
@@ -336,12 +374,18 @@ export const searchPaletteIsland = createIsland("search-palette", {
       const target = event.target instanceof Element ? event.target : undefined;
       if (target?.closest("[data-search-open]")) openPalette(ctx);
     };
+    // Back from the palette's entry: the entry is gone already, so only hide the palette.
+    const onPopState = (): void => {
+      if (isOpen(ctx.el) && !isPaletteEntry(location.hash)) closePalette(ctx, "keep");
+    };
     document.addEventListener("keydown", onShortcut);
     document.addEventListener("click", onOpenClick);
+    addEventListener("popstate", onPopState);
     ctx.cleanup(() => {
       document.removeEventListener("keydown", onShortcut);
       document.removeEventListener("click", onOpenClick);
+      removeEventListener("popstate", onPopState);
     });
   },
-  onNavStart: ctx => closePalette(ctx)
+  onNavStart: ctx => closePalette(ctx, "keep")
 });

@@ -15,6 +15,7 @@ import {
   PLATFORM_DEPTH,
   SOCKET_BLOCK_HEIGHT,
   SOCKET_BLOCK_INSET,
+  socketLabelLift,
   WORLD_SIZE,
   WORLD_VIEW_BOX,
   windowFraming,
@@ -278,7 +279,7 @@ function Socket(props: {
           x={x + CELL_MIDDLE}
           y={y + CELL_MIDDLE}
           z={SOCKET_BLOCK_HEIGHT}
-          gap={SOCKET_LABEL_GAP}
+          gap={SOCKET_LABEL_GAP + socketLabelLift(index)}
           text={plugin?.plugin ?? ""}
           part="plugin-label"
         />

@@ -120,7 +120,7 @@
       color: var(--text-muted);
     }
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled, [aria-disabled="true"]) {
       border-color: var(--accent-hover);
       transform: translateY(-2px);
       box-shadow: var(--lift-shadow);
@@ -128,6 +128,12 @@
 
     &[data-dragging] {
       opacity: 0.35;
+    }
+
+    /* A plugin is flying: the kernel takes the next one when it lands. */
+    &[aria-disabled="true"] {
+      opacity: 0.55;
+      cursor: progress;
     }
 
     &[data-state="locked"] {
@@ -572,6 +578,51 @@
 
     [data-part="log"] {
       min-height: 0;
+    }
+  }
+
+  /* A phone on its side: the world is as tall as the screen under the header and the tray stands
+     beside it, so a plugin is dragged from the tray to the kernel without scrolling. */
+  @media (orientation: landscape) and (max-height: 520px) and (max-width: 960px) {
+    :scope {
+      /* The world's viewBox is 620 by 485 units. */
+      --world-ratio: 1.28;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      grid-template-areas:
+        "intro intro"
+        "world tray"
+        "log log";
+      gap: 0 24px;
+      padding-block: 20px 36px;
+    }
+
+    [data-part="stage"] {
+      display: contents;
+    }
+
+    [data-part="world-frame"] {
+      grid-area: world;
+      justify-self: center;
+      width: min(100%, calc((100svh - var(--header-height) - 24px) * var(--world-ratio)));
+    }
+
+    [data-part="world"] {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    [data-part="tray"] {
+      align-self: start;
+      margin-top: 0;
+
+      ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    [data-part="console"] {
+      grid-area: log;
+      margin-top: 20px;
     }
   }
 }
