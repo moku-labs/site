@@ -57,7 +57,7 @@ Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
 - `search` — builds the ⌘K index (pages, packages, docs headings, demos) and writes
   `dist/search/en.json` through `collectionPlugin`.
 - `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
-- `kernel` — `errors()` and `trayMessages()`: the real kernel's messages, captured at build.
+- `kernel` — `trayMessages()`: the real kernel's messages for the hero tray, captured at build.
 
 One browser plugin (`src/plugins/prefetch/`, composed only in `src/spa.tsx`):
 

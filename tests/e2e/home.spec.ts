@@ -293,9 +293,7 @@ test.describe("pyramid", () => {
 test.describe("packages and copy", () => {
   test("the landing sections carry their titles", async ({ page }) => {
     await boot(page, "/");
-    await expect(page.locator("#checks h2").first()).toHaveText(
-      "Errors at startup, not in production."
-    );
+    await expect(page.locator("#checks")).toHaveCount(0);
     await expect(page.locator("#packages h2").first()).toHaveText("Packages");
     await expect(page.locator("#start h2").first()).toHaveText("Start with Claude");
   });
