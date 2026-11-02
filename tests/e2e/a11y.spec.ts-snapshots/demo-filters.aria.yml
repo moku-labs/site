@@ -1,0 +1,12 @@
+- group "Filter by package":
+  - text: ""
+  - button "All six" [pressed]
+  - button "web"
+  - button "worker"
+  - button "room"
+  - button "system"
+  - button "native"
+  - button "game"
+  - button "editor"
+  - button "ai"
+  - button "ci"
