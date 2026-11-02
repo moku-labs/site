@@ -80,7 +80,7 @@ export const routes = defineRoutes({
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ pages · 5ms
 ✓ feeds · 2ms
 ✓ sitemap · 1ms

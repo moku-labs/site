@@ -136,7 +136,7 @@ the dev server goes through the same SPA runtime as production.
 
 ```sh terminal title="dev"
 $ bun run dev
-▟▙ moku web  serve · dev                                 v2.4.11
+▟▙ moku web  serve · dev
 ✓ pages · 5ms
 ✓ BUILD · 9 pages                                1252ms · ./dist/
 ➜ Local    http://localhost:4173

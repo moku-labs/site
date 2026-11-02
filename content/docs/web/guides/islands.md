@@ -90,7 +90,7 @@ Islands ship in the client bundle. The build bundles `build.clientEntry` (or the
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ bundle · 5ms
 ✓ pages · 5ms
 ✓ BUILD · 9 pages                                1252ms · ./dist/
@@ -224,7 +224,7 @@ render-only tests. An island that returns JSX needs `await island.settle()` firs
 Preact render chunk.
 
 :::gotchas
-- **There is no `createComponent` in 2.4.11.** The `state`, `render`, `events` and `api` spec lives on `createIsland`.
+- **There is no `createComponent`.** The `state`, `render`, `events` and `api` spec lives on `createIsland`.
 - **`render` replaces the server markup on mount.** Render the same markup the server rendered, or the content shifts on mount.
 - **Return `null` for an empty island.** It unmounts the Preact tree and stays mountable. Returning `""` corrupts Preact's tree and the island never renders again.
 - **`ctx.data` reads `script#__DATA__`.** The build does not write that script. Render it in your page when an island needs page data, or read `data-*` attributes.

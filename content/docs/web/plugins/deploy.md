@@ -39,7 +39,7 @@ A failure throws an `Error` with a `code`: `ERR_DEPLOY_NO_WRANGLER_CONFIG`,
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `target` | `"cloudflare-pages"` | `"cloudflare-pages"` | The only target in 2.4.11. |
+| `target` | `"cloudflare-pages"` | `"cloudflare-pages"` | The only target. |
 | `outDir` | `string` | `"dist"` | The built site, relative to the project root. Checked again on every `run()`. |
 | `productionBranch` | `string` | `"main"` | The branch `run()` deploys when you pass none. |
 | `scrubAllowlist` | `string[]` | `["CLOUDFLARE_ACCOUNT_ID"]` | Substrings that are never masked in logged output. |

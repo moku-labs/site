@@ -178,7 +178,7 @@ file are written once.
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ bundle · 5ms
 ✓ content · 1239ms
 ✓ pages · 5ms
@@ -212,7 +212,7 @@ so an explicit `/en/` link works without a redirect.
 | `.transition(mode)` | browser | `"none"`, `"crossfade"`, `"slide"` or `"morph"` for navigations to this route. |
 | `.scroll(mode)` | browser | `"top"` or `"preserve"` for navigations to this route. |
 | `.toFile(params => path)` | build | Output file override. |
-| `.toJson(ctx => unknown)` | | Stores a JSON serializer on the route. No built-in plugin reads it in 2.4.11. |
+| `.toJson(ctx => unknown)` | | Stores a JSON serializer on the route. No built-in plugin reads it yet. |
 
 ## Links
 

@@ -85,7 +85,7 @@ await app.start();
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ pages · 5ms
 ✓ BUILD · 9 pages                                1252ms · ./dist/
 $ find dist/_data -name index.json | sort

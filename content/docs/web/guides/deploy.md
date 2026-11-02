@@ -96,7 +96,7 @@ await app.cli.deploy({ guided: !process.argv.includes("--cli") }); // [!note] `b
 
 ```sh terminal title="deploy"
 $ bun run deploy
-▟▙ moku web  deploy                                      v2.4.11
+▟▙ moku web  deploy
 Checking prerequisites
 ✓ wrangler.jsonc (Cloudflare project config)
 ✓ CLOUDFLARE_API_TOKEN is set

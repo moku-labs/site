@@ -107,7 +107,7 @@ console.log(summary.pageCount);
 
 ```sh terminal title="build"
 $ bun run build
-▟▙ moku web  build                                       v2.4.11
+▟▙ moku web  build
 ✓ bundle · 5ms
 ✓ content · 1239ms
 ✓ pages · 5ms
