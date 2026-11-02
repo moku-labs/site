@@ -127,12 +127,14 @@ export function Hero(props: HeroProperties): VNode {
         </div>
       </div>
       <div data-part="stage">
-        <KernelWorld
-          packages={props.packages}
-          accepted={accepted}
-          kernelVersion={hero.kernelVersion}
-          url={url}
-        />
+        <div data-part="world-frame">
+          <KernelWorld
+            packages={props.packages}
+            accepted={accepted}
+            kernelVersion={hero.kernelVersion}
+            url={url}
+          />
+        </div>
         <KernelLog state={state} tray={hero.tray} />
       </div>
       <div data-part="tray">

@@ -159,12 +159,40 @@
 
   @media (max-width: 520px) {
     [data-part="bar"] {
-      gap: 10px;
+      gap: 6px;
       padding: 0 var(--gutter-narrow);
+    }
+
+    [data-part="logo"] {
+      gap: 8px;
     }
 
     :root:has([data-mode="docs"]) :scope [data-part="docs-tag"] {
       display: none;
+    }
+  }
+}
+
+/* D13: 40px targets in the phone header. */
+@scope ([data-component="site-header"]) {
+  @media (max-width: 960px) {
+    button {
+      flex: none;
+      justify-content: center;
+      min-width: 40px;
+      min-height: 40px;
+    }
+
+    [data-part="burger"] {
+      padding-inline: 8px;
+    }
+
+    [data-part="logo"] {
+      min-height: 40px;
+    }
+
+    [data-part="links"] a {
+      padding-block: 12px;
     }
   }
 }

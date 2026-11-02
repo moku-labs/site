@@ -37,3 +37,25 @@
     }
   }
 }
+
+/* D13: phone sections keep 60px of air instead of 104px. */
+@scope ([data-component="landing-section"]) {
+  @media (max-width: 760px) {
+    :scope {
+      padding: 60px 0;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+    }
+
+    [data-part="lede"] {
+      margin-bottom: 28px;
+      font-size: 17px;
+    }
+
+    [data-split] {
+      gap: 32px;
+    }
+  }
+}

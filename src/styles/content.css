@@ -340,3 +340,29 @@
     }
   }
 }
+
+/* D13: phone prose. Steps indent 36px, not 54px. */
+@scope ([data-content]) {
+  @media (max-width: 760px) {
+    [data-component="steps"] li {
+      padding-left: 38px;
+
+      &::before {
+        width: 28px;
+        height: 32px;
+        font-size: 13px;
+        line-height: 32px;
+      }
+
+      &::after {
+        left: 13px;
+        top: 36px;
+      }
+    }
+
+    h2 {
+      margin-top: 40px;
+      padding-top: 22px;
+    }
+  }
+}

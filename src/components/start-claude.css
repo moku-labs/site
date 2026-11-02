@@ -45,3 +45,13 @@
     }
   }
 }
+
+/* D13: the prompt's Copy button is a 40px target on a phone. */
+@scope ([data-component="claude-prompts"]) {
+  @media (max-width: 760px) {
+    [data-part="copy"] {
+      min-width: 64px;
+      min-height: 40px;
+    }
+  }
+}

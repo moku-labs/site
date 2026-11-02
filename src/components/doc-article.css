@@ -43,3 +43,19 @@
     }
   }
 }
+
+/* D13: crumbs are 40px targets on a phone. */
+@scope ([data-component="doc-article"]) {
+  @media (max-width: 760px) {
+    [data-part="crumbs"] a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding-inline: 4px;
+    }
+
+    [data-part="crumbs"] {
+      margin-bottom: 4px;
+    }
+  }
+}

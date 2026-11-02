@@ -232,6 +232,12 @@
     fill: var(--text-heading);
   }
 
+  /* The hit circle only exists for a finger: the phone block turns it on. */
+  [data-part="hit"] {
+    fill: transparent;
+    pointer-events: none;
+  }
+
   [data-part="kernel"] {
     transform-box: fill-box;
     transform-origin: 50% 100%;
@@ -476,5 +482,96 @@
 @keyframes hero-snap {
   from {
     transform: translateY(-36px);
+  }
+}
+
+/* D13: the phone hero. The world is cropped to its middle 500 units and drawn 1.24 times as big
+   (--phone-width / --phone-shift come from lib/hero-world.ts), with labels that stay >= 10px. */
+@scope ([data-component="hero"]) {
+  @media (max-width: 520px) {
+    [data-part="world-frame"] {
+      overflow-x: clip;
+    }
+
+    [data-part="world"] {
+      width: var(--phone-width);
+      max-width: none;
+      margin-left: var(--phone-shift);
+    }
+
+    [data-part="hit"] {
+      pointer-events: all;
+    }
+
+    [data-part="label"],
+    [data-part="plugin-label"] {
+      font-size: calc(var(--phone-label) * 1px);
+      stroke-width: 6px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    :scope {
+      grid-template-areas:
+        "intro"
+        "world"
+        "tray"
+        "log";
+      padding: 24px var(--gutter-narrow) 44px;
+    }
+
+    /* The world and the tray sit together, so a finger can drag from one to the other on one
+       screen; kernel.log comes last. The stage keeps its data-hot state but draws no box. */
+    [data-part="stage"] {
+      display: contents;
+    }
+
+    [data-part="world-frame"] {
+      grid-area: world;
+    }
+
+    [data-part="console"] {
+      grid-area: log;
+      margin-top: 20px;
+    }
+
+    h1 {
+      margin-bottom: 18px;
+    }
+
+    [data-part="actions"] {
+      margin-bottom: 20px;
+    }
+
+    [data-part="actions"] [data-component="button"] {
+      flex: 1 1 140px;
+      justify-content: center;
+      min-height: 48px;
+      padding-inline: 14px;
+      white-space: nowrap;
+    }
+
+    [data-part="tray"] {
+      margin-top: 16px;
+    }
+
+    [data-part="tray-head"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    [data-part="reset"] {
+      min-height: 40px;
+      padding: 4px 14px;
+    }
+
+    [data-part="console-bar"] {
+      padding-block: 3px;
+    }
+
+    [data-part="log"] {
+      min-height: 0;
+    }
   }
 }

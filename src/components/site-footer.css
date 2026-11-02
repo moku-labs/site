@@ -88,3 +88,32 @@
     }
   }
 }
+
+/* D13: 40px footer links and a tighter footer on a phone. */
+@scope ([data-component="site-footer"]) {
+  @media (max-width: 760px) {
+    :scope {
+      padding: 40px 0 28px;
+    }
+
+    ul {
+      gap: 0;
+    }
+
+    li a {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    [data-part="logo"] {
+      min-height: 40px;
+    }
+
+    [data-part="bottom"] a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+    }
+  }
+}

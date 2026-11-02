@@ -5,8 +5,8 @@
 import type { VNode } from "preact";
 import type { DemoEntry } from "../data/demos";
 import type { HomePackage } from "../lib/home-data";
-import type { Brick, PyramidPackage } from "../lib/pyramid";
-import { brickFaces, PYRAMID_WIDTH, pyramidBricks } from "../lib/pyramid";
+import type { Brick, PyramidLayout, PyramidPackage } from "../lib/pyramid";
+import { brickFaces, pyramidBricks } from "../lib/pyramid";
 import type { UrlBuilder } from "../lib/url-builder";
 import type { IsoTone } from "./iso-shapes";
 import { WorldTip } from "./world-tip";
@@ -147,7 +147,48 @@ function BrickShape(props: { brick: Brick; info: BrickInfo; stack: string | unde
 }
 
 /**
- * The pyramid with its legend. Wider than a phone: it scrolls sideways in its own box.
+ * One drawing of the pyramid in one layout.
+ *
+ * @param props - Component props.
+ * @param props.layout - `wide` for desktop, `stacked` for a phone.
+ * @param props.labelled - The family with brick labels.
+ * @param props.pyramid - The pyramid's props.
+ * @returns The `<svg>`.
+ */
+function PyramidDrawing(props: {
+  layout: PyramidLayout;
+  labelled: readonly PyramidPackage[];
+  pyramid: PyramidProperties;
+}): VNode {
+  const { layout, pyramid } = props;
+  const { bricks, width, height } = pyramidBricks(props.labelled, pyramid.demos, layout);
+  // The base first: a lifted brick slides under the row above, never over it.
+  const drawOrder = bricks.toReversed();
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: an SVG drawing cannot be a fieldset; group names the set of focusable shapes
+    <svg
+      data-layout={layout}
+      viewBox={`0 0 ${width} ${height}`}
+      role="group"
+      aria-label="Pyramid: the kernel on top, eleven packages, six demo apps at the base"
+    >
+      {drawOrder.map(brick => (
+        <BrickShape
+          key={`${brick.kind}-${brick.id}`}
+          brick={brick}
+          info={brick.kind === "demo" ? demoInfo(brick, pyramid) : packageInfo(brick, pyramid)}
+          stack={pyramid.demos
+            .find(demo => demo.id === brick.id && brick.kind === "demo")
+            ?.stack.join(" ")}
+        />
+      ))}
+    </svg>
+  );
+}
+
+/**
+ * The pyramid with its legend. Two drawings of the same bricks: the wide one scrolls sideways in
+ * its own box on a tablet, the stacked one wraps the rows to fit a phone. CSS shows one of them.
  *
  * @param props - Component props.
  * @returns The `<div data-component="pyramid" data-island="pyramid">`.
@@ -161,29 +202,13 @@ export function Pyramid(props: PyramidProperties): VNode {
     id: entry.id,
     label: entry.id === "core" ? entry.name : (BRICK_LABELS[entry.id] ?? entry.id)
   }));
-  const { bricks, height } = pyramidBricks(labelled, props.demos);
-  // The base first: a lifted brick slides under the row above, never over it.
-  const drawOrder = bricks.toReversed();
   return (
     <div data-component="pyramid" data-island="pyramid">
       <div data-part="scroller">
-        {/* biome-ignore lint/a11y/useSemanticElements: an SVG drawing cannot be a fieldset; group names the set of focusable shapes */}
-        <svg
-          viewBox={`0 0 ${PYRAMID_WIDTH + 20} ${height}`}
-          role="group"
-          aria-label="Pyramid: the kernel on top, eleven packages, six demo apps at the base"
-        >
-          {drawOrder.map(brick => (
-            <BrickShape
-              key={`${brick.kind}-${brick.id}`}
-              brick={brick}
-              info={brick.kind === "demo" ? demoInfo(brick, props) : packageInfo(brick, props)}
-              stack={props.demos
-                .find(demo => demo.id === brick.id && brick.kind === "demo")
-                ?.stack.join(" ")}
-            />
-          ))}
-        </svg>
+        <PyramidDrawing layout="wide" labelled={labelled} pyramid={props} />
+      </div>
+      <div data-part="stacked">
+        <PyramidDrawing layout="stacked" labelled={labelled} pyramid={props} />
       </div>
       <p data-part="legend">
         <span>
@@ -198,7 +223,9 @@ export function Pyramid(props: PyramidProperties): VNode {
           <i data-swatch="demo" />
           demo apps
         </span>
-        <span data-part="hint">Scroll sideways on small screens.</span>
+        <span data-part="hint">
+          Tap a brick to see what it is built with. Tap again to open it.
+        </span>
       </p>
       <WorldTip withArt />
     </div>

@@ -11,8 +11,75 @@ import { createProjection } from "./iso";
 /** The world's projection: 60×30 cells, 34 units per level. */
 export const world = createProjection({ tileWidth: 60, tileHeight: 30, levelHeight: 34 });
 
-/** The SVG viewBox that frames the whole world, the floating Claude block included. */
-export const WORLD_VIEW_BOX = "-310 -165 620 485";
+/** A rectangle of the world's SVG units. */
+export type WorldFrame = {
+  /** Left edge. */
+  x: number;
+  /** Top edge. */
+  y: number;
+  /** Width. */
+  width: number;
+  /** Height. */
+  height: number;
+};
+
+/** The frame of the whole world, the floating Claude block included. */
+const WORLD_FRAME: WorldFrame = { x: -310, y: -165, width: 620, height: 485 };
+
+/** The SVG viewBox that frames the whole world. */
+export const WORLD_VIEW_BOX = `${WORLD_FRAME.x} ${WORLD_FRAME.y} ${WORLD_FRAME.width} ${WORLD_FRAME.height}`;
+
+/**
+ * The phone window: the middle 500 units of the world's width. It keeps every block and the
+ * kernel and trims the empty corners of the platform, so the drawing is zoomed 1.24 times.
+ */
+export const PHONE_WINDOW: Pick<WorldFrame, "x" | "width"> = { x: -250, width: 500 };
+
+/** The smallest label text a phone shows, in rendered pixels. */
+export const PHONE_MIN_LABEL = 11;
+
+/** The narrowest drawing a phone gets: a 360px screen less two 20px gutters. */
+export const PHONE_MIN_DRAWING = 320;
+
+/**
+ * How to place the whole-world SVG so only a window of it shows: the SVG is made wider than its
+ * box and pulled left, and the box clips the rest. The browser keeps the drawing's aspect.
+ *
+ * @param window - The part of the world's width to show.
+ * @returns The SVG width and left shift, both in percent of the box's width.
+ * @example
+ * ```ts
+ * windowFraming(PHONE_WINDOW); // { width: 124, shift: -12 }
+ * ```
+ */
+export function windowFraming(window: Pick<WorldFrame, "x" | "width">): {
+  width: number;
+  shift: number;
+} {
+  return {
+    width: (WORLD_FRAME.width / window.width) * 100,
+    shift: ((WORLD_FRAME.x - window.x) / window.width) * 100
+  };
+}
+
+/**
+ * Label size in SVG units that renders at least `minimum` pixels when the window is
+ * `drawingWidth` pixels wide.
+ *
+ * @param minimum - Smallest rendered size in pixels.
+ * @param drawingWidth - Width of the box that shows the window, in pixels.
+ * @returns The font size in SVG units, rounded up to a whole unit.
+ * @example
+ * ```ts
+ * labelUnits(11, 320); // 18
+ * ```
+ */
+export function labelUnits(minimum: number, drawingWidth: number): number {
+  return Math.ceil(minimum / (drawingWidth / PHONE_WINDOW.width));
+}
+
+/** Label size in SVG units on a phone: 10px even on the narrowest screen. */
+export const PHONE_LABEL_UNITS = labelUnits(PHONE_MIN_LABEL, PHONE_MIN_DRAWING);
 
 /** Cells per side of the platform. */
 export const WORLD_SIZE = 10;

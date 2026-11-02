@@ -54,3 +54,17 @@
     }
   }
 }
+
+@scope ([data-component="kernel-checks"]) {
+  @media (max-width: 760px) {
+    [data-part="more"] {
+      align-items: center;
+      min-height: 40px;
+      margin-top: 12px;
+    }
+
+    li {
+      padding: 16px;
+    }
+  }
+}

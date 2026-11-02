@@ -10,11 +10,14 @@ import {
   BLOCK_INSET,
   CLAUDE_BOX,
   KERNEL_BOX,
+  PHONE_LABEL_UNITS,
+  PHONE_WINDOW,
   PLATFORM_DEPTH,
   SOCKET_BLOCK_HEIGHT,
   SOCKET_BLOCK_INSET,
   WORLD_SIZE,
   WORLD_VIEW_BOX,
+  windowFraming,
   world,
   worldItems
 } from "../lib/hero-world";
@@ -157,6 +160,24 @@ function GridLabel(props: {
   );
 }
 
+/** Radius of the invisible hit circle behind a block: 64 units are 41px on a 320px phone. */
+const HIT_RADIUS = 32;
+
+/**
+ * An invisible circle around a block's middle. On a phone CSS turns it on, so a finger gets a
+ * target of at least 40px for a block that is drawn smaller than that.
+ *
+ * @param props - Component props.
+ * @param props.x - Grid x of the block's middle.
+ * @param props.y - Grid y.
+ * @param props.z - Height of the block's middle.
+ * @returns The `<circle>`.
+ */
+function HitArea(props: { x: number; y: number; z: number }): VNode {
+  const [cx, cy] = world.point(props.x, props.y, props.z);
+  return <circle data-part="hit" cx={cx} cy={cy} r={HIT_RADIUS} />;
+}
+
 /**
  * One package block: its shadow on the ground, then the block, its glyph and its label. Hover and
  * focus show the tooltip; click opens the docs (the island navigates).
@@ -199,6 +220,7 @@ function PackageBlock(props: { entry: HomePackage; place: BlockPlace; href: stri
         <IsoBox projection={world} box={box} tone="block">
           <IsoGlyph projection={world} box={box} glyph={entry.id} weight={BLOCK_GLYPH_WEIGHT} />
         </IsoBox>
+        <HitArea x={x + CELL_MIDDLE} y={y + CELL_MIDDLE} z={level + height / 2} />
         <GridLabel
           x={x + CELL_MIDDLE}
           y={y + CELL_MIDDLE}
@@ -331,6 +353,11 @@ function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
             accent
           />
         </IsoBox>
+        <HitArea
+          x={CLAUDE_BOX.x + CLAUDE_BOX.width / 2}
+          y={CLAUDE_BOX.y + CLAUDE_BOX.depth / 2}
+          z={CLAUDE_BOX.z + CLAUDE_BOX.height / 2}
+        />
         <GridLabel
           x={CLAUDE_ANCHOR}
           y={CLAUDE_ANCHOR}
@@ -399,11 +426,18 @@ export function KernelWorld(props: KernelWorldProperties): VNode {
   const { packages, url } = props;
   const docsOf = (id: string): string => url("docsPackage", { pkg: id });
   const claude = packages.find(entry => entry.id === "claude");
+  // On a phone the CSS shows only the middle window of the drawing, with bigger labels.
+  const framing = windowFraming(PHONE_WINDOW);
   return (
     // biome-ignore lint/a11y/useSemanticElements: an SVG drawing cannot be a fieldset; group names the set of focusable shapes
     <svg
       data-part="world"
       viewBox={WORLD_VIEW_BOX}
+      style={{
+        "--phone-width": `${framing.width}%`,
+        "--phone-shift": `${framing.shift}%`,
+        "--phone-label": PHONE_LABEL_UNITS
+      }}
       role="group"
       aria-label="Isometric map of the Moku family around the kernel"
     >

@@ -442,3 +442,63 @@
     }
   }
 }
+
+/* D13: a code line that runs past the screen scrolls inside its block. A shade on the edge says
+   so: it shows on the side that has more and goes away at the end of the line. */
+@scope ([data-component="code"], [data-component="terminal"]) {
+  @media (max-width: 760px) {
+    pre,
+    [data-part="screen"] {
+      --shade: color-mix(in srgb, currentColor 26%, transparent);
+      --cover: var(--code-bg);
+      scrollbar-width: thin;
+      scrollbar-color: var(--code-gutter) transparent;
+      background:
+        linear-gradient(to right, var(--cover) 30%, transparent) left / 36px 100% no-repeat local,
+        linear-gradient(to left, var(--cover) 30%, transparent) right / 36px 100% no-repeat local,
+        linear-gradient(to right, var(--shade), transparent) left / 14px 100% no-repeat scroll,
+        linear-gradient(to left, var(--shade), transparent) right / 14px 100% no-repeat scroll;
+    }
+
+    [data-part="screen"] {
+      --cover: var(--terminal-bg);
+    }
+  }
+}
+
+/* D13: the Copy button is a 40px target on a phone, flush in the corner of the 40px bar. */
+@scope (
+  [data-component="code"],
+  [data-component="code-group"],
+  [data-component="terminal"]
+) {
+  @media (max-width: 760px) {
+    :scope > [data-part="copy"] {
+      top: 0;
+      right: 0;
+      min-width: 64px;
+      min-height: 40px;
+      border-width: 0 0 1px 1px;
+      border-radius: 0;
+    }
+  }
+}
+
+/* D13: file tabs are 40px targets on a phone. */
+@scope ([data-component="code-group"]) {
+  @media (max-width: 760px) {
+    [role="tab"] {
+      min-height: 40px;
+    }
+  }
+}
+
+/* D13: a prompt's Copy button is a 40px target on a phone. */
+@scope ([data-component="prompt"]) {
+  @media (max-width: 760px) {
+    [data-part="copy"] {
+      min-width: 64px;
+      min-height: 40px;
+    }
+  }
+}

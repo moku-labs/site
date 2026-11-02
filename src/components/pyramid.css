@@ -108,3 +108,39 @@
     }
   }
 }
+
+/* D13: on a phone the stacked drawing shows (kernel row, wrapped package rows, demo rows) and the
+   wide one hides: no sideways scroll. Both hold the same bricks, tips and links. */
+@scope ([data-component="pyramid"]) {
+  [data-part="stacked"] {
+    display: none;
+    padding-top: 12px;
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      height: auto;
+      overflow: visible;
+    }
+  }
+
+  @media (max-width: 760px) {
+    [data-part="scroller"] {
+      display: none;
+    }
+
+    [data-part="stacked"] {
+      display: block;
+    }
+
+    [data-part="legend"] {
+      gap: 8px 16px;
+
+      [data-part="hint"] {
+        flex-basis: 100%;
+        line-height: 1.4;
+      }
+    }
+  }
+}

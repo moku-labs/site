@@ -158,3 +158,21 @@
     }
   }
 }
+
+/* D13: 40px rows in the phone page switcher. */
+@scope ([data-component="docs-sidebar"]) {
+  @media (max-width: 860px) {
+    :scope > summary {
+      min-height: 40px;
+    }
+
+    a,
+    [data-part="muted"] {
+      min-height: 40px;
+    }
+
+    [data-part="switcher"] > summary {
+      min-height: 44px;
+    }
+  }
+}

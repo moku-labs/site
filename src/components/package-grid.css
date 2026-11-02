@@ -128,3 +128,58 @@
     }
   }
 }
+
+/* D13: phone rows. Icon 44px, the group above the name, the version beside it, no overlap. */
+@scope ([data-component="package-grid"]) {
+  @media (max-width: 560px) {
+    a {
+      grid-template-columns: 44px auto minmax(0, 1fr);
+      grid-template-areas:
+        "icon group group"
+        "icon name version"
+        "icon tagline tagline";
+      column-gap: 12px;
+      row-gap: 2px;
+      align-items: baseline;
+      padding: 14px 16px;
+    }
+
+    [data-part="icon"] {
+      grid-area: icon;
+      align-self: start;
+      width: 44px;
+      height: 48px;
+
+      img {
+        width: 44px;
+        height: 44px;
+      }
+
+      [data-part="shadow"] {
+        left: 7px;
+        width: 30px;
+        height: 9px;
+      }
+    }
+
+    [data-part="group"] {
+      position: static;
+      grid-area: group;
+      font-size: 12px;
+    }
+
+    [data-part="name"] {
+      grid-area: name;
+    }
+
+    [data-part="version"] {
+      grid-area: version;
+    }
+
+    [data-part="tagline"] {
+      grid-area: tagline;
+      margin-top: 2px;
+      font-size: 14px;
+    }
+  }
+}

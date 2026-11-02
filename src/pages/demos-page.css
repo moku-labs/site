@@ -245,3 +245,32 @@
     }
   }
 }
+
+@scope ([data-component="demos-page"]) {
+  @media (max-width: 760px) {
+    [data-part="head"] {
+      padding: 40px 0 24px;
+    }
+
+    [data-part="filters"] button {
+      min-height: 40px;
+    }
+  }
+}
+
+/* D13: 40px targets for the stack chips and the card links on a phone. */
+@scope ([data-component="demos-page"]) {
+  @media (max-width: 760px) {
+    [data-part="chip"] {
+      min-height: 40px;
+      padding-right: 14px;
+    }
+
+    [data-part="links"] a,
+    [data-part="soon"] {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+    }
+  }
+}

@@ -14,6 +14,8 @@ type PyramidState = {
   demos: PyramidDemo[];
   /** The packages of the middle row. */
   packages: PyramidPackage[];
+  /** The brick a finger lit with its last tap; a second tap on it opens its page. */
+  armed: Element | undefined;
 };
 
 /** Brick kinds, to narrow `data-kind`. */
@@ -36,8 +38,10 @@ function isBrickKind(value: string | undefined): value is BrickKind {
  * @returns The island state.
  */
 function readBricks(root: Element): PyramidState {
-  const state: PyramidState = { demos: [], packages: [] };
-  for (const brick of root.querySelectorAll<SVGElement>("[data-brick]")) {
+  const state: PyramidState = { demos: [], packages: [], armed: undefined };
+  // Both drawings hold the same bricks; the first one is enough.
+  const drawing = root.querySelector("svg");
+  for (const brick of drawing?.querySelectorAll<SVGElement>("[data-brick]") ?? []) {
     const id = brick.dataset.id ?? "";
     if (brick.dataset.kind === "demo") {
       state.demos.push({ id, name: id, stack: (brick.dataset.stack ?? "").split(" ") });
@@ -77,13 +81,40 @@ function light(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
  * @param root - The pyramid block.
  */
 function clear(root: Element): void {
-  const svg = root.querySelector("svg");
-  if (svg !== null) delete svg.dataset.focus;
+  for (const svg of root.querySelectorAll("svg")) delete svg.dataset.focus;
   for (const brick of root.querySelectorAll<SVGElement>("[data-brick]")) {
     delete brick.dataset.current;
     delete brick.dataset.related;
   }
   hideTip(root.querySelector('[data-component="world-tip"]'));
+}
+
+/**
+ * Whether an event came from a finger.
+ *
+ * @param event - A pointer or click event.
+ * @returns `true` for touch and pen input, which have no hover.
+ */
+function isFinger(event: Event): boolean {
+  return event instanceof PointerEvent && event.pointerType !== "mouse";
+}
+
+/**
+ * A click on a brick. A mouse opens the page. A finger has no hover, so its first tap lights the
+ * brick and shows the tip, and the second tap on the same brick opens the page.
+ *
+ * @param ctx - The island context.
+ * @param event - The click.
+ * @param brick - The brick.
+ */
+function tap(ctx: Spa.IslandContext<PyramidState>, event: Event, brick: Element): void {
+  if (!isFinger(event) || ctx.state.armed === brick) {
+    ctx.state.armed = undefined;
+    open(ctx, brick);
+    return;
+  }
+  ctx.state.armed = brick;
+  light(ctx, brick);
 }
 
 /**
@@ -103,15 +134,33 @@ function open(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
  */
 export const pyramidIsland = createIsland("pyramid", {
   state: (ctx): PyramidState => readBricks(ctx.el),
+  // The tip is fixed to the screen, so a finger's tip goes when the page scrolls.
+  onMount: ctx => {
+    const away = (): void => {
+      ctx.state.armed = undefined;
+      clear(ctx.el);
+    };
+    addEventListener("scroll", away, { passive: true });
+    ctx.cleanup(() => removeEventListener("scroll", away));
+  },
   events: {
     "pointerover [data-brick]": (ctx, _event, brick) => light(ctx, brick),
     "focusin [data-brick]": (ctx, _event, brick) => light(ctx, brick),
-    pointerleave: ctx => clear(ctx.el),
+    // A finger leaves the brick the moment it lifts; the tip stays until the next tap.
+    pointerleave: (ctx, event) => {
+      if (!isFinger(event)) clear(ctx.el);
+    },
+    // A tap beside the bricks puts the tip away.
+    click: (ctx, event) => {
+      if (event.target instanceof Element && event.target.closest("[data-brick]")) return;
+      ctx.state.armed = undefined;
+      clear(ctx.el);
+    },
     focusout: (ctx, event) => {
       const next = event instanceof FocusEvent ? event.relatedTarget : undefined;
       if (!(next instanceof Element && next.closest("[data-brick]"))) clear(ctx.el);
     },
-    "click [data-brick]": (ctx, _event, brick) => open(ctx, brick),
+    "click [data-brick]": (ctx, event, brick) => tap(ctx, event, brick),
     "keydown [data-brick]": (ctx, event, brick) => {
       if (!(event instanceof KeyboardEvent) || (event.key !== "Enter" && event.key !== " ")) return;
       event.preventDefault();

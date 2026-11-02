@@ -44,11 +44,17 @@ export type PyramidDemo = {
   stack: readonly string[];
 };
 
-/** Width of the drawing; rows are centred in it. */
+/** Width of the wide drawing; its rows are centred in it. */
 export const PYRAMID_WIDTH = 980;
 
+/** Room the wide drawing keeps right of its width, for the lid of the last brick. */
+const WIDE_MARGIN = 20;
+
+/** Width of the stacked drawing, made for a phone: 360px less two 20px gutters is 320px. */
+export const STACKED_WIDTH = 340;
+
 /** Height of a brick's front face. */
-const BRICK_HEIGHT = 44;
+export const BRICK_HEIGHT = 44;
 
 /** Gap between bricks in a row. */
 const BRICK_GAP = 10;
@@ -63,8 +69,39 @@ const TOP = 24;
 const LID_X = 16;
 const LID_Y = 10;
 
-/** Front face width per row. */
-const ROW_WIDTH: Readonly<Record<BrickKind, number>> = { core: 220, package: 70, demo: 150 };
+/** How the bricks are laid out: one wide pyramid, or rows that wrap to fit a phone. */
+export type PyramidLayout = "wide" | "stacked";
+
+/** What a layout fixes for one row: bricks per line, and their width when it is fixed. */
+type RowSpec = {
+  /** Most bricks on one line; a longer row wraps. */
+  perLine: number;
+  /** Front face width; computed from the line when absent. */
+  width?: number;
+};
+
+/** The two layouts. The wide one keeps each row on one line; the stacked one wraps them. */
+const LAYOUTS: Readonly<
+  Record<
+    PyramidLayout,
+    { width: number; margin: number; rows: Readonly<Record<BrickKind, RowSpec>> }
+  >
+> = {
+  wide: {
+    width: PYRAMID_WIDTH,
+    margin: WIDE_MARGIN,
+    rows: {
+      core: { perLine: 1, width: 220 },
+      package: { perLine: Number.POSITIVE_INFINITY, width: 70 },
+      demo: { perLine: Number.POSITIVE_INFINITY, width: 150 }
+    }
+  },
+  stacked: {
+    width: STACKED_WIDTH,
+    margin: 0,
+    rows: { core: { perLine: 1 }, package: { perLine: 4 }, demo: { perLine: 2 } }
+  }
+};
 
 /**
  * Join corner points into an SVG `points` attribute.
@@ -80,22 +117,40 @@ function points(list: readonly (readonly [number, number])[]): string {
 type Unplaced = Pick<Brick, "kind" | "id" | "label">;
 
 /**
- * Lay out the bricks: core alone on top, every other package in the middle row, the demos at
- * the base, each row centred.
+ * Cut a row into lines of at most `size` bricks, in order.
+ *
+ * @param row - The row.
+ * @param size - Bricks per line.
+ * @returns The lines.
+ */
+function wrapRow(row: readonly Unplaced[], size: number): Unplaced[][] {
+  const lines: Unplaced[][] = [];
+  for (let from = 0; from < row.length; from += size) lines.push(row.slice(from, from + size));
+  return lines;
+}
+
+/**
+ * Lay out the bricks: core alone on top, every other package in the middle, the demos at the
+ * base, each line centred. The wide layout keeps a row on one line; the stacked layout wraps
+ * the packages four to a line and the demos two, so the whole pyramid fits a phone's width.
  *
  * @param packages - The family, `core` included, in family order.
  * @param demos - The demos in display order.
- * @returns The bricks and the drawing height.
+ * @param layout - `wide` (default) or `stacked`.
+ * @returns The bricks, the drawing's width for the SVG viewBox and its height.
  * @example
  * ```ts
- * const { bricks, height } = pyramidBricks(packages, demos);
- * // <svg viewBox={`0 0 ${PYRAMID_WIDTH + 20} ${height}`}>
+ * const { bricks, width, height } = pyramidBricks(packages, demos, "stacked");
+ * // <svg viewBox={`0 0 ${width} ${height}`}>
  * ```
  */
 export function pyramidBricks(
   packages: readonly PyramidPackage[],
-  demos: readonly PyramidDemo[]
-): { bricks: Brick[]; height: number } {
+  demos: readonly PyramidDemo[],
+  layout: PyramidLayout = "wide"
+): { bricks: Brick[]; width: number; height: number } {
+  const spec = LAYOUTS[layout];
+  const usable = spec.width - (layout === "stacked" ? LID_X : 0);
   const rows: Unplaced[][] = [
     packages.filter(entry => entry.id === "core").map(entry => ({ kind: "core", ...entry })),
     packages.filter(entry => entry.id !== "core").map(entry => ({ kind: "package", ...entry })),
@@ -104,15 +159,19 @@ export function pyramidBricks(
   const bricks: Brick[] = [];
   let y = TOP;
   for (const row of rows) {
-    const width = ROW_WIDTH[row[0]?.kind ?? "demo"];
-    let x = (PYRAMID_WIDTH - (row.length * width + (row.length - 1) * BRICK_GAP)) / 2;
-    for (const brick of row) {
-      bricks.push({ ...brick, x, y, width, height: BRICK_HEIGHT });
-      x += width + BRICK_GAP;
+    const rowSpec = spec.rows[row[0]?.kind ?? "demo"];
+    const perLine = Math.min(rowSpec.perLine, row.length);
+    const width = rowSpec.width ?? (usable - (perLine - 1) * BRICK_GAP) / perLine;
+    for (const line of wrapRow(row, rowSpec.perLine)) {
+      let x = (usable - (line.length * width + (line.length - 1) * BRICK_GAP)) / 2;
+      for (const brick of line) {
+        bricks.push({ ...brick, x, y, width, height: BRICK_HEIGHT });
+        x += width + BRICK_GAP;
+      }
+      y += BRICK_HEIGHT + BRICK_GAP + ROW_GAP;
     }
-    y += BRICK_HEIGHT + BRICK_GAP + ROW_GAP;
   }
-  return { bricks, height: y + ROW_GAP };
+  return { bricks, width: spec.width + spec.margin, height: y + ROW_GAP };
 }
 
 /**
