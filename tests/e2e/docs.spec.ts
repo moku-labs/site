@@ -1,7 +1,8 @@
 /**
  * @file Docs features: sidebar (always open on desktop, a "pages" disclosure on phones), package
- * switcher, TOC scroll-spy, Copy as Markdown, code group tabs, code copy, code notes, sync badge
- * tip, prev/next, and the hub's concept and package cards.
+ * switcher, TOC scroll-spy (only "Edit on GitHub" under it), Copy as Markdown (the only meta
+ * action), code group tabs, code copy, code notes, sync badge tip, prev/next, and the hub's concept
+ * and package cards (no search button and no agent-file links on the hub).
  */
 import type { Page } from "@playwright/test";
 import {
@@ -81,7 +82,11 @@ test.describe("on this page", () => {
     await expect(page.locator("#links")).toBeInViewport();
     await expect(toc.locator('a[href="#links"]')).toHaveAttribute("data-current", "");
     await expect(links.first()).not.toHaveAttribute("data-current", /.*/);
-    await expect(toc.locator('[data-part="meta"] a')).toHaveCount(3);
+    await expect(toc.locator('[data-part="meta"] a')).toHaveText(["Edit on GitHub"]);
+    await expect(toc.locator('[data-part="meta"] a')).toHaveAttribute(
+      "href",
+      /^https:\/\/github\.com\//
+    );
   });
 
   test("TOC hides under 1200px", async ({ page }, testInfo) => {
@@ -102,9 +107,11 @@ test.describe("doc meta row", () => {
     await press(button, phone);
     expect(await clipboardAfterCopy(page, button)).toBe(twin);
     await expect(button).toHaveText("Copy as Markdown", { timeout: 4000 });
-    await expect(
-      page.locator('[data-component="doc-meta"] a[href="/docs/web/guides/routing.md"]')
-    ).toBeVisible();
+    // Copy as Markdown is the only action: the `.md` and llms.txt links are gone.
+    await expect(page.locator('[data-component="doc-meta"] [data-part="actions"] > *')).toHaveCount(
+      1
+    );
+    await expect(page.locator('[data-component="doc-meta"] a')).toHaveCount(0);
   });
 
   test("the sync badge explains itself", async ({ page }, testInfo) => {
@@ -218,5 +225,20 @@ test.describe("docs hub", () => {
     }
     await press(page.locator('[data-part="concepts"] a').first(), phone);
     await expect(page).toHaveURL(/\/docs\/concepts\/three-layers\/$/);
+  });
+
+  test("the hub keeps Copy as Markdown and drops the search button and agent links", async ({
+    page,
+    request
+  }, testInfo) => {
+    const phone = isPhone(testInfo.project.name);
+    await boot(page, "/docs/");
+    await expect(page.locator("main [data-search-open]")).toHaveCount(0);
+    await expect(page.locator('main a[href="/llms.txt"], main a[href$=".md"]')).toHaveCount(0);
+    const button = page.locator('main [data-island="copy-page"]');
+    await expect(button).toHaveText("Copy as Markdown");
+    const { text: twin } = await fetchText(request, "/docs.md");
+    await press(button, phone);
+    expect(await clipboardAfterCopy(page, button)).toBe(twin);
   });
 });

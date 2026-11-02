@@ -1,6 +1,7 @@
 /**
- * @file Site chrome: header nav (desktop links with the active mark, phone burger menu), theme
- * toggle (flips, persists for the visit, survives SPA navigation, `?theme=`), skip link, footer.
+ * @file Site chrome: header nav (desktop links with the active mark, phone burger menu; no Docs tag
+ * and no llms.txt link in the header), theme toggle (flips, persists for the visit, survives SPA
+ * navigation, `?theme=`), skip link, footer (the For agents column holds the two agent files).
  */
 import { boot, expect, isPhone, press, test } from "./_fixtures";
 
@@ -12,8 +13,9 @@ test.describe("header nav", () => {
     await boot(page, "/");
     await expect(page.locator('[data-part="burger"]')).toBeHidden();
     const links = page.locator("#site-menu a");
-    await expect(links).toHaveCount(6);
+    await expect(links).toHaveCount(5);
     for (const link of await links.all()) await expect(link).toBeVisible();
+    await expect(page.locator('[data-component="site-header"] a[href="/llms.txt"]')).toHaveCount(0);
     await page.locator('#site-menu a[data-nav="demos"]').click();
     await expect(page).toHaveURL(/\/demos\/$/);
     await expect(page.locator('#site-menu a[data-nav="demos"]')).toHaveAttribute(
@@ -30,7 +32,9 @@ test.describe("header nav", () => {
       "aria-current",
       /.*/
     );
-    await expect(page.locator('[data-part="docs-tag"]')).toBeVisible();
+    // The Docs tag next to the logo is gone: the nav link alone marks the docs.
+    await expect(page.locator('[data-part="docs-tag"]')).toHaveCount(0);
+    await expect(page.locator('[data-component="site-header"] a[href="/llms.txt"]')).toHaveCount(0);
     await page.locator('[data-part="logo"]').first().click();
     await expect(page).toHaveURL(/\/$/);
     await page.locator('#site-menu a[data-nav="packages"]').click();
@@ -130,4 +134,17 @@ test("footer links lead somewhere real", async ({ page, request }) => {
     "rel",
     /noopener/
   );
+  const agents = footer
+    .getByRole("heading", { name: "For agents" })
+    .locator("xpath=following-sibling::ul[1]");
+  await expect(agents.getByRole("link")).toHaveText(["llms.txt", "llms-full.txt"]);
+  await expect(agents.getByRole("link", { name: "llms.txt", exact: true })).toHaveAttribute(
+    "href",
+    "/llms.txt"
+  );
+  await expect(agents.getByRole("link", { name: "llms-full.txt" })).toHaveAttribute(
+    "href",
+    "/llms-full.txt"
+  );
+  await expect(footer.getByRole("link", { name: "Claude plugin" })).toHaveCount(0);
 });

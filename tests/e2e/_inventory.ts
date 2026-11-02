@@ -83,7 +83,7 @@ export const SITE_SCREENS: Screen[] = [
   {
     name: "home",
     path: "/",
-    title: "Slop doesn't spread.",
+    title: "The agentic framework for reliable software.",
     markdown: "/index.md"
   },
   { name: "docs-hub", path: "/docs/", title: "Docs", markdown: "/docs.md" },
