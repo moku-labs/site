@@ -18,7 +18,7 @@ const app = createApp({
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
     spa: { islands, progressBar: true },
-    data: { baseUrl: "/_data/" }
+    data: { baseUrl: "/_data/", preload: "all" }
   }
 });
 

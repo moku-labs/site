@@ -105,12 +105,14 @@ function marked(text: string, query: string): Node[] {
 function iconFor(root: Element, icon: string): Element {
   const generic = root.querySelector(`[data-part="icons"] [data-icon="${icon}"]`);
   if (generic !== null) return generic.cloneNode(true) as Element;
+  // `loading` before `src`: a browser that sees `src` first downloads the image at once.
   const image = document.createElement("img");
+  image.loading = "lazy";
+  image.decoding = "async";
   image.src = packageIconUrl(icon);
   image.width = ICON_SIZE;
   image.height = ICON_SIZE;
   image.alt = "";
-  image.loading = "lazy";
   return image;
 }
 
