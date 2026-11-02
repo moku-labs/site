@@ -19,11 +19,16 @@
   [data-part="intro"] {
     grid-area: intro;
     padding-top: 30px;
+    /* The H1 size reads this column's width (cqi), so the headline never runs under the stage. */
+    container-type: inline-size;
   }
 
   h1 {
     margin: 0 0 24px;
-    font: 800 clamp(44px, 6.2vw, 88px) / 0.94 var(--font-display);
+    /* Under 367px the floor follows the screen, so the longest word ("framework") fits at 320.
+       In the two-column hero the intro column is ~41% of the row, so 6.2vw alone would push
+       "framework" past the column into the stage; 13.5cqi caps it to the column. */
+    font: 800 clamp(min(44px, 12vw), min(6.2vw, 13.5cqi), 88px) / 0.94 var(--font-display);
     letter-spacing: -0.035em;
     color: var(--text-heading);
   }

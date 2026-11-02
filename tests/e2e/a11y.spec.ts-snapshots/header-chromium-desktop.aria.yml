@@ -19,8 +19,5 @@
       - listitem:
         - link "GitHub":
           - /url: https://github.com/moku-labs
-      - listitem:
-        - link "llms.txt":
-          - /url: /llms.txt
   - button "Search docs ⌘K"
   - button "Switch to light theme": Light

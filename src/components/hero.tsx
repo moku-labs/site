@@ -113,8 +113,11 @@ export function Hero(props: HeroProperties): VNode {
       aria-label="Moku in one interaction"
     >
       <div data-part="intro">
-        <h1>Slop doesn't spread.</h1>
-        <p data-part="sub">Your LLM writes the plugins. The kernel reads them first.</p>
+        <h1>The agentic framework for reliable software.</h1>
+        <p data-part="sub">
+          Your LLM writes the plugins. A micro-kernel checks every one before the app starts. Sites,
+          backends, games and native apps on one core.
+        </p>
         <p data-part="how">
           <strong>Try it:</strong> drag a plugin from the tray onto the pink cube, or click one.
           Good ones lock in. Bad ones fall off.

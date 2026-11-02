@@ -182,20 +182,6 @@
     }
   }
 
-  [data-part="soon"] {
-    font-weight: 600;
-    color: var(--text-muted);
-    cursor: default;
-
-    small {
-      margin-left: 4px;
-      padding: 1px 6px;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      font: 500 11px var(--font-mono);
-    }
-  }
-
   [data-part="empty"] {
     grid-column: 1 / -1;
     display: flex;
@@ -266,8 +252,7 @@
       padding-right: 14px;
     }
 
-    [data-part="links"] a,
-    [data-part="soon"] {
+    [data-part="links"] a {
       display: inline-flex;
       align-items: center;
       min-height: 40px;

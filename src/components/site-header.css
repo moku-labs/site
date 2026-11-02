@@ -33,20 +33,6 @@
     white-space: nowrap;
   }
 
-  [data-part="docs-tag"] {
-    display: none;
-    font: 500 12px/1 var(--font-mono);
-    border: 1.5px solid var(--docs-heading);
-    padding: 4px 7px;
-    border-radius: 5px;
-    color: var(--docs-heading);
-    text-decoration: none;
-  }
-
-  :root:has([data-mode="docs"]) :scope [data-part="docs-tag"] {
-    display: inline-block;
-  }
-
   nav {
     flex: 1;
   }
@@ -174,10 +160,6 @@
 
     [data-part="logo"] {
       gap: 8px;
-    }
-
-    :root:has([data-mode="docs"]) :scope [data-part="docs-tag"] {
-      display: none;
     }
   }
 }

@@ -1,4 +1,4 @@
-/* B4 "On this page": heading links (toc-spy marks the current one), then agent and edit links. */
+/* B4 "On this page": heading links (toc-spy marks the current one), then the edit link. */
 @scope ([data-component="docs-toc"]) {
   :scope {
     position: sticky;

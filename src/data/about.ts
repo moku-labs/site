@@ -32,10 +32,9 @@ export type About = {
  */
 export const about: About = {
   name: "Alex Kucherenko",
-  motto: "TypeScript by day, Rust by night.",
+  motto: "Software engineer. Author of Moku.",
   bio: [
-    "Builds Moku as a one-person lab: a family of frameworks designed so AI agents can write most of the code without making a mess.",
-    "One person, twelve packages, one kernel. The kernel is the only member of the team who never approves slop."
+    "Builds Moku: a TypeScript framework where LLM agents write most of the code and a micro-kernel checks every plugin before it runs."
   ],
   links: [
     { label: "GitHub: moku-labs", href: "https://github.com/moku-labs" },
@@ -52,7 +51,7 @@ export type Principle = {
 };
 
 /**
- * The three principles cards of the about page.
+ * The principles cards of the about page.
  *
  * @example
  * ```ts
@@ -64,10 +63,8 @@ export const principles: readonly Principle[] = [
     title: "Agents write. The kernel reviews.",
     text: "Every plugin passes the same checks, whoever wrote it."
   },
-  { title: "Docs are tested against npm.", text: "If an example breaks, the page says so." },
-  { title: "Small packages, one kernel.", text: "Twelve packages share one core under 8 KB." }
+  { title: "Docs are tested against npm.", text: "If an example breaks, the page says so." }
 ];
 
 /** What the about portrait shows, for its `alt` text. */
-export const portraitAlt =
-  "Portrait: a cube with a sunny day on one face and a starry night on the other";
+export const portraitAlt = "Portrait: an isometric cube";

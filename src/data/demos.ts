@@ -40,7 +40,7 @@ export const demos: readonly DemoEntry[] = [
   {
     id: "atlas",
     name: "Atlas",
-    description: "Tracker redesign",
+    description: "Real-time kanban, new UI",
     stack: ["web", "worker"],
     alt: "Isometric dashboard with a map grid, location pins and a sidebar",
     hue: 236

@@ -177,7 +177,7 @@ export function plugIn(
     { kind: "ok", text: `"${item.plugin}" locked in. plugins: ${accepted.length}` }
   ];
   if (accepted.length === PLUGINS_TO_START) {
-    log.push({ kind: "win", text: `app.start() → ready. ${accepted.length} plugins in, 0 slop.` });
+    log.push({ kind: "win", text: `app.start() → ready. ${accepted.length} plugins registered.` });
   }
   return {
     judgement,

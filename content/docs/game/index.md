@@ -6,14 +6,14 @@ section: Get started
 
 ## Overview
 
-`@moku-labs/game` is a 2D puzzle engine where the game is a graph, and the screen is just an
-opinion about it. You write small nodes and edge tables. The engine runs them, saves on the edges
+`@moku-labs/game` is a 2D puzzle engine where the game is a graph, and the screen renders the
+committed state. You write small nodes and edge tables. The engine runs them, saves on the edges
 and replays the whole game without a screen. It ships no genre rules.
 
-- **The game is a graph.** Flows are edge tables. Nodes are small functions with plain `await`
+- **Flows are edge tables.** Nodes are small functions with plain `await`
   bodies. One node is active at a time.
 - **State commits only on edges.** A node works on drafts. A node that throws changes nothing.
-- **Deterministic by construction.** Time is an input named `now`. Randomness is a saved `rng`
+- **Deterministic.** Time is an input named `now`. Randomness is a saved `rng`
   stream. A lint rule refuses `Date.now` and `Math.random` in game logic.
 
 ## Install
@@ -79,8 +79,6 @@ bunx moku-game dev
 ```
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

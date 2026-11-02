@@ -15,7 +15,7 @@ export type KernelApi = {
    * @throws {Error} When a check no longer throws, which means the kernel changed.
    * @example
    * ```ts
-   * // In the home route's loader, for the "kernel says no" cards:
+   * // In the home route's loader, for the startup-error check cards:
    * const errors = await ctx.require(kernelReference).errors();
    * errors.find(error => error.id === "reserved-name")?.message; // '[web] Plugin name "start" conflicts with a reserved app method.\n  Choose a different plugin name.'
    * ```

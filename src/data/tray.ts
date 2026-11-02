@@ -33,8 +33,8 @@ export const trayPlugins: readonly TrayPlugin[] = [
   { id: "blog", plugin: "blog", note: "posts, tags, RSS", glyph: "page" },
   { id: "router-again", plugin: "router", note: "the LLM wrote it twice", glyph: "route" },
   { id: "auth", plugin: "auth", note: "needs session", glyph: "env", depends: "session" },
-  { id: "session", plugin: "session", note: "cookies, nothing fancy", glyph: "lifecycle" },
-  { id: "start", plugin: "start", note: "sounded like a good name", glyph: "deploy" }
+  { id: "session", plugin: "session", note: "cookie sessions", glyph: "lifecycle" },
+  { id: "start", plugin: "start", note: "reserved name", glyph: "deploy" }
 ];
 
 /**

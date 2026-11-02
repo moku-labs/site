@@ -27,7 +27,7 @@ createApp({ plugins?, config?, ... })        Step 3: merge the app's extras, run
 
 ## Layer 1: createCoreConfig
 
-Pure machinery. The framework names itself, declares its global config shape and its event map,
+The kernel has no domain logic. The framework names itself, declares its global config shape and its event map,
 and lists the core plugins that land on every `ctx`. `@moku-labs/web` calls it with the id `web`,
 which is why every kernel error in this framework starts with `[web]`.
 

@@ -10,7 +10,7 @@ section: Get started
 pinned by tag, plus the `moku-release` CLI that installs them into a project. A project keeps two
 short workflow files and a few scripts. Everything else lives in one place.
 
-- **One copy of the pipeline.** Every package calls the same reusable workflows from `@v1`. A fix
+- **Shared, versioned workflows.** Every package calls the same reusable workflows from `@v1`. A fix
   lands once and reaches every project.
 - **Scripts are the interface.** The workflows call `bun run lint`, never a tool directly. A
   project with special needs changes its own script.
@@ -67,7 +67,7 @@ bun run release:doctor
 
 ## Start with Claude
 
-Describe what you want. The conductor picks the packages.
+Ask Claude to set up CI and releases.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

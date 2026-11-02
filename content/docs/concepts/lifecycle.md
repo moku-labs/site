@@ -67,7 +67,7 @@ messages are on [What the kernel checks](/docs/concepts/kernel-checks/).
 
 Core plugins have their own timeline: they init and start before regular plugins, and stop after
 them. `ctx.log` therefore works in every `onStop` of a regular plugin's teardown chain, and the
-logger is the last thing to go.
+logger stops last.
 
 ## In @moku-labs/web
 

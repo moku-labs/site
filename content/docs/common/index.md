@@ -10,7 +10,7 @@ section: Get started
 and reuse it in every framework. It has no `createApp` and no defaults of its own: you register its
 plugins in your framework's `createCoreConfig`.
 
-- **Write once, reuse everywhere.** Logging and env live here, not in every framework.
+- **Shared across frameworks.** Logging and env live here, not in every framework.
 - **Core plugins.** Built with `createCorePlugin`, so their APIs land on every plugin's context as
   `ctx.log` and `ctx.env`.
 - **A node-free browser entry.** `@moku-labs/common/browser` never pulls a `node:*` module into a
@@ -65,8 +65,6 @@ import { browserEnv } from "@moku-labs/common/browser"; // browser, node-free
 ```
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

@@ -222,7 +222,7 @@ See [Build & deploy](/docs/web/guides/deploy/) for the guided wizard and CI.
 
 :::gotchas
 - **`load` and `generate` run at build only.** The browser never calls them. On client navigation it reads the JSON the build saved.
-- **Import routes from `@moku-labs/web/browser`.** The client bundle imports the route file. A route file that imports `@moku-labs/web` drags Node code into the bundle and the build fails on a Node-only dependency.
+- **Import routes from `@moku-labs/web/browser`.** The client bundle imports the route file. A route file that imports `@moku-labs/web` pulls Node code into the bundle and the build fails on a Node-only dependency.
 - **`site.name` and `site.url` are required.** `createApp` throws `[web] site.name is required.` when they are missing, in the Node app and in the browser app.
 - **`cli.build()` checks for `dist/404.html`.** Set `build.notFound`, or Cloudflare Pages treats the project as an SPA.
 :::
