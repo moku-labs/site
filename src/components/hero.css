@@ -633,3 +633,14 @@
     }
   }
 }
+
+/* Press-and-hold shows a tip: on a phone a long press must not select the page's text or open the
+   system callout (the kernel world and its plugs). */
+@scope ([data-component="hero"]) {
+  [data-part="world"],
+  [data-plug] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}

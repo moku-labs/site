@@ -144,3 +144,13 @@
     }
   }
 }
+
+/* Press-and-hold shows a tip: on a phone a long press must not select the page's text or open the
+   system callout (the pyramid). */
+@scope ([data-component="pyramid"]) {
+  svg {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
