@@ -65,8 +65,6 @@ Add `.moku/` and `dist-native/` to `.gitignore`. The generated Tauri project is 
 
 ## Start with Claude
 
-Describe what you want. The conductor picks the packages.
-
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web
 ```

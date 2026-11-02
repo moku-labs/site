@@ -21,7 +21,7 @@ resolves to `{ slug: "hello", lang: "en" }` and `/uk/hello/` to `{ lang: "uk", s
 
 The table is sorted by the number of dynamic segments, fewest first, with declaration order as
 the tie-break. `{lang:?}` does not count, so adding a locale prefix never changes priority. The
-same matching code runs at build and in the browser, so the two cannot disagree.
+same matching code runs at build and in the browser.
 
 `createApp` validates the table and stops on: an empty map, a pattern that does not start with
 `/`, unbalanced braces, or more than one `{lang:?}` segment.

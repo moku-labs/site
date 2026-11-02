@@ -15,7 +15,7 @@ runtime bundle.
   the rest tree-shakes away.
 - **`env` is a call argument, never state.** One isolate serves many requests at once, so a
   binding lives on the call stack and cannot leak between them.
-- **Not an ORM, not a router framework.** Thin typed wrappers over the real Cloudflare APIs.
+- **Thin typed wrappers.** The plugins add types over the real Cloudflare APIs.
 
 | Plugin | What it does |
 | --- | --- |
@@ -74,8 +74,6 @@ through `pluginConfigs` instead.
 :::
 
 ## Start with Claude
-
-Describe what you want. The conductor picks the packages.
 
 ```text prompt
 Build a blog with tags and an RSS feed on @moku-labs/web

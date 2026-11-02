@@ -80,7 +80,7 @@ const app = createApp({
 await app.start();
 ```
 
-The static HTML already shows `Like 3`, so the page reads right with JavaScript off. On mount
+The static HTML already shows `Like 3`, so the page is correct with JavaScript off. On mount
 the island renders over it and takes over the clicks.
 
 ## At build
@@ -166,7 +166,7 @@ export const share = createIsland("share", {
 
 ## Realtime channels
 
-`createChannel` is a self-healing WebSocket for islands that consume a server push stream, such
+`createChannel` is a WebSocket that reconnects on its own for islands that consume a server push stream, such
 as a Durable Object from `@moku-labs/worker`. It reconnects with backoff, can send a keepalive,
 buffers frames until you `seed`, and counts subscribers: the first connects, the last
 disconnects.
@@ -219,13 +219,13 @@ it("counts clicks", () => {
 });
 ```
 
-`renderIsland(render, { state })` renders only the `render` function, for the cheapest view
-tests. An island that returns JSX needs `await island.settle()` first, which loads the lazy
+`renderIsland(render, { state })` renders only the `render` function, for fast,
+render-only tests. An island that returns JSX needs `await island.settle()` first, which loads the lazy
 Preact render chunk.
 
 :::gotchas
 - **There is no `createComponent` in 2.4.11.** The `state`, `render`, `events` and `api` spec lives on `createIsland`.
-- **`render` replaces the server markup on mount.** Render the same markup the server rendered, or the element jumps.
+- **`render` replaces the server markup on mount.** Render the same markup the server rendered, or the content shifts on mount.
 - **Return `null` for an empty island.** It unmounts the Preact tree and stays mountable. Returning `""` corrupts Preact's tree and the island never renders again.
 - **`ctx.data` reads `script#__DATA__`.** The build does not write that script. Render it in your page when an island needs page data, or read `data-*` attributes.
 - **A duplicate name replaces the first island.** `register` logs `spa:island-collision` and the last one wins.

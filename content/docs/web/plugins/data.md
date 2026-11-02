@@ -8,7 +8,7 @@ order: 24
 
 ## What it does
 
-**Optional provider.** `data` is the transport of the SSG → DATA → SPA pattern. It owns one
+**Optional provider.** `data` is the transport between the static build and client navigation. It owns one
 contract: a page path maps to one JSON file. On Node, the build calls `write(entries)` with the
 `load` result of every rendered page. In the browser, `spa` calls `at(path)` on navigation and
 passes the JSON to the route's `render` as `ctx.data`.

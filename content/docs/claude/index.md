@@ -7,17 +7,17 @@ section: Get started
 ## Overview
 
 The `moku` plugin for Claude Code takes a project from an idea to a released package or a deployed
-app, and keeps leading after that. Every later feature, fix and tweak travels the same lifecycle.
+app, and handles every later change the same way.
 
-You never need a command. You talk; the conductor works out where the project stands, proposes the
-next step and runs it. Underneath, the rails make the critical steps impossible to skip: no code
+You do not need to learn the commands. You talk; the conductor works out where the project stands, proposes the
+next step and runs it. Underneath, the rails enforce the required steps: no code
 before the project is initialized, no plugin without a plan, no "done" with red tests.
 
-- **Talk in plain words.** The conductor drives intake, brainstorm, design, plan, build, verify,
+- The conductor drives intake, brainstorm, design, plan, build, verify,
   e2e, release and close.
 - **On rails.** A source file cannot be written before the station that is allowed to write it. A
   refused write names the missing step.
-- **Knowledge loads itself.** `moku-core`, `moku-plugin` and `moku-testing`, plus one pack per
+- **Skills load automatically.** `moku-core`, `moku-plugin` and `moku-testing`, plus one pack per
   framework such as `moku-web`.
 
 ## Install
@@ -36,7 +36,7 @@ Then add the pack for each framework you use. Packs install the same way:
 /plugin install moku-design@moku
 ```
 
-Requirements: Bun 1.3.14 or newer, Node 24 or newer, a current Claude Code.
+Requirements: Bun 1.3.14 or newer, Node 24 or newer, a recent Claude Code release.
 
 ## Stations
 

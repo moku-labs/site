@@ -35,5 +35,5 @@ mistake for real. It is never typed by hand, so it cannot drift from what your a
 
 ## Why errors and not warnings
 
-An agent reads errors. It skims warnings. A startup error with the plugin name in it is the
-cheapest review step in the lifecycle, so the kernel makes it impossible to skip.
+Agents act on errors more reliably than on warnings. A startup error with the plugin name in it
+is an early, low-cost check, so the kernel makes it impossible to skip.

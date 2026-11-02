@@ -78,8 +78,7 @@ The kernel hands each factory a context sized to its phase.
 | `api`, `hooks`, `onInit`, `onStart` | `{ global, config, state, emit, require, has }` plus core APIs such as `ctx.log` |
 | `onStop` | `{ global, config, state }`: own data only, peers may already be stopped |
 
-The type system enforces every restriction. Calling `ctx.emit` in `createState` is a compile error,
-not a runtime surprise.
+The types enforce these restrictions. Calling `ctx.emit` in `createState` is a compile error.
 
 ## Talking to other plugins
 
@@ -100,6 +99,5 @@ every plugin can call `ctx.log.info(...)`.
 - **Leaking state.** Return `value: () => ctx.state.count`, never `{ state: ctx.state }`.
 - **God plugins.** One plugin per domain concern. Keep `index.ts` near 30 lines; logic goes in
   `api.ts` and its siblings.
-- **`emit` for request and response.** Use `require(plugin)` to get a return value.
 - **Inventing primitives.** No `class XService`, no `app.registerService()`. Write a plugin.
 :::

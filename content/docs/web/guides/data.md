@@ -1,6 +1,6 @@
 ---
 title: Data
-description: "SSG to DATA to SPA: the build saves each page's load() result, the browser fetches it."
+description: "Static HTML first, then JSON for client navigation: the build saves each page's load() result, the browser fetches it."
 section: Guides
 order: 15
 ---
