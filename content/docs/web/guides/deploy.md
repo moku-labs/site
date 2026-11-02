@@ -28,7 +28,7 @@ imports your app and calls one method.
 
 ## Example
 
-```ts file="src/app.ts" group="deploy" hl="19-22" no-check="imports ./routes from the reader's project"
+```ts file="src/app.ts" group="deploy" hl="19-22" check
 import {
   buildPlugin,
   cliPlugin,
@@ -55,25 +55,25 @@ export const app = createApp({
 });
 ```
 
-```ts file="scripts/build.ts" group="deploy" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/build.ts" group="deploy" check
 import { app } from "../src/app";
 
 await app.cli.build();
 ```
 
-```ts file="scripts/serve.ts" group="deploy" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/serve.ts" group="deploy" check
 import { app } from "../src/app";
 
 await app.cli.serve();
 ```
 
-```ts file="scripts/preview.ts" group="deploy" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/preview.ts" group="deploy" check
 import { app } from "../src/app";
 
 await app.cli.preview();
 ```
 
-```ts file="scripts/deploy.ts" group="deploy" no-check="imports ../src/app from the reader's project"
+```ts file="scripts/deploy.ts" group="deploy" check
 import { app } from "../src/app";
 
 await app.cli.deploy({ guided: !process.argv.includes("--cli") }); // [!note] `bun run deploy` runs the wizard. `bun run deploy --cli` and CI take the direct path.

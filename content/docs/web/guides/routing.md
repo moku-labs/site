@@ -101,7 +101,7 @@ export function PostLink(props: { card: Content.ArticleCard; slug: string; url: 
 }
 ```
 
-```ts file="src/app.ts" group="routing" hl="9" no-check="imports ./routes from the reader's project"
+```ts file="src/app.ts" group="routing" hl="9" check
 import { buildPlugin, contentPlugin, createApp, fileSystemContent } from "@moku-labs/web";
 import { routes } from "./routes";
 
