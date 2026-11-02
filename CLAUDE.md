@@ -110,7 +110,9 @@ live in the GitHub repository; locally in `.env` (gitignored).
 
 - Vitest with unit + integration projects
 - `tests/unit/` and `tests/integration/`; plugin tests in `src/plugins/<name>/__tests__/`
-- `tests/integration/docs-snippets.test.ts` compiles every `check` block of `content/docs`
+- `tests/integration/docs-snippets.test.ts` compiles every `check` block of `content/docs` (stubs of
+  the reader's project in `content/snippet-stubs/<package>/`) and fails a ts block with no `check`
+  or `no-check="reason"`; `tests/integration/api-reference.test.ts` compares `api.md` with the real exports
 - `tests/integration/build.test.ts` runs `bun scripts/build.ts` in a temp copy of the project
   (never touches `dist/`) and checks every docs page has HTML, a `.md` twin, an `llms.txt` line and
   a search row

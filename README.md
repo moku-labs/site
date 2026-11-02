@@ -138,10 +138,16 @@ bun run build
 | `terminal` | A terminal frame, `title="…"` optional. |
 | `prompt` | A prompt block, for text a reader pastes into Claude Code. |
 | `check` | Compile the block on every test run (see below). |
+| `no-check="reason"` | The block is not compiled, and says why. Every ts or tsx block has `check` or this. |
 
 > [!IMPORTANT]
-> A `check` block is compiled as a full module on its own, imports included. There is no fragment
-> mode. `check` works on `ts`, `tsx` and the result of a `diff`; on any other language it fails.
+> A `check` block is compiled as a full module, imports included. There is no fragment mode.
+> `check` works on `ts`, `tsx` and the result of a `diff`; on any other language it fails.
+>
+> Blocks with the same `group` on a page form one project, at their `file` paths. The page's other
+> blocks with a `file` form the page's project. A relative import a project lacks resolves to
+> `content/snippet-stubs/<package>/`: a small reader project with `src/routes.tsx`, `src/site.ts`,
+> `src/app.ts`. So `import { routes } from "./routes"` compiles.
 
 ## How drift is prevented
 
@@ -149,7 +155,8 @@ bun run build
 |---|---|---|
 | Versions from `node_modules` | `src/lib/packages.ts` | A package with docs is not installed. A typed version cannot exist. |
 | Kernel errors from the real kernel | `src/lib/kernel-errors.ts`, `src/plugins/kernel/` | A check stops throwing after a core release. |
-| `check` blocks compiled | `src/lib/snippets.ts`, `tests/integration/docs-snippets.test.ts` | An example uses an API the installed packages no longer have. |
+| `check` blocks compiled | `src/lib/snippets.ts`, `tests/integration/docs-snippets.test.ts` | An example uses an API the installed packages no longer have, or a ts block has no `check` and no `no-check` reason. |
+| API reference vs exports | `tests/integration/api-reference.test.ts` | A package export is missing from `api.md`, or `api.md` shows a signature the package no longer exports. |
 | A full build in the tests | `tests/integration/build.test.ts` | A docs page has no HTML, no `.md` twin, no `llms.txt` line or no search row. |
 | Pinned packages | `package.json`, Dependabot | A bump PR re-runs all of the above in CI before it can merge. |
 
