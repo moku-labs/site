@@ -12,6 +12,9 @@
  *   the flag `diff`) is checked as its result: `-` lines dropped, `+` and space signs stripped.
  *   `// [!note]` comments are removed first, as on the page. A `check` on any other language is a
  *   failure, so a typo never skips a block silently.
+ * - Every ts or tsx block, diffs included, carries `check` or `no-check="<reason>"`. A block with
+ *   neither, with both, or with an empty reason is a failure (`ungatedSnippets`), so no example
+ *   escapes the gate by being left unmarked.
  * - Every block is checked as a full module on its own (`moduleDetection: "force"`). There is no
  *   "fragment" mode: an author who adds `check` writes a complete example, imports included. A
  *   block that uses a name it does not define or import fails.
@@ -38,7 +41,10 @@ export type SnippetSource = {
 export type SnippetFailure = {
   /** Source file of the block. */
   file: string;
-  /** Zero-based index of the block among the page's `check` blocks. */
+  /**
+   * Zero-based index of the block on its page: among the `check` blocks for `checkSnippets`,
+   * among the ts and tsx blocks for `ungatedSnippets`.
+   */
   index: number;
   /** Compiler output for the block. */
   message: string;
@@ -379,4 +385,58 @@ export async function checkSnippets(
     const message = problem ?? messages.get(name);
     return message === undefined ? [] : [{ file, index, message }];
   });
+}
+
+/**
+ * Why a TypeScript block's gate is wrong, `undefined` when it is set right.
+ *
+ * @param meta - The block's parsed fence meta.
+ * @returns The problem, in words.
+ */
+function gateProblem(meta: FenceMeta): string | undefined {
+  const reason = meta.attributes["no-check"];
+  const isChecked = meta.flags.has("check");
+  const isOptedOut = reason !== undefined || meta.flags.has("no-check");
+
+  // Exactly one gate per block: check, or no-check with a reason.
+  if (isChecked && isOptedOut) return "a block is either check or no-check, not both.";
+  if (isChecked) return undefined;
+  if (!isOptedOut) {
+    return 'add check, or no-check="<reason>" when the block cannot compile on its own.';
+  }
+  if ((reason ?? "").trim() === "") return 'no-check needs a reason: no-check="<reason>".';
+  return undefined;
+}
+
+/**
+ * The gate failures of one page.
+ *
+ * @param file - Source file of the page.
+ * @param markdown - Raw Markdown of the page.
+ * @returns One failure per ts or tsx block whose gate is wrong.
+ */
+function pageGateFailures(file: string, markdown: string): SnippetFailure[] {
+  // Keep the ts and tsx blocks, number them, and report each one whose gate is wrong.
+  const typescriptFences = fencedBlocks(markdown)
+    .map(block => ({ block, meta: parseFenceMeta(block.meta) }))
+    .filter(fence => prepareBlock(fence.block, fence.meta).extension !== undefined);
+  return typescriptFences.flatMap((fence, index) => {
+    const message = gateProblem(fence.meta);
+    return message === undefined ? [] : [{ file, index, message }];
+  });
+}
+
+/**
+ * Find the ts and tsx blocks that are neither `check` nor `no-check` with a reason.
+ *
+ * @param sources - Docs pages to scan.
+ * @returns One failure per ungated block, in page order; `index` counts the page's ts and tsx blocks.
+ * @example
+ * ```ts
+ * ungatedSnippets([{ file: "content/docs/a.md", markdown: "```ts\nconst a = 1;\n```" }]);
+ * // [{ file: "content/docs/a.md", index: 0, message: "add check, or no-check=…" }]
+ * ```
+ */
+export function ungatedSnippets(sources: readonly SnippetSource[]): SnippetFailure[] {
+  return sources.flatMap(({ file, markdown }) => pageGateFailures(file, markdown));
 }
