@@ -86,15 +86,25 @@ function fakeDocs(list: readonly DocumentPage[]): DocumentationApi {
   };
 }
 
-/** Resolve one family member for the sources. */
-function resolved(entry: Omit<ResolvedPackage, "tagline">): ResolvedPackage {
-  return { ...entry, tagline: `${entry.name} tagline` };
+/** Resolve one family member for the sources; the version label defaults to the version. */
+function resolved(
+  entry: Omit<ResolvedPackage, "tagline" | "versionLabel"> & { versionLabel?: string }
+): ResolvedPackage {
+  return { versionLabel: entry.version, ...entry, tagline: `${entry.name} tagline` };
 }
 
 const sources: DocumentationSources = {
   packages: [
-    // oxlint-disable-next-line unicorn/no-null -- PackageEntry marks "not on npm" with null.
-    resolved({ id: "claude", name: "Claude plugin", npm: null, version: "0.85.6", group: "Start" }),
+    resolved({
+      id: "claude",
+      name: "Claude plugin",
+      // oxlint-disable-next-line unicorn/no-null -- PackageEntry marks "not on npm" with null.
+      npm: null,
+      releaseName: "moku",
+      version: "0.85.6",
+      versionLabel: "moku 0.85.6",
+      group: "Start"
+    }),
     resolved({
       id: "core",
       name: "@moku-labs/core",
@@ -148,7 +158,7 @@ describe("loadDocumentationHub", () => {
     ]);
     const frameworks = hub.groups[2];
     expect(frameworks?.packages).toEqual([
-      expect.objectContaining({ id: "web", home: "/docs/web/", release: "@moku-labs/web@2.4.11" }),
+      expect.objectContaining({ id: "web", home: "/docs/web/", release: "@moku-labs/web v2.4.11" }),
       expect.objectContaining({
         id: "room",
         home: "/docs/room/quick-start/",
@@ -156,15 +166,23 @@ describe("loadDocumentationHub", () => {
       })
     ]);
     expect(hub.groups[0]?.packages[0]).not.toHaveProperty("home");
-    expect(hub.groups[0]?.packages[0]?.release).toBe("Claude plugin@0.85.6");
+    expect(hub.groups[0]?.packages[0]).toMatchObject({
+      release: "moku v0.85.6",
+      versionLabel: "moku 0.85.6"
+    });
     expect(hub.drifts.map(entry => entry.id)).toEqual(["room"]);
-    expect(hub).toMatchObject({ packageCount: 4, checked: "2026-11-02" });
+    expect(hub).toMatchObject({
+      packageCount: 4,
+      checked: "2026-11-02",
+      markdownUrl: "/docs.md"
+    });
   });
 });
 
 describe("loadDocumentationPage", () => {
   // Bugs: the .md link or the edit link points at the wrong file; the sync badge names the
-  // wrong release; prev/next or the kernel-checks link is lost.
+  // wrong release; prev/next or the kernel-checks link is lost; the sidebar names the package
+  // home after the package instead of "Overview", or renames another page.
   it("loads a page with its Markdown twin, edit link, release and neighbours", async () => {
     const view = await loadDocumentationPage(
       fakeDocs(pages),
@@ -180,8 +198,13 @@ describe("loadDocumentationPage", () => {
     });
     expect(view.page).not.toHaveProperty("markdown");
     expect(view.headTitle).toBe("Routing · @moku-labs/web");
-    expect(view.package.release).toBe("@moku-labs/web@2.4.11");
+    expect(view.package.release).toBe("@moku-labs/web v2.4.11");
     expect(view.prev).toEqual({ path: "/docs/web/", title: "@moku-labs/web" });
+    expect(view.nav[0]?.pages).toContainEqual({ path: "/docs/web/", title: "Overview" });
+    expect(view.nav[0]?.pages).toContainEqual({
+      path: "/docs/web/guides/routing/",
+      title: "Routing"
+    });
     expect(view).not.toHaveProperty("next");
     expect(view.kernelChecks).toEqual({
       path: "/docs/concepts/kernel-checks/",
@@ -191,10 +214,12 @@ describe("loadDocumentationPage", () => {
   });
 
   // Bug: a package index links its .md as /docs/web/.md, which the llms plugin never writes.
-  it("puts a package home's Markdown twin beside its folder", async () => {
+  // Bug: its <title> repeats the package name ("@moku-labs/web · @moku-labs/web").
+  it("puts a package home's Markdown twin beside its folder and names the package once", async () => {
     const view = await loadDocumentationPage(fakeDocs(pages), { pkg: "web" }, sources);
 
     expect(view.page.markdownUrl).toBe("/docs/web.md");
+    expect(view.headTitle).toBe("@moku-labs/web");
   });
 
   // Bug: the concepts pages show no release, or core's drift note leaks onto them.
@@ -212,7 +237,8 @@ describe("loadDocumentationPage", () => {
       id: "concepts",
       name: "Concepts",
       version: "1.7.6",
-      release: "@moku-labs/core@1.7.6",
+      versionLabel: "1.7.6",
+      release: "@moku-labs/core v1.7.6",
       tagline: "",
       group: "Core",
       icon: "core"

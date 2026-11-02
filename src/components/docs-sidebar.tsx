@@ -42,7 +42,7 @@ function PackageSwitcher(props: {
         <PackageIcon id={current.icon} size={30} />
         <span>
           <b>{current.name}</b>
-          <small>{current.version}</small>
+          <small>{current.versionLabel}</small>
         </span>
         <ChevronIcon />
       </summary>

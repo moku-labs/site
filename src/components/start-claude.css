@@ -42,10 +42,5 @@
         color: var(--text-link);
       }
     }
-
-    > [data-part="copy"] {
-      color: var(--text-body);
-      border-color: var(--line-default);
-    }
   }
 }

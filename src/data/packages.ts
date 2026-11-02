@@ -18,6 +18,11 @@ export type PackageEntry = {
   npm: string | null;
   /** Version for packages that are not on npm. Ignored when `npm` is set. */
   manualVersion?: string;
+  /**
+   * Name the release ships under when it differs from `name`, e.g. `moku` for the Claude plugin.
+   * Shown before the version: `moku 0.85.6`.
+   */
+  releaseName?: string;
   /** One-line tagline shown on cards and in the docs hub. */
   tagline: string;
   /** Docs group. */
@@ -39,6 +44,7 @@ export const packages: readonly PackageEntry[] = [
     // oxlint-disable-next-line unicorn/no-null -- not on npm
     npm: null,
     manualVersion: "0.85.6",
+    releaseName: "moku",
     tagline: "A conductor in Claude Code: idea → plan → build → verify → release, on rails",
     group: "Start"
   },

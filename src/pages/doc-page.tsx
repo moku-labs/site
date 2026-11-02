@@ -9,6 +9,7 @@ import { DocumentationSidebar } from "../components/docs-sidebar";
 import { DocumentationToc } from "../components/docs-toc";
 import { PackageIcon } from "../components/icons";
 import { PreviousNext } from "../components/previous-next";
+import { PageSyncBadge } from "../components/sync-badge";
 import type { DocumentationPageView } from "../lib/docs-data";
 import type { UrlBuilder } from "../lib/url-builder";
 
@@ -104,12 +105,13 @@ export function DocumentationPage(props: DocumentationPageProperties): VNode {
             <span>{page.title}</span>
           </h1>
           <p data-part="lead">{page.description}</p>
-          <DocumentMeta
-            markdownUrl={page.markdownUrl}
-            release={view.package.release}
-            checked={view.checked}
-            drift={page.drift}
-          />
+          <DocumentMeta markdownUrl={page.markdownUrl}>
+            <PageSyncBadge
+              release={view.package.release}
+              checked={view.checked}
+              drift={page.drift}
+            />
+          </DocumentMeta>
           <div
             data-content
             data-island="code-block"

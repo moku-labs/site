@@ -243,9 +243,5 @@
     :scope {
       padding: 0 var(--gutter-narrow) 72px;
     }
-
-    [data-part="head"] {
-      padding-top: 40px;
-    }
   }
 }

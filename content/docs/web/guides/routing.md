@@ -18,10 +18,10 @@ the URL against the same table and runs `render` again with the saved data.
 
 :::flow
 - pattern
-- generate
-- load
-- head
-- render
+- **generate**
+- **load**
+- **head**
+- **render**
 - index.html
 :::
 

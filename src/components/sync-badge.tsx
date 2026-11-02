@@ -22,8 +22,8 @@ type SyncBadgeProperties = {
  * @returns The `<button data-component="sync-badge">`; a button so focus shows the tooltip too.
  * @example
  * ```tsx
- * <SyncBadge state="synced" label="Synced with @moku-labs/web@2.4.11 · checked 2026-11-02" tipTitle="Docs checked against the published package.">
- *   Every checked example on this page compiled against @moku-labs/web@2.4.11.
+ * <SyncBadge state="synced" label="Synced with @moku-labs/web v2.4.11 · checked 2026-11-02" tipTitle="Docs checked against the published package.">
+ *   Every checked example on this page compiled against @moku-labs/web v2.4.11.
  * </SyncBadge>
  * ```
  */
@@ -41,7 +41,7 @@ export function SyncBadge(props: SyncBadgeProperties): VNode {
 
 /** Props of {@link PageSyncBadge}. */
 type PageSyncBadgeProperties = {
-  /** The release the page is checked against, e.g. `@moku-labs/web@2.4.11`. */
+  /** The release the page is checked against, e.g. `@moku-labs/web v2.4.11`. */
   release: string;
   /** Check date. */
   checked: string;
@@ -57,7 +57,7 @@ type PageSyncBadgeProperties = {
  * @returns The badge.
  * @example
  * ```tsx
- * <PageSyncBadge release="@moku-labs/room@0.8.9" checked="2026-11-02" drift="1 example out of date" />
+ * <PageSyncBadge release="@moku-labs/room v0.8.9" checked="2026-11-02" drift="1 example out of date" />
  * ```
  */
 export function PageSyncBadge(props: PageSyncBadgeProperties): VNode {

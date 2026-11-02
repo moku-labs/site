@@ -52,13 +52,19 @@
     }
   }
 
+  /* The label sits inside the list's 8px inset, so the first result follows it directly. */
   [data-part="label"] {
-    padding: 14px 18px 0;
+    margin: 8px 8px 0;
+    padding: 6px 10px 4px;
     font-size: 12px;
     color: var(--docs-muted);
 
     &[hidden] {
       display: none;
+    }
+
+    &:not([hidden]) + [data-part="results"] {
+      padding-top: 0;
     }
   }
 

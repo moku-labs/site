@@ -36,10 +36,4 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
-
-  @media (max-width: 520px) {
-    :scope {
-      padding: 72px 0;
-    }
-  }
 }

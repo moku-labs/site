@@ -28,7 +28,8 @@
     font: 800 15px/1 var(--font-display);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--chrome-heading);
+    /* The logo keeps the site heading colour in docs mode too. */
+    color: var(--text-heading);
     white-space: nowrap;
   }
 

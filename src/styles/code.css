@@ -14,18 +14,22 @@
   z-index: 2;
 }
 
+/*
+ * A figure re-colours its button through the --copy-* properties only, so the Copied and failed
+ * states below always win, whatever the figure's selector weight.
+ */
 [data-part="copy"] {
   font: 500 12px var(--font-mono);
-  background: var(--code-bar);
-  color: var(--code-fg);
-  border: 1px solid var(--code-line);
+  background: var(--copy-surface, var(--code-bar));
+  color: var(--copy-text);
+  border: 1px solid var(--copy-line, var(--code-line));
   padding: 5px 10px;
   border-radius: var(--radius-small);
   cursor: pointer;
   white-space: nowrap;
 
   &:hover {
-    border-color: var(--accent-hover);
+    border-color: var(--copy-line-hover, var(--accent-hover));
   }
 
   &[data-copied] {
@@ -347,9 +351,10 @@
   }
 
   > [data-part="copy"] {
-    background: transparent;
-    color: var(--terminal-button);
-    border-color: var(--terminal-dot);
+    --copy-surface: transparent;
+    --copy-text: var(--terminal-button);
+    --copy-line: var(--terminal-dot);
+    --copy-line-hover: var(--terminal-dot);
   }
 
   [data-part="screen"] {
@@ -408,8 +413,9 @@
   }
 
   > [data-part="copy"] {
+    --copy-surface: transparent;
+
     flex: none;
-    background: transparent;
-    color: var(--docs-text);
+    margin: 6px 8px;
   }
 }

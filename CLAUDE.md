@@ -32,18 +32,68 @@ Use `bun` exclusively — never npm, yarn, or pnpm.
 
 ## Architecture
 
-This is a **Layer 3 consumer app** in the three-layer Moku model. It imports `createApp` from
-`@moku-labs/web` and supplies plugin config overrides. It never depends on `@moku-labs/core`.
+This is a **Layer 3 consumer app** in the three-layer Moku model. It imports `createApp` and
+`createPlugin` from `@moku-labs/web` and supplies plugin config overrides. It never depends on
+`@moku-labs/core` at run time (the kernel errors are triggered through `@moku-labs/web`).
 
-- `src/app.ts` — Node SSG composition (`createApp` + node-only plugins), driven by the thin
-  `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`.
-- `src/spa.tsx` — browser bundle entry (imports from `@moku-labs/web/browser`).
-- `src/routes.tsx` — the single route table, shared by both entries.
-- `src/config.ts` — site identity constants (`SITE`).
-- `src/index.html` / `src/404.html` — the app-owned document shell and the Cloudflare 404 page.
-- `src/styles/main.css` — the CSS bundle entry (`@layer` order).
-- `src/pages/`, `src/components/`, `src/islands/` — UI, per the `moku-web` skill.
-- `src/plugins/` — optional Layer-3 plugins via the framework's `createPlugin`.
+Entries:
+
+- `src/app.ts` — Node SSG composition: web's browser-safe defaults plus the Node-only framework
+  plugins (content, collection, data, build, deploy, cli) and the site's four plugins. Driven by the
+  thin `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`. `scripts/build.ts` also
+  calls `app.search.write()` and `app.llms.emit()` after `app.cli.build()`.
+- `src/spa.tsx` — browser bundle entry (`@moku-labs/web/browser`). It omits every Node plugin.
+- `src/routes.tsx` — the single route table, shared by both entries and by `urls`. Docs routes
+  have fixed depth: `/docs/`, `/docs/{pkg}/`, `/docs/{pkg}/{page}/`, `/docs/{pkg}/{section}/{page}/`.
+- `src/config.ts` — `SITE`, `LINKS`, `SEARCH_INDEX` constants (browser-safe).
+- `src/index.html` / `src/404.html` — the document shell and the Cloudflare 404 page.
+
+Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
+
+- `docs` — walks `content/docs/**`, parses frontmatter, enforces the depth rule, renders through
+  `contentPlugin.renderMarkdown`. API: `all`, `get`, `byPackage`, `nav`, `neighbours`, `params`.
+- `search` — builds the ⌘K index (pages, packages, docs headings, demos) and writes
+  `dist/search/en.json` through `collectionPlugin`.
+- `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
+- `kernel` — `errors()` and `trayMessages()`: the real kernel's messages, captured at build.
+
+The name-reference trick: `routes.tsx` ships to the browser, but its loaders need the Node
+plugins. `src/lib/docs-reference.ts`, `kernel-reference.ts` and `content-reference.ts` export
+`{ name: "docs" } as typeof docsPlugin` (type-only import). `ctx.require(docsReference)` finds the
+plugin by name at build and is fully typed, and the plugin code never enters the client bundle.
+Loaders also import their Node helpers lazily (`import("./lib/docs-data")`). Keep both rules when
+adding a route: never import a plugin or a Node module into `routes.tsx` directly.
+
+`src/lib/` — stateless modules, unit tested:
+
+- Build data: `docs-data` (page views, sidebar, prev/next), `docs-params` (route params),
+  `home-data`, `packages` (versions from `node_modules`), `kernel-errors` (real kernel messages),
+  `snippets` (compiles `check` blocks), `diagrams` (fills `::diagram` figures), `code-theme`
+  (CSS-variable Shiki theme).
+- Markdown pipeline (`lib/markdown/`): `directives` (remark: callout, steps, flow, gotchas,
+  diagram, terminal, prompt), `code-blocks` (rehype: file, group, hl, notes, diff), `heading-ids`,
+  `tables`.
+- Island logic: `kernel-tray`, `hero-world`, `iso`, `pyramid`, `demos`, `search-results`.
+- `url-builder`, and the three `*-reference` modules above.
+
+UI:
+
+- `src/pages/` — home, docs hub, doc page, demos, about.
+- `src/components/` — layout, header, footer, docs sidebar/TOC/meta, hero, kernel world, pyramid,
+  layers stack, search palette and the rest; each with its own CSS file.
+- `src/islands/` — `code-block`, `copy-page`, `demo-filter`, `kernel-world`, `layers-stack`,
+  `pyramid`, `search-palette`, `site-nav`, `theme-toggle`, `toc-spy` (registered in
+  `islands/index.ts`); `clipboard`, `dataset`, `world-tip` are shared helpers, not islands. Inputs
+  arrive as a JSON `data-props` attribute rendered by the host component.
+- `src/styles/main.css` — the CSS bundle entry (`@layer` order, tokens, code theme variables).
+
+Data and content:
+
+- `content/docs/<pkg>/[<section>/]<page>.md` — the docs. `<pkg>` is an id from
+  `src/data/packages.ts` or `concepts`. Syntax: see README "Writing docs".
+- `src/data/` — `packages`, `demos`, `about`, `prompts`, `tray`. No version or kernel error string
+  is ever typed here or in content (decision D1).
+- `public/` — art and fonts, copied to `dist/`.
 
 Source stays FLAT under `src/` (no client/server split).
 
@@ -57,7 +107,11 @@ live in the GitHub repository; locally in `.env` (gitignored).
 ## Testing
 
 - Vitest with unit + integration projects
-- `tests/unit/` and `tests/integration/`
+- `tests/unit/` and `tests/integration/`; plugin tests in `src/plugins/<name>/__tests__/`
+- `tests/integration/docs-snippets.test.ts` compiles every `check` block of `content/docs`
+- `tests/integration/build.test.ts` runs `bun scripts/build.ts` in a temp copy of the project
+  (never touches `dist/`) and checks every docs page has HTML, a `.md` twin, an `llms.txt` line and
+  a search row
 - Coverage is measured on the pure-logic dirs (`src/lib/`, `src/i18n/`, `src/plugins/`), 90% threshold
 - UI and islands are covered by the Playwright e2e station, not by unit tests
 

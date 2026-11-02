@@ -29,6 +29,9 @@ const CONCEPTS = "concepts";
 /** Package whose release and icon the concepts pages show. */
 const CONCEPTS_RELEASE = "core";
 
+/** Path of the docs hub. */
+const HUB_PATH = "/docs/";
+
 /** Package id and file name of the "What the kernel checks" page, linked from every sidebar. */
 const KERNEL_CHECKS_PATH = "/docs/concepts/kernel-checks/";
 
@@ -61,7 +64,9 @@ export type DocumentationPackage = {
   name: string;
   /** Installed version. */
   version: string;
-  /** `npm@version` (or `name@version` off npm), the release the pages are checked against. */
+  /** The version as the docs show it, e.g. `moku 0.85.6` or `2.4.11`. */
+  versionLabel: string;
+  /** `<npm> v<version>` (release name or display name off npm), checked against by the pages. */
   release: string;
   /** One-line tagline. */
   tagline: string;
@@ -109,6 +114,8 @@ export type DocumentationHubView = {
   drifts: readonly DocumentationPackage[];
   /** Check date. */
   checked: string;
+  /** URL of the hub's Markdown twin, `/docs.md`. */
+  markdownUrl: string;
 };
 
 /** The parts of a docs page its view renders. */
@@ -246,7 +253,8 @@ function docsPackages(
       id: entry.id,
       name: entry.name,
       version: entry.version,
-      release: `${entry.npm ?? entry.name}@${entry.version}`,
+      versionLabel: entry.versionLabel,
+      release: `${entry.releaseName ?? entry.npm ?? entry.name} v${entry.version}`,
       tagline: entry.tagline,
       group: entry.group,
       icon: entry.id
@@ -275,8 +283,17 @@ function packageOfPage(family: readonly DocumentationPackage[], pkg: string): Do
     );
   }
   if (pkg !== CONCEPTS) return own;
-  const { version, release, group, icon } = own;
-  return { id: CONCEPTS, name: "Concepts", version, release, tagline: "", group, icon };
+  const { version, versionLabel, release, group, icon } = own;
+  return {
+    id: CONCEPTS,
+    name: "Concepts",
+    version,
+    versionLabel,
+    release,
+    tagline: "",
+    group,
+    icon
+  };
 }
 
 /**
@@ -322,7 +339,8 @@ export async function loadDocumentationHub(
     groups: groupPackages(family),
     packageCount: family.length,
     drifts: family.filter(entry => entry.drift !== undefined),
-    checked: sources.today
+    checked: sources.today,
+    markdownUrl: `/${markdownPathOf(HUB_PATH)}`
   };
 }
 
@@ -353,6 +371,39 @@ function pageContent(page: DocumentPage): DocumentationPageContent {
   return content;
 }
 
+/** Sidebar label of a package's index page; the page itself keeps the package name as title. */
+const OVERVIEW_LABEL = "Overview";
+
+/**
+ * The sidebar groups with the package's index page labelled "Overview".
+ *
+ * @param nav - The sidebar groups from the docs plugin.
+ * @param pkg - The package id.
+ * @returns The groups, the index link relabelled.
+ */
+function sidebarNav(nav: readonly NavGroup[], pkg: string): NavGroup[] {
+  const indexPath = docsPathOf({ pkg });
+  return nav.map(group => ({
+    label: group.label,
+    pages: group.pages.map(link =>
+      link.path === indexPath ? { ...link, title: OVERVIEW_LABEL } : link
+    )
+  }));
+}
+
+/**
+ * The `<title>` text of a docs page before the site template. A package's index page is titled
+ * with the package name, so it is not repeated; the concepts pages carry no package name.
+ *
+ * @param title - The page title.
+ * @param pkg - The page's package id.
+ * @param packageName - Display name of the page's package.
+ * @returns `Routing · @moku-labs/web`, or the bare title.
+ */
+function headTitleOf(title: string, pkg: string, packageName: string): string {
+  return pkg === CONCEPTS || title === packageName ? title : `${title} · ${packageName}`;
+}
+
 /**
  * Load one docs page with its sidebar, prev/next, package and the family for the switcher.
  *
@@ -365,7 +416,7 @@ function pageContent(page: DocumentPage): DocumentationPageContent {
  * ```ts
  * // route("/docs/{pkg}/{page}/").load(async ctx => loadDocumentationPage(ctx.require(docsReference), ctx.params, installedSources()))
  * const view = await loadDocumentationPage(app.docs, { pkg: "web", page: "quick-start" }, installedSources());
- * view.package.release; // "@moku-labs/web@2.4.11"
+ * view.package.release; // "@moku-labs/web v2.4.11"
  * ```
  */
 export async function loadDocumentationPage(
@@ -389,10 +440,10 @@ export async function loadDocumentationPage(
   const own = packageOfPage(family, page.pkg);
   const view: DocumentationPageView = {
     page: pageContent(page),
-    headTitle: page.pkg === CONCEPTS ? page.title : `${page.title} · ${own.name}`,
+    headTitle: headTitleOf(page.title, page.pkg, own.name),
     package: own,
     packages: family,
-    nav,
+    nav: sidebarNav(nav, page.pkg),
     checked: sources.today
   };
   if (neighbours.prev) view.prev = neighbours.prev;

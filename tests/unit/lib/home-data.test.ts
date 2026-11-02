@@ -28,7 +28,8 @@ const packages: ResolvedPackage[] = [
     npm: "@moku-labs/core",
     tagline: "Kernel.",
     group: "Core",
-    version: "1.7.6"
+    version: "1.7.6",
+    versionLabel: "1.7.6"
   },
   {
     id: "claude",
@@ -38,7 +39,8 @@ const packages: ResolvedPackage[] = [
     manualVersion: "0.85.6",
     tagline: "Conductor.",
     group: "Start",
-    version: "0.85.6"
+    version: "0.85.6",
+    versionLabel: "moku 0.85.6"
   }
 ];
 

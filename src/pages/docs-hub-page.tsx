@@ -3,9 +3,9 @@
  */
 import type { VNode } from "preact";
 import { CubeIcon, conceptGlyph } from "../components/cube-icon";
+import { DocumentMeta } from "../components/doc-meta";
 import { PackageIcon, SearchIcon } from "../components/icons";
 import { SyncBadge } from "../components/sync-badge";
-import { LINKS } from "../config";
 import type { PackageGroup } from "../data/packages";
 import type {
   DocumentationConceptCard,
@@ -58,7 +58,7 @@ function PackageRow(props: { entry: DocumentationPackage }): VNode {
     <>
       <PackageIcon id={entry.icon} size={44} />
       <span data-part="name">{entry.name}</span>
-      <span data-part="version">{entry.version}</span>
+      <span data-part="version">{entry.versionLabel}</span>
       <span data-part="tagline">{entry.tagline}</span>
       {entry.drift === undefined ? undefined : <span data-part="drift">{entry.drift}</span>}
     </>
@@ -128,16 +128,10 @@ export function DocumentationHubPage(props: { view: DocumentationHubView }): VNo
             Search packages, guides, plugins, APIs
             <kbd>⌘K</kbd>
           </button>
-          <div data-component="doc-meta">
-            <a data-part="action" href={LINKS.llms} target="_blank" rel="noopener">
-              llms.txt
-            </a>
-            <a data-part="action" href={LINKS.llmsFull} target="_blank" rel="noopener">
-              llms-full.txt
-            </a>
+          <DocumentMeta markdownUrl={view.markdownUrl}>
             <SyncBadge
               state="synced"
-              label={`Synced with ${view.packageCount} packages · checked ${view.checked}`}
+              label={`Synced with ${view.packageCount} published packages · checked ${view.checked}`}
               tipTitle="Every page is checked on every build."
             >
               Checked examples compile against the installed release of each package. A page that no
@@ -154,7 +148,7 @@ export function DocumentationHubPage(props: { view: DocumentationHubView }): VNo
                 until it is fixed.
               </SyncBadge>
             ))}
-          </div>
+          </DocumentMeta>
         </header>
         <section data-part="section">
           <h2>Concepts</h2>

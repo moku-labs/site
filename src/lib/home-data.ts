@@ -54,6 +54,8 @@ export type HomePackage = {
   name: string;
   /** Installed version. */
   version: string;
+  /** The version as cards and tooltips show it, e.g. `moku 0.85.6`. */
+  versionLabel: string;
   /** One-line tagline. */
   tagline: string;
   /** Docs group. */
@@ -157,10 +159,11 @@ export async function loadHome(sources: HomeSources): Promise<HomeView> {
     checks: cardChecks(errors),
     checkCount: errors.length,
     layersCode,
-    packages: sources.packages.map(({ id, name, version, tagline, group }) => ({
+    packages: sources.packages.map(({ id, name, version, versionLabel, tagline, group }) => ({
       id,
       name,
       version,
+      versionLabel,
       tagline,
       group
     })),

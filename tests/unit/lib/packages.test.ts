@@ -29,14 +29,24 @@ describe("resolvePackages", () => {
     const typed: PackageEntry = { ...web, manualVersion: "0.0.1" };
 
     expect(resolvePackages([typed, claude], installed)).toEqual([
-      { ...typed, version: "9.8.7" },
-      { ...claude, version: "0.48.0" }
+      { ...typed, version: "9.8.7", versionLabel: "9.8.7" },
+      { ...claude, version: "0.48.0", versionLabel: "0.48.0" }
     ]);
   });
 
   // Bug: a package that is not on npm is looked up in node_modules and crashes the build.
   it("uses manualVersion for a package that is not on npm", () => {
     expect(resolvePackages([claude], installed)[0]?.version).toBe("0.48.0");
+  });
+
+  // Bug: the Claude plugin shows a bare "0.85.6" instead of the release it ships as.
+  it("prefixes the version label with the release name", () => {
+    const named: PackageEntry = { ...claude, releaseName: "moku" };
+
+    expect(resolvePackages([named], installed)[0]).toMatchObject({
+      version: "0.48.0",
+      versionLabel: "moku 0.48.0"
+    });
   });
 
   // Bug: a package with no npm name and no manualVersion renders "undefined" on the site.

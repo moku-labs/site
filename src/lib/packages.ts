@@ -12,6 +12,8 @@ import type { PackageEntry } from "../data/packages";
 export type ResolvedPackage = PackageEntry & {
   /** Installed version, or `manualVersion` for packages that are not on npm. */
   version: string;
+  /** The version as cards, tooltips and the docs show it, e.g. `moku 0.85.6` or `2.4.11`. */
+  versionLabel: string;
 };
 
 /** The one field of an installed `package.json` the site reads. */
@@ -63,12 +65,23 @@ function versionOf(entry: PackageEntry, nodeModulesDirectory: string): string {
 }
 
 /**
+ * The version as the site shows it: prefixed with the release name when the entry has one.
+ *
+ * @param entry - The package entry.
+ * @param version - Its resolved version.
+ * @returns `moku 0.85.6` for the Claude plugin, the bare version otherwise.
+ */
+function versionLabelOf(entry: PackageEntry, version: string): string {
+  return entry.releaseName === undefined ? version : `${entry.releaseName} ${version}`;
+}
+
+/**
  * Attach the installed version to every package entry. An npm package always takes the
  * version from its installed `package.json`, even when the entry also sets `manualVersion`.
  *
  * @param entries - The family from `src/data/packages.ts`.
  * @param nodeModulesDirectory - Directory holding the installed packages.
- * @returns The entries in the same order, each with its `version`.
+ * @returns The entries in the same order, each with its `version` and `versionLabel`.
  * @throws {Error} When a package is not installed or a manual version is missing.
  * @example
  * ```ts
@@ -81,5 +94,8 @@ export function resolvePackages(
   entries: readonly PackageEntry[],
   nodeModulesDirectory: string
 ): ResolvedPackage[] {
-  return entries.map(entry => ({ ...entry, version: versionOf(entry, nodeModulesDirectory) }));
+  return entries.map(entry => {
+    const version = versionOf(entry, nodeModulesDirectory);
+    return { ...entry, version, versionLabel: versionLabelOf(entry, version) };
+  });
 }

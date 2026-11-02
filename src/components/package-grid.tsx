@@ -38,7 +38,7 @@ export function PackageGrid(props: { packages: readonly HomePackage[]; url: UrlB
             </span>
             <span data-part="group">{entry.group}</span>
             <span data-part="name">{entry.name}</span>
-            <span data-part="version">{entry.version}</span>
+            <span data-part="version">{entry.versionLabel}</span>
             <span data-part="tagline">{entry.tagline}</span>
           </a>
         </li>

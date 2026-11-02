@@ -78,7 +78,7 @@ function demoInfo(brick: Brick, props: PyramidProperties): BrickInfo {
 function packageInfo(brick: Brick, props: PyramidProperties): BrickInfo {
   const entry = props.packages.find(candidate => candidate.id === brick.id);
   const name = entry?.name ?? brick.id;
-  const version = entry?.version ?? "";
+  const version = entry?.versionLabel ?? "";
   const tagline = entry?.tagline ?? "";
   const base = {
     title: name,

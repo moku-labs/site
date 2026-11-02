@@ -296,6 +296,7 @@
   --footer-surface: var(--docs-sheet);
   --footer-text: var(--docs-muted);
   --code-line: var(--docs-line);
+  --copy-text: var(--docs-text);
 }
 
 :root:not(:has([data-mode="docs"])) {
@@ -313,4 +314,5 @@
   --chrome-button-text: var(--text-muted);
   --footer-surface: transparent;
   --footer-text: var(--text-muted);
+  --copy-text: var(--code-fg);
 }

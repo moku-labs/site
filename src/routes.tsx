@@ -93,7 +93,12 @@ export const routes = defineRoutes({
       });
     })
     .render(ctx => <HomePage view={ctx.data} url={ctx.url} />)
-    .head(() => ({ title: SITE.name, description: SITE.description }))
+    // The keyed `title` element pins the tab title past the `%s — Moku Labs` template.
+    .head(() => ({
+      title: SITE.name,
+      description: SITE.description,
+      elements: [{ tag: "title", children: SITE.name, key: "title" }]
+    }))
     .meta({ nav: "home" }),
   docsHub: route("/docs/")
     .layout(siteLayout)

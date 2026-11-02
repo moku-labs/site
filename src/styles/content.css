@@ -93,6 +93,7 @@
 
   table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
     font-size: 14.5px;
   }
@@ -264,7 +265,7 @@
     li {
       position: relative;
       max-width: none;
-      font: 600 13px/1.6 var(--font-mono);
+      font: 600 13px var(--font-mono);
       padding: 8px 12px;
       border: 1px solid var(--docs-line);
       border-radius: var(--radius-control);
@@ -289,6 +290,7 @@
 
     strong {
       color: inherit;
+      font-weight: inherit;
     }
   }
 

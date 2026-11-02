@@ -138,12 +138,12 @@ function PackageBlock(props: { entry: HomePackage; place: BlockPlace; href: stri
         data-part="block"
         data-href={href}
         data-tip-title={entry.name}
-        data-tip-version={entry.version}
+        data-tip-version={entry.versionLabel}
         data-tip-text={entry.tagline}
         data-tip-action="Open the docs"
         tabIndex={0}
         role="link"
-        aria-label={`${entry.name} ${entry.version}. ${entry.tagline}`}
+        aria-label={`${entry.name} ${entry.versionLabel}. ${entry.tagline}`}
         style={{ "--depth": x + y }}
       >
         <IsoBox projection={world} box={box} tone="block">
@@ -261,12 +261,12 @@ function ClaudeBlock(props: { entry: HomePackage; href: string }): VNode {
         data-floating=""
         data-href={href}
         data-tip-title={entry.name}
-        data-tip-version={entry.version}
+        data-tip-version={entry.versionLabel}
         data-tip-text={entry.tagline}
         data-tip-action="Open the docs"
         tabIndex={0}
         role="link"
-        aria-label={`${entry.name} ${entry.version}. ${entry.tagline}`}
+        aria-label={`${entry.name} ${entry.versionLabel}. ${entry.tagline}`}
       >
         <IsoBox projection={world} box={CLAUDE_BOX} tone="block">
           <IsoGlyph projection={world} box={CLAUDE_BOX} glyph="claude" weight={12} accent />
