@@ -1,4 +1,13 @@
-import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  symlink,
+  writeFile
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -173,4 +182,135 @@ describe("ungatedSnippets", () => {
 
     expect(ungatedSnippets(page(markdown))).toEqual([]);
   });
+});
+
+describe("checkSnippets projects", () => {
+  let stubbed = "";
+
+  // A project of its own with one stub: `src/site.ts` of the docs package `pkg`.
+  beforeAll(async () => {
+    stubbed = await mkdtemp(path.join(tmpdir(), "site-snippets-stubs-"));
+    await symlink(path.join(repository, "node_modules"), path.join(stubbed, "node_modules"), "dir");
+    await mkdir(path.join(stubbed, "content", "snippet-stubs", "pkg", "src"), { recursive: true });
+    await writeFile(
+      path.join(stubbed, "content", "snippet-stubs", "pkg", "src", "site.ts"),
+      'export const site = { name: "Stub" };\n'
+    );
+  });
+
+  afterAll(async () => {
+    await rm(stubbed, { recursive: true, force: true });
+  });
+
+  /**
+   * Check one page of the package `pkg` in the stubbed project.
+   *
+   * @param markdown - Raw Markdown of the page.
+   * @returns The failures.
+   */
+  function checkPage(markdown: string): Promise<SnippetFailure[]> {
+    return checkSnippets([{ file: "content/docs/pkg/page.md", markdown }], stubbed);
+  }
+
+  // Bug: blocks of one group are compiled apart, so `./routes` in app.ts is never found.
+  it("resolves a relative import to a block of the same group", async () => {
+    const markdown = [
+      '```ts file="src/routes.ts" group="g" check',
+      "export const routes = 1;",
+      "```",
+      '```ts file="src/app.ts" group="g" check',
+      'import { routes } from "./routes";',
+      "export const total: number = routes;",
+      "```"
+    ].join("\n");
+
+    expect(await checkPage(markdown)).toEqual([]);
+  }, 30_000);
+
+  // Bug: a block of another group leaks in and satisfies the import, hiding a broken example.
+  it("keeps groups apart", async () => {
+    const markdown = [
+      '```ts file="src/routes.ts" group="a" check',
+      "export const routes = 1;",
+      "```",
+      '```ts file="src/app.ts" group="b" check',
+      'import { routes } from "./routes";',
+      "export const total: number = routes;",
+      "```"
+    ].join("\n");
+
+    const [failure] = await checkPage(markdown);
+
+    expect(failure?.message).toMatch(/TS2307: Cannot find module '\.\/routes'/);
+  }, 30_000);
+
+  // Bug: the page's own file blocks are not shared, so `../src/native` on the native page fails.
+  it("lets ungrouped blocks with a file import each other", async () => {
+    const markdown = [
+      '```ts file="src/native.ts" check',
+      "export const native = { start: () => 1 };",
+      "```",
+      '```ts file="scripts/build.ts" check',
+      'import { native } from "../src/native";',
+      "native.start();",
+      "```"
+    ].join("\n");
+
+    expect(await checkPage(markdown)).toEqual([]);
+  }, 30_000);
+
+  // Bug: the package stubs are not copied, or a block cannot use them.
+  it("resolves an import the group lacks to the package stub, typed", async () => {
+    const markdown = [
+      '```ts file="src/client.ts" check',
+      'import { site } from "./site";',
+      "export const name: number = site.name;",
+      "```"
+    ].join("\n");
+
+    const [failure] = await checkPage(markdown);
+
+    expect(failure?.message).toMatch(/TS2322: Type 'string' is not assignable to type 'number'/);
+  }, 30_000);
+
+  // Bug: an error inside a stub is dropped, so a stale stub passes every example that imports it.
+  it("throws when a stub fails to compile", async () => {
+    // A project of its own, so the broken stub never reaches the other tests.
+    const broken = await mkdtemp(path.join(tmpdir(), "site-snippets-bad-stub-"));
+    await symlink(path.join(repository, "node_modules"), path.join(broken, "node_modules"), "dir");
+    await mkdir(path.join(broken, "content", "snippet-stubs", "pkg", "src"), { recursive: true });
+    await writeFile(
+      path.join(broken, "content", "snippet-stubs", "pkg", "src", "site.ts"),
+      "export const site: number = 'x';\n"
+    );
+    const markdown = '```ts file="src/client.ts" check\nimport { site } from "./site";\nsite;\n```';
+
+    try {
+      await expect(
+        checkSnippets([{ file: "content/docs/pkg/page.md", markdown }], broken)
+      ).rejects.toThrow(/tsc failed outside the docs code blocks/);
+    } finally {
+      await rm(broken, { recursive: true, force: true });
+    }
+  }, 30_000);
+
+  // Bug: a `file` with `..` writes the block outside the run directory, or a second block with
+  // the same `file` overwrites the first, so the first is never compiled.
+  it("keeps every block inside its project, one file each", async () => {
+    const markdown = [
+      '```ts file="../escape.ts" check',
+      "export const escaped: number = 'x';",
+      "```",
+      '```ts file="src/a.ts" check',
+      "export const first: number = 'x';",
+      "```",
+      '```ts file="src/a.ts" check',
+      "export const second = 1;",
+      "```"
+    ].join("\n");
+    const failures = await checkPage(markdown);
+
+    expect(failures.map(failure => failure.index)).toEqual([0, 1]);
+    expect(await readdir(path.join(stubbed, ".cache"))).toEqual(["snippets"]);
+  }, 30_000);
 });

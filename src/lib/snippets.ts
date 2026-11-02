@@ -15,16 +15,25 @@
  * - Every ts or tsx block, diffs included, carries `check` or `no-check="<reason>"`. A block with
  *   neither, with both, or with an empty reason is a failure (`ungatedSnippets`), so no example
  *   escapes the gate by being left unmarked.
- * - Every block is checked as a full module on its own (`moduleDetection: "force"`). There is no
- *   "fragment" mode: an author who adds `check` writes a complete example, imports included. A
- *   block that uses a name it does not define or import fails.
- * - The blocks are written to `<projectDirectory>/.cache/snippets/run-*` as `<n>.ts(x)` with a
- *   generated strict `tsconfig.json`. The directory sits inside the project, so `@moku-labs/*`
- *   imports and `@types/bun` resolve from the project's `node_modules`. One `tsc -p` run checks all
- *   blocks; the directory is removed afterwards.
+ * - Every block is checked as a full module (`moduleDetection: "force"`). There is no "fragment"
+ *   mode: an author who adds `check` writes a complete example, imports included. A block that uses
+ *   a name it does not define or import fails.
+ * - Blocks share small projects. The `check` blocks of one page with the same `group` share one
+ *   project; the page's other blocks with a `file` share the page's project; a block with neither
+ *   is alone. A block with `file="src/app.ts"` sits at that path, so its relative imports
+ *   (`./routes`, `../src/app`) find the other blocks of its project.
+ * - A relative import the group does not hold resolves to a stub: every project starts as a copy
+ *   of `<projectDirectory>/content/snippet-stubs/<package>/`, where `<package>` is the page's folder
+ *   under `content/docs`. Blocks overwrite the stubs at the same path. A stub is real code against
+ *   the installed packages; a stub that stops compiling fails the run as a setup error.
+ * - The projects are written to `<projectDirectory>/.cache/snippets/run-*` with a generated strict
+ *   `tsconfig.json`. The directory sits inside the project, so `@moku-labs/*` imports and
+ *   `@types/bun` resolve from the project's `node_modules`. One `tsc -p` run checks all blocks; the
+ *   directory is removed afterwards.
  */
 import { spawn } from "node:child_process";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseFenceMeta, splitCodeLines } from "./markdown/code-blocks";
 import type { FenceMeta } from "./markdown/types";
@@ -74,8 +83,10 @@ type CheckedBlock = {
   file: string;
   /** Index among the page's `check` blocks. */
   index: number;
-  /** Temp file name, e.g. `3.tsx`; empty when the block is not compiled. */
+  /** Temp file path, e.g. `p3/src/app.ts`; empty when the block is not compiled. */
   name: string;
+  /** Docs package of the page, e.g. `web`, whose stubs its project starts from. */
+  packageId: string;
   /** The code tsc compiles. */
   code: string;
   /** Why the block fails without compiling, e.g. an unsupported language. */
@@ -91,7 +102,9 @@ type CompilerRun = {
 };
 
 const FENCE_OPEN = /^( *)(`{3,}|~{3,})\s*(\S*)\s*(.*)$/;
-const DIAGNOSTIC = /^(\d+\.tsx?)\((\d+),(\d+)\): (.*)$/;
+const DIAGNOSTIC = /^(p\d+\/[^(]+\.tsx?)\((\d+),(\d+)\): (.*)$/;
+const PACKAGE_SEGMENT = 2; // content / docs / <package> / ...
+const FILE_PATH = /^[\w-]+(?:\/[\w.-]+)*\.tsx?$/;
 const EXTENSIONS: ReadonlyMap<string, string> = new Map([
   ["ts", "ts"],
   ["typescript", "ts"],
@@ -208,48 +221,108 @@ function checkFences(markdown: string): CheckFence[] {
 }
 
 /**
- * One `check` block as the checker runs it: a temp file name when tsc can check its language, a
- * `problem` otherwise.
+ * The docs package of a page: its folder under `content/docs`.
+ *
+ * @param file - Source file, e.g. `content/docs/web/guides/routing.md`.
+ * @returns The package id, e.g. `web`; empty for a page outside a package folder.
+ */
+function packageOf(file: string): string {
+  const segments = file.split("/");
+  return segments.length > PACKAGE_SEGMENT + 1 ? (segments[PACKAGE_SEGMENT] ?? "") : "";
+}
+
+/**
+ * Where a block sits inside its project: its `file` path when that is a plain relative ts or tsx
+ * path not taken yet, a numbered name otherwise.
+ *
+ * @param fence - The block and its meta.
+ * @param index - Index of the block among the page's `check` blocks.
+ * @param extension - The temp file extension of its language.
+ * @param taken - Paths already used in the project.
+ * @returns The path inside the project.
+ */
+function blockPath(
+  fence: CheckFence,
+  index: number,
+  extension: string,
+  taken: ReadonlySet<string>
+): string {
+  const file = fence.meta.attributes.file ?? "";
+  const isUsable = FILE_PATH.test(file) && !file.split("/").includes("..") && !taken.has(file);
+  return isUsable ? file : `snippet-${index}.${extension}`;
+}
+
+/**
+ * Which project a block joins: its page and group, else its page when it names a file, else its
+ * own.
  *
  * @param file - Source file of the page.
  * @param index - Index of the block among the page's `check` blocks.
- * @param compiled - How many blocks of all pages got a temp file before this one.
+ * @param meta - The block's parsed fence meta.
+ * @returns The project key.
+ */
+function projectKey(file: string, index: number, meta: FenceMeta): string {
+  const { group, file: blockFile } = meta.attributes;
+  if (group !== undefined) return `${file}#group:${group}`;
+  return blockFile === undefined ? `${file}#${index}` : `${file}#page`;
+}
+
+/** The projects of one run: a number per page and group, and the paths each one holds. */
+type ProjectRegistry = {
+  /** Project number by the key `projectKey` gives. */
+  numbers: Map<string, number>;
+  /** Paths used in each project, by project number. */
+  paths: Map<number, Set<string>>;
+};
+
+/**
+ * One `check` block as the checker runs it: a temp file path in its project when tsc can check its
+ * language, a `problem` otherwise.
+ *
+ * @param file - Source file of the page.
+ * @param index - Index of the block among the page's `check` blocks.
  * @param fence - The block and its meta.
+ * @param projects - The projects of the run, updated with this block.
  * @returns The checked block.
  */
 function toCheckedBlock(
   file: string,
   index: number,
-  compiled: number,
-  fence: CheckFence
+  fence: CheckFence,
+  projects: ProjectRegistry
 ): CheckedBlock {
+  const packageId = packageOf(file);
   const { code, language, extension } = prepareBlock(fence.block, fence.meta);
   if (extension === undefined) {
     const problem = `check works on ts and tsx blocks, not on "${language}".`;
-    return { file, index, name: "", code, problem };
+    return { file, index, name: "", packageId, code, problem };
   }
-  return { file, index, name: `${compiled}.${extension}`, code };
+
+  // Find or open the block's project.
+  const key = projectKey(file, index, fence.meta);
+  const projectNumber = projects.numbers.get(key) ?? projects.numbers.size;
+  projects.numbers.set(key, projectNumber);
+  const taken = projects.paths.get(projectNumber) ?? new Set<string>();
+  projects.paths.set(projectNumber, taken);
+
+  // Claim a path inside that project.
+  const inside = blockPath(fence, index, extension, taken);
+  taken.add(inside);
+  return { file, index, name: `p${projectNumber}/${inside}`, packageId, code };
 }
 
 /**
  * Collect the `check` blocks of every page, in page order. A block in a language tsc cannot check
- * carries a `problem` instead of a temp file name.
+ * carries a `problem` instead of a temp file path.
  *
  * @param sources - Docs pages.
  * @returns The `check` blocks.
  */
 function collectBlocks(sources: readonly SnippetSource[]): CheckedBlock[] {
-  const blocks: CheckedBlock[] = [];
-  // The temp file number runs over all pages; the index restarts on every page.
-  let compiled = 0;
-  for (const { file, markdown } of sources) {
-    for (const [index, fence] of checkFences(markdown).entries()) {
-      const block = toCheckedBlock(file, index, compiled, fence);
-      blocks.push(block);
-      if (block.problem === undefined) compiled += 1;
-    }
-  }
-  return blocks;
+  const projects: ProjectRegistry = { numbers: new Map(), paths: new Map() };
+  return sources.flatMap(({ file, markdown }) =>
+    checkFences(markdown).map((fence, index) => toCheckedBlock(file, index, fence, projects))
+  );
 }
 
 /**
@@ -323,12 +396,46 @@ function parseDiagnostics(output: string): { messages: Map<string, string[]>; st
 }
 
 /**
+ * Write every project of the run: the stubs of its docs package first, then its blocks over them.
+ *
+ * @param blocks - The blocks to compile, each with a temp file path.
+ * @param projectDirectory - Project root holding `content/snippet-stubs`.
+ * @param runDirectory - The temp directory of this run.
+ * @returns Resolves when every file is written.
+ */
+async function writeProjects(
+  blocks: CheckedBlock[],
+  projectDirectory: string,
+  runDirectory: string
+): Promise<void> {
+  const stubsDirectory = path.join(projectDirectory, "content", "snippet-stubs");
+  // Seed each project with the stubs of its docs package.
+  const packageByProject = new Map(
+    blocks.map(block => [block.name.split("/")[0] ?? "", block.packageId])
+  );
+  await Promise.all(
+    [...packageByProject].map(async ([project, packageId]) => {
+      const stubs = path.join(stubsDirectory, packageId);
+      if (packageId === "" || !existsSync(stubs)) return;
+      await cp(stubs, path.join(runDirectory, project), { recursive: true });
+    })
+  );
+
+  // Write each block over the stubs at its own path.
+  for (const block of blocks) {
+    const target = path.join(runDirectory, block.name);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, block.code);
+  }
+}
+
+/**
  * Write the blocks and the tsconfig, run tsc once, and group its diagnostics by block.
  *
  * @param blocks - The blocks to compile, each with a temp file name.
  * @param projectDirectory - Project root.
  * @returns The compiler message of each failing block, by temp file name.
- * @throws {Error} When tsc fails with output that names no block (a broken setup, not a block).
+ * @throws {Error} When tsc fails with output that names no block, or fails in a stub (a broken setup, not a block).
  */
 async function compileBlocks(
   blocks: CheckedBlock[],
@@ -338,15 +445,19 @@ async function compileBlocks(
   await mkdir(cacheDirectory, { recursive: true });
   const runDirectory = await mkdtemp(path.join(cacheDirectory, "run-"));
   try {
+    // Write the tsconfig and the project files, and compile them once.
     const tsconfig = { compilerOptions: COMPILER_OPTIONS, files: blocks.map(block => block.name) };
     await writeFile(path.join(runDirectory, "tsconfig.json"), JSON.stringify(tsconfig));
-    await Promise.all(
-      blocks.map(block => writeFile(path.join(runDirectory, block.name), block.code))
-    );
+    await writeProjects(blocks, projectDirectory, runDirectory);
     const run = await runCompiler(projectDirectory, runDirectory);
     if (run.code === 0) return new Map();
+
+    // Tell a failing block from a broken setup: a stub, or output that names no block.
     const { messages, stray } = parseDiagnostics(run.output);
-    if (stray.length > 0 || messages.size === 0) {
+    const names = new Set(blocks.map(block => block.name));
+    const inStubs = [...messages.keys()].filter(name => !names.has(name));
+    const isSetupFailure = stray.length > 0 || messages.size === 0 || inStubs.length > 0;
+    if (isSetupFailure) {
       throw new Error(
         `[site] tsc failed outside the docs code blocks:\n${run.output.trim()}\n  Fix the snippet checker setup in src/lib/snippets.ts.`
       );
