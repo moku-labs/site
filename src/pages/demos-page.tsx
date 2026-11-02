@@ -129,7 +129,7 @@ export function DemosPage(props: { url: UrlBuilder }): VNode {
           <h1>Demos</h1>
           <p>
             {countWord(demos.length).replace(/^./, letter => letter.toUpperCase())} apps on Moku. An
-            agent wrote most of the code. The kernel read all of it.
+            agent wrote most of the code. The kernel checks every plugin before the app starts.
           </p>
         </header>
         <fieldset data-part="filters">

@@ -138,7 +138,8 @@ export const routes = defineRoutes({
     .render(ctx => <DemosPage url={ctx.url} />)
     .head(() => ({
       title: "Demos",
-      description: "Six apps on Moku. An agent wrote most of the code. The kernel read all of it."
+      description:
+        "Six apps on Moku. An agent wrote most of the code. The kernel checks every plugin before the app starts."
     }))
     .meta({ nav: "demos" }),
   about: route("/about/")
