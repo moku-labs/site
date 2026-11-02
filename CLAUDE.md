@@ -59,6 +59,11 @@ Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
 - `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
 - `kernel` — `errors()` and `trayMessages()`: the real kernel's messages, captured at build.
 
+One browser plugin (`src/plugins/prefetch/`, composed only in `src/spa.tsx`):
+
+- `prefetch` — warms `app.data.at(path)` for links on hover, touch, focus and a few in view, so
+  the SPA finds the next page's data in the data plugin's cache. Logic in `src/lib/link-prefetch.ts`.
+
 The name-reference trick: `routes.tsx` ships to the browser, but its loaders need the Node
 plugins. `src/lib/docs-reference.ts`, `kernel-reference.ts` and `content-reference.ts` export
 `{ name: "docs" } as typeof docsPlugin` (type-only import). `ctx.require(docsReference)` finds the
@@ -75,6 +80,7 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
 - Markdown pipeline (`lib/markdown/`): `directives` (remark: callout, steps, flow, gotchas,
   diagram, terminal, prompt), `code-blocks` (rehype: file, group, hl, notes, diff), `heading-ids`,
   `tables`, and `agent-markdown` (docs Markdown to plain Markdown for the llms files).
+- Browser logic: `link-prefetch` (which links the `prefetch` plugin warms).
 - Island logic: `kernel-tray`, `kernel-flight`, `hero-world`, `hero-props`, `iso`, `pyramid`, `demos`, `search-results`, `search-palette`.
 - `url-builder`, and the three `*-reference` modules above.
 
