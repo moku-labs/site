@@ -51,14 +51,14 @@ export function HomePage(props: HomePageProperties): VNode {
       <LandingSection
         id="layers"
         title="Three layers. Nothing reaches back down."
-        lede="Config makes a framework. A framework makes apps. Each layer can only add plugins on top of the one below. Hover a layer."
+        lede="Config makes a framework. A framework makes apps. Each layer can only add plugins on top of the one below. Hover or tap a layer."
       >
         <LayersStack code={view.layersCode} />
       </LandingSection>
       <LandingSection
         id="stack"
         title="Everything stands on one kernel."
-        lede="The kernel on top, eleven packages under it, six demo apps at the base. Hover a demo to see what it is built from. Hover a package to see what was built with it."
+        lede="The kernel on top, eleven packages under it, six demo apps at the base. Hover or tap a demo to see what it is built from, or a package to see what was built with it."
       >
         <Pyramid packages={view.packages} demos={view.demos} url={url} />
       </LandingSection>

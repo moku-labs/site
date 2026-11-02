@@ -21,6 +21,7 @@
     "preact-render-to-string": "6.6.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@biomejs/biome": "2.4.16",
     "@moku-labs/ai": "0.16.13",
     "@moku-labs/ci": "1.5.7",
@@ -32,6 +33,7 @@
     "@moku-labs/room": "0.8.9",
     "@moku-labs/system": "0.3.7",
     "@moku-labs/worker": "0.20.9",
+    "@playwright/test": "1.64.1",
     "@types/bun": "1.4.2",
     "@vitest/coverage-istanbul": "4.0.18",
     "eslint-plugin-jsdoc": "65.1.0",
@@ -54,6 +56,9 @@
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
-    "test:coverage": "vitest run --project unit --project integration --coverage"
+    "test:coverage": "vitest run --project unit --project integration --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:update:linux": "docker run --rm --network host -v \"$PWD\":/work -w /work mcr.microsoft.com/playwright:v1.64.1-noble bash -c \"npm i -g bun && bun install && bunx playwright test --update-snapshots\""
   }
 }

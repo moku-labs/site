@@ -114,18 +114,18 @@ function iconFor(root: Element, icon: string): Element {
  * @param entry - The index row.
  * @param index - Its position.
  * @param query - The query, for the highlight.
- * @returns The `<div role="option">`.
+ * @returns The `<a role="option">`.
  */
 function optionFor(
   root: Element,
   entry: SearchEntry,
   index: number,
   query: string
-): HTMLDivElement {
-  const option = document.createElement("div");
-  option.id = `${OPTION_ID}${index}`;
-  option.setAttribute("role", "option");
+): HTMLAnchorElement {
+  // The option is the link itself: a link inside an option would nest two controls.
   const link = document.createElement("a");
+  link.id = `${OPTION_ID}${index}`;
+  link.setAttribute("role", "option");
   link.href = entry.href;
   link.tabIndex = -1;
   const title = document.createElement("span");
@@ -138,8 +138,7 @@ function optionFor(
   kind.dataset.part = "kind";
   kind.textContent = entry.kind;
   link.append(iconFor(root, entry.icon), title, subtitle, kind);
-  option.append(link);
-  return option;
+  return link;
 }
 
 /**
@@ -271,7 +270,7 @@ function trapFocus(root: Element, event: KeyboardEvent): void {
  * @param event - The Enter keydown.
  */
 function openSelected(ctx: PaletteContext, event: KeyboardEvent): void {
-  const link = ctx.el.querySelectorAll('[role="option"] a')[ctx.state.selected];
+  const link = ctx.el.querySelectorAll('a[role="option"]')[ctx.state.selected];
   if (!(link instanceof HTMLAnchorElement)) return;
   event.preventDefault();
   closePalette(ctx);
@@ -323,7 +322,7 @@ export const searchPaletteIsland = createIsland("search-palette", {
   events: {
     "input [data-part='field'] input": ctx => paint(ctx.el, ctx.state),
     "click [data-close]": ctx => closePalette(ctx),
-    "click [role='option'] a": ctx => closePalette(ctx),
+    "click a[role='option']": ctx => closePalette(ctx),
     keydown: (ctx, event) => onKey(ctx, event)
   },
   onMount: ctx => {

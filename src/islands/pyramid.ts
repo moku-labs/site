@@ -16,6 +16,11 @@ type PyramidState = {
   packages: PyramidPackage[];
   /** The brick a finger lit with its last tap; a second tap on it opens its page. */
   armed: Element | undefined;
+  /**
+   * The last press came from a finger or a pen. Read from `pointerdown`, because Safari on iOS
+   * reports the click that follows a tap as a mouse click.
+   */
+  finger: boolean;
 };
 
 /** Brick kinds, to narrow `data-kind`. */
@@ -38,7 +43,7 @@ function isBrickKind(value: string | undefined): value is BrickKind {
  * @returns The island state.
  */
 function readBricks(root: Element): PyramidState {
-  const state: PyramidState = { demos: [], packages: [], armed: undefined };
+  const state: PyramidState = { demos: [], packages: [], armed: undefined, finger: false };
   // Both drawings hold the same bricks; the first one is enough.
   const drawing = root.querySelector("svg");
   for (const brick of drawing?.querySelectorAll<SVGElement>("[data-brick]") ?? []) {
@@ -104,11 +109,10 @@ function isFinger(event: Event): boolean {
  * brick and shows the tip, and the second tap on the same brick opens the page.
  *
  * @param ctx - The island context.
- * @param event - The click.
  * @param brick - The brick.
  */
-function tap(ctx: Spa.IslandContext<PyramidState>, event: Event, brick: Element): void {
-  if (!isFinger(event) || ctx.state.armed === brick) {
+function tap(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
+  if (!ctx.state.finger || ctx.state.armed === brick) {
     ctx.state.armed = undefined;
     open(ctx, brick);
     return;
@@ -146,6 +150,10 @@ export const pyramidIsland = createIsland("pyramid", {
   events: {
     "pointerover [data-brick]": (ctx, _event, brick) => light(ctx, brick),
     "focusin [data-brick]": (ctx, _event, brick) => light(ctx, brick),
+    // Remember what pressed: the click after it does not always say (iOS Safari: "mouse").
+    pointerdown: (ctx, event) => {
+      ctx.state.finger = isFinger(event);
+    },
     // A finger leaves the brick the moment it lifts; the tip stays until the next tap.
     pointerleave: (ctx, event) => {
       if (!isFinger(event)) clear(ctx.el);
@@ -160,7 +168,7 @@ export const pyramidIsland = createIsland("pyramid", {
       const next = event instanceof FocusEvent ? event.relatedTarget : undefined;
       if (!(next instanceof Element && next.closest("[data-brick]"))) clear(ctx.el);
     },
-    "click [data-brick]": (ctx, event, brick) => tap(ctx, event, brick),
+    "click [data-brick]": (ctx, _event, brick) => tap(ctx, brick),
     "keydown [data-brick]": (ctx, event, brick) => {
       if (!(event instanceof KeyboardEvent) || (event.key !== "Enter" && event.key !== " ")) return;
       event.preventDefault();

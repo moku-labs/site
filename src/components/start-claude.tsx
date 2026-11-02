@@ -39,7 +39,8 @@ export function ClaudeInstall(props: { claude: HomeView["claude"] }): VNode {
       </div>
       <figure data-component="terminal" data-copy={claude.install.join("\n")}>
         <figcaption data-part="title">Claude Code</figcaption>
-        <pre data-part="screen">
+        {/* biome-ignore lint/a11y/noNoninteractiveTabindex: a scrolling region must take keyboard focus (WCAG 2.1.1) */}
+        <pre data-part="screen" tabIndex={0}>
           <span data-kind="command">{addMarketplace}</span>
           {"\n"}
           <span data-kind="ok">✓ marketplace added</span>

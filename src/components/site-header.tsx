@@ -85,7 +85,7 @@ export function SiteHeader(props: SiteHeaderProperties): VNode {
             ))}
           </ul>
         </nav>
-        <button type="button" data-part="search" data-search-open aria-label="Search docs">
+        <button type="button" data-part="search" data-search-open>
           <SearchIcon size={15} />
           <span data-part="label">Search docs</span>
           <kbd>⌘K</kbd>

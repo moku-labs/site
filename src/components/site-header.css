@@ -123,10 +123,19 @@
       margin-left: auto;
     }
 
-    [data-part="search"] [data-part="label"],
     [data-part="search"] kbd,
     [data-part="theme"] [data-part="label"] {
       display: none;
+    }
+
+    /* Icon only on phones; the label stays as the button's accessible name. */
+    [data-part="search"] [data-part="label"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
     nav {
@@ -193,6 +202,21 @@
 
     [data-part="links"] a {
       padding-block: 12px;
+    }
+  }
+}
+
+/* The narrowest phones (320): the bar fits without a sideways scroll. */
+@scope ([data-component="site-header"]) {
+  @media (max-width: 359px) {
+    [data-part="bar"] {
+      gap: 4px;
+      padding-inline: 12px;
+    }
+
+    [data-part="logo"] {
+      gap: 6px;
+      font-size: 13px;
     }
   }
 }

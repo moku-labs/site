@@ -7,13 +7,15 @@ describe("tables through the content pipeline", () => {
   it("wraps a Markdown table in its scroll box", async () => {
     const html = await render("| Option | Default |\n| --- | --- |\n| `outDir` | `dist` |\n");
 
-    expect(html.trim()).toMatch(/^<div data-part="table"><table>[\s\S]*<\/table><\/div>$/);
+    expect(html.trim()).toMatch(
+      /^<div data-part="table" tabindex="0"><table>[\s\S]*<\/table><\/div>$/
+    );
   });
 
   // Catches: only top-level tables wrapped, a table inside a list or callout left bare.
   it("wraps a table nested in a list item", async () => {
     const html = await render("- Item\n\n  | A |\n  | - |\n  | 1 |\n");
 
-    expect(html).toMatch(/<li>\s*<p>Item<\/p>\s*<div data-part="table"><table>/);
+    expect(html).toMatch(/<li>\s*<p>Item<\/p>\s*<div data-part="table" tabindex="0"><table>/);
   });
 });

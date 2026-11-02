@@ -59,6 +59,11 @@
     color: var(--docs-heading);
   }
 
+  /* A long call in a sentence breaks rather than pushing the page sideways on a phone. */
+  :is(p, li) > code {
+    overflow-wrap: anywhere;
+  }
+
   blockquote {
     margin: 18px 0;
     padding: 2px 0 2px 16px;

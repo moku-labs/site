@@ -39,7 +39,8 @@
 
 @scope ([data-component="doc-meta"]) {
   @media (max-width: 760px) {
-    [data-part="action"] {
+    [data-part="action"],
+    :scope > [data-component="sync-badge"] {
       min-height: 40px;
       padding: 8px 12px;
     }

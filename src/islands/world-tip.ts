@@ -3,8 +3,8 @@
  * island.
  */
 
-/** Keep the tooltip this far from the viewport's side edges (half its max width). */
-const EDGE = 150;
+/** Gap kept between the tooltip and the viewport's side edges, in px. */
+const EDGE = 12;
 
 /**
  * Set the text of one tooltip part, or hide the part when there is no text.
@@ -46,10 +46,12 @@ export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): voi
     art.hidden = !tipArt;
   }
   const box = target.getBoundingClientRect();
-  const centre = Math.max(EDGE, Math.min(innerWidth - EDGE, box.left + box.width / 2));
-  tip.style.setProperty("--tip-x", `${centre}px`);
   tip.style.setProperty("--tip-y", `${box.top - 8}px`);
   tip.hidden = false;
+  // Centre the tip over the target, kept a margin inside the screen by its own measured width.
+  const half = tip.offsetWidth / 2 + EDGE;
+  const centre = Math.max(half, Math.min(innerWidth - half, box.left + box.width / 2));
+  tip.style.setProperty("--tip-x", `${centre}px`);
 }
 
 /**

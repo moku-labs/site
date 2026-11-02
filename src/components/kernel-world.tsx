@@ -296,9 +296,11 @@ function Socket(props: {
  */
 function Kernel(props: { version: string }): VNode {
   return (
+    // biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: focusable only to show its tip; a named image is its role
     <g
       data-part="kernel"
       tabIndex={0}
+      role="img"
       aria-label="The kernel. Drop plugins here."
       data-tip-title="the kernel"
       data-tip-version={`@moku-labs/core ${props.version}`}

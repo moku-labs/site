@@ -90,7 +90,7 @@
       text-decoration: none;
     }
 
-    [aria-selected="true"] a {
+    a[aria-selected="true"] {
       background: var(--docs-inline);
       box-shadow: inset 2px 0 var(--accent);
     }

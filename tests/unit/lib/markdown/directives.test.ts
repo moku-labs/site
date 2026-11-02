@@ -46,14 +46,14 @@ describe("directives through the content pipeline", () => {
     );
 
     expect(html).toContain(
-      '<figure data-component="terminal" data-copy="bun install\nbun run build"><figcaption data-part="title">build</figcaption><pre data-part="screen"><span data-kind="command">bun install</span>\n<span data-kind="command">bun run build</span>\n<span data-kind="ok">✓ 42 pages</span>\n<span data-kind="error">✕ 1 error</span>\n<span data-kind="output">waiting</span></pre></figure>'
+      '<figure data-component="terminal" data-copy="bun install\nbun run build"><figcaption data-part="title">build</figcaption><pre data-part="screen" tabindex="0"><span data-kind="command">bun install</span>\n<span data-kind="command">bun run build</span>\n<span data-kind="ok">✓ 42 pages</span>\n<span data-kind="error">✕ 1 error</span>\n<span data-kind="output">waiting</span></pre></figure>'
     );
   });
 
   // Catches: an empty title bar on a terminal without title.
   it("renders a terminal without title without a caption", async () => {
     expect(await render("```sh terminal\n$ ls\n```\n")).toContain(
-      '<figure data-component="terminal" data-copy="ls"><pre data-part="screen">'
+      '<figure data-component="terminal" data-copy="ls"><pre data-part="screen" tabindex="0">'
     );
   });
 

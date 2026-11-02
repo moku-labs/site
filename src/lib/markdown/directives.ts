@@ -203,7 +203,12 @@ function terminalFigure(code: MdastNode, meta: FenceMeta): MdastNode {
   const title = meta.attributes.title;
   const children: HastNode[] = [
     ...(title === undefined ? [] : [terminalTitle(title)]),
-    { type: "element", tagName: "pre", properties: { dataPart: "screen" }, children: screen }
+    {
+      type: "element",
+      tagName: "pre",
+      properties: { dataPart: "screen", tabIndex: 0 },
+      children: screen
+    }
   ];
   return figure({ dataComponent: "terminal", dataCopy: commands.join("\n") }, children);
 }

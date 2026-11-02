@@ -61,7 +61,7 @@
   /* The runtime tag of a plugin page: node or optional. */
   a > [data-part="kind"] {
     margin-left: auto;
-    font: 10.5px var(--font-mono);
+    font: 11px var(--font-mono);
     color: var(--docs-muted);
   }
 

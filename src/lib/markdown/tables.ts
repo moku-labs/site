@@ -24,7 +24,12 @@ function wrapTables(tree: HastRoot): void {
   for (const parent of collectParents(tree, node => node.children.some(isTable))) {
     parent.children = parent.children.map(child =>
       isTable(child)
-        ? { type: "element", tagName: "div", properties: { dataPart: "table" }, children: [child] }
+        ? {
+            type: "element",
+            tagName: "div",
+            properties: { dataPart: "table", tabIndex: 0 },
+            children: [child]
+          }
         : child
     );
   }

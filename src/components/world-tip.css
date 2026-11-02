@@ -9,7 +9,9 @@
     display: flex;
     gap: 10px;
     align-items: center;
-    max-width: 290px;
+    /* Its own width, not the room left of --tip-x: the island keeps it on screen. */
+    width: max-content;
+    max-width: min(290px, calc(100vw - 24px));
     padding: 10px 12px;
     border-radius: var(--radius-card);
     background: var(--tooltip-surface);
