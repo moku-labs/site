@@ -57,17 +57,21 @@ export function SearchPalette(props: { url: UrlBuilder }): VNode {
             aria-autocomplete="list"
             aria-label="Search docs"
             placeholder="Search packages, guides, plugins, APIs"
+            data-placeholder-short="Search docs"
             autocomplete="off"
             spellcheck={false}
           />
           <kbd>esc</kbd>
+          <button type="button" data-part="close" data-close="">
+            Close
+          </button>
         </div>
         <p data-part="label">Suggested</p>
         <div id="search-results" data-part="results" role="listbox" aria-label="Results" />
         <p data-part="status" role="status" />
         <div data-part="foot">
-          <span>↑ ↓ move</span>
-          <span>enter opens</span>
+          <span data-part="hint">↑ ↓ move</span>
+          <span data-part="hint">enter opens</span>
           <span>Every page is also plain text in llms.txt</span>
         </div>
       </div>

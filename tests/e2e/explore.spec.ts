@@ -4,11 +4,13 @@
  * search palette stays put, and Reset works while a plugin is still flying to the kernel. Round 2:
  * the socket labels stay apart after a full run, a phone on its side shows the kernel and the tray
  * together, the tray shows when a plugin is in flight, Back closes the search palette, and a phone
- * gets "On this page".
+ * gets "On this page". Round 3 (UX gate): package names under the About cubes, a Close button and a
+ * short placeholder in the phone search palette, tray plugs named from their label, 404 footer
+ * targets, and one row of doc-meta actions on a phone.
  */
 import type { Page } from "@playwright/test";
 import { boot, expect, isPhone, press, test } from "./_fixtures";
-import { RICH_DOC } from "./_inventory";
+import { NOT_FOUND_PATH, RICH_DOC } from "./_inventory";
 
 /** How far below the header's bottom edge an anchored heading may land, px. */
 const ANCHOR_SLACK = 40;
@@ -262,4 +264,92 @@ test.describe("with motion", () => {
       timeout: 5000
     });
   });
+});
+
+test("About names every package under its cube, and the grid stays inside the page", async ({
+  page
+}) => {
+  await boot(page, "/about/");
+  const items = page.locator('[data-part="ships"] li');
+  const count = await items.count();
+  expect(count).toBeGreaterThan(5);
+  for (let index = 0; index < count; index++) {
+    const name = items.nth(index).locator('[data-part="name"]');
+    await expect(name).toBeVisible();
+    await expect(name).not.toBeEmpty();
+    const size = await name.evaluate(element =>
+      Number.parseFloat(getComputedStyle(element).fontSize)
+    );
+    expect(size).toBeGreaterThanOrEqual(11);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    page.viewportSize()?.width ?? 0
+  );
+});
+
+test("the search palette has a Close button and a short placeholder on a phone only", async ({
+  page
+}, testInfo) => {
+  const phone = isPhone(testInfo.project.name);
+  await boot(page, "/docs/");
+  const palette = page.locator('[data-island="search-palette"]');
+  await press(page.locator('[data-component="site-header"] [data-part="search"]'), phone);
+  await expect(palette).toBeVisible();
+  const close = palette.getByRole("button", { name: "Close" });
+  const input = palette.getByRole("combobox", { name: "Search docs" });
+  if (!phone) {
+    await expect(close).toBeHidden();
+    await expect(palette.locator("kbd")).toBeVisible();
+    await expect(input).toHaveAttribute("placeholder", "Search packages, guides, plugins, APIs");
+    return;
+  }
+  await expect(palette.locator("kbd")).toBeHidden();
+  await expect(palette.locator('[data-part="hint"]').first()).toBeHidden();
+  await expect(input).toHaveAttribute("placeholder", "Search docs");
+  const box = await close.boundingBox();
+  expect(box?.height ?? 0).toBeGreaterThanOrEqual(40);
+  expect(box?.width ?? 0).toBeGreaterThanOrEqual(40);
+  await close.tap();
+  await expect(palette).toBeHidden();
+});
+
+test("a tray plug is named from its visible label, then the action", async ({ page }) => {
+  await boot(page, "/");
+  for (const id of ["router", "blog", "auth", "session"]) {
+    await expect(page.locator(`[data-plug="${id}"]`)).toHaveAttribute(
+      "aria-label",
+      `${id}. Plug into the kernel`
+    );
+  }
+});
+
+test("the 404 footer links are at least 40px tall on a phone", async ({ page }, testInfo) => {
+  test.skip(!isPhone(testInfo.project.name), "the 40px rule is the phone footer");
+  await boot(page, NOT_FOUND_PATH, { static: true });
+  const heights = await page
+    .locator('[data-component="site-footer"] a')
+    .evaluateAll(links => links.map(link => link.getBoundingClientRect().height));
+  expect(heights.length).toBeGreaterThan(5);
+  for (const height of heights) expect(height).toBeGreaterThanOrEqual(40);
+});
+
+test("doc meta keeps its actions in one row with the badge under them on a phone", async ({
+  page
+}, testInfo) => {
+  const phone = isPhone(testInfo.project.name);
+  await boot(page, RICH_DOC);
+  const meta = page.locator('[data-component="doc-meta"]').first();
+  const tops = await meta
+    .locator('[data-part="action"]')
+    .evaluateAll(actions => actions.map(action => Math.round(action.getBoundingClientRect().top)));
+  expect(tops).toHaveLength(3);
+  expect(new Set(tops).size).toBe(1);
+  if (!phone) return;
+  const heights = await meta
+    .locator('[data-part="action"]')
+    .evaluateAll(actions => actions.map(action => action.getBoundingClientRect().height));
+  for (const height of heights) expect(height).toBeGreaterThanOrEqual(40);
+  const badge = await meta.locator('[data-component="sync-badge"]').first().boundingBox();
+  const row = await meta.locator('[data-part="actions"]').boundingBox();
+  expect(badge?.y ?? 0).toBeGreaterThanOrEqual((row?.y ?? 0) + (row?.height ?? 0) - 1);
 });

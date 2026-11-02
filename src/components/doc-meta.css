@@ -7,8 +7,14 @@
     align-items: center;
   }
 
+  /* Invisible on a desktop: the chips and the badge flow as one row. */
+  [data-part="actions"] {
+    display: contents;
+  }
+
   [data-part="action"] {
     display: inline-flex;
+    flex: none;
     align-items: center;
     gap: 6px;
     font: 500 12.5px var(--font-mono);
@@ -39,10 +45,27 @@
 
 @scope ([data-component="doc-meta"]) {
   @media (max-width: 760px) {
+    :scope {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    [data-part="actions"] {
+      display: flex;
+      gap: 6px;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    [data-part="action"] {
+      font-size: 12px;
+    }
+
     [data-part="action"],
     :scope > [data-component="sync-badge"] {
       min-height: 40px;
-      padding: 8px 12px;
+      padding: 8px 10px;
     }
   }
 }

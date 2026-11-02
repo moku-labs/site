@@ -69,6 +69,8 @@ function KernelLog(props: { state: HeroState; tray: readonly TrayPlugin[] }): VN
 function TrayButton(props: { item: TrayPlugin; state: HeroState }): VNode {
   const { item } = props;
   const verdict = props.state.verdicts[item.id];
+  // The name starts with the visible label (WCAG 2.5.3), then says the action.
+  const note = trayNote(item, verdict);
   return (
     <li>
       <button
@@ -77,11 +79,11 @@ function TrayButton(props: { item: TrayPlugin; state: HeroState }): VNode {
         data-plug={item.id}
         data-state={verdict?.state}
         disabled={verdict?.state === "locked"}
-        aria-label={`Plug ${item.plugin} into the kernel`}
+        aria-label={`${item.plugin}. Plug into the kernel`}
       >
         <CubeIcon tone="block" glyph={item.glyph} size={36} />
         <b>{item.plugin}</b>
-        <small>{trayNote(item, verdict)}</small>
+        <small>{note}</small>
       </button>
     </li>
   );

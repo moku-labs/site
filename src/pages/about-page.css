@@ -82,8 +82,8 @@
     }
 
     ul {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
       gap: 6px;
       margin: 0;
       padding: 0;
@@ -91,8 +91,14 @@
     }
 
     a {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
       padding: 6px;
+      text-align: center;
+      text-decoration: none;
       border-radius: var(--radius-card);
       transition:
         transform var(--duration-normal),
@@ -103,6 +109,19 @@
         transform: translateY(-6px);
         background: var(--surface-card);
       }
+    }
+  }
+
+  /* The package name under each cube, so a finger can tell them apart. */
+  [data-part="ships"] [data-part="name"] {
+    font: 11.5px/1.25 var(--font-mono);
+    color: var(--text-muted);
+    text-decoration: none;
+
+    /* A long name breaks after its slash, never inside a word. */
+    span {
+      display: inline-block;
+      white-space: nowrap;
     }
   }
 

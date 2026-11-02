@@ -68,12 +68,13 @@ export function AboutPage(props: { url: UrlBuilder }): VNode {
           <ul>
             {packages.map(entry => (
               <li key={entry.id}>
-                <a
-                  href={props.url("docsPackage", { pkg: entry.id })}
-                  title={entry.name}
-                  aria-label={entry.name}
-                >
+                <a href={props.url("docsPackage", { pkg: entry.id })}>
                   <PackageIcon id={entry.id} size={72} />
+                  <span data-part="name">
+                    {entry.name.split(/(?<=\/)/).map(part => (
+                      <span key={part}>{part}</span>
+                    ))}
+                  </span>
                 </a>
               </li>
             ))}

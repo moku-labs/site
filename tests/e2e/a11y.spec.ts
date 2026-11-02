@@ -13,7 +13,7 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
  * Documented exceptions, each checked by hand:
  * - The desktop docs sidebar is a `<details>` kept open by CSS (`::details-content`). Its links
  *   are focusable and Tab reaches them, but axe treats closed-details content as unfocusable.
- * - Tray plugs ("Plug router into the kernel") and the layer drawings ("Layer 1:
+ * - Tray plugs ("router. Plug into the kernel") and the layer drawings ("Layer 1:
  *   createCoreConfig()") name the action and contain their visible label; the secondary note text
  *   is left out on purpose. The rule is experimental in axe.
  */
@@ -85,7 +85,7 @@ test("key controls have a role and a name", async ({ page }, testInfo) => {
     ? header.getByRole("button", { name: "Menu" })
     : header.getByRole("navigation", { name: "Main" });
   await expect(primary).toBeVisible();
-  await expect(page.getByRole("button", { name: "Plug blog into the kernel" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "blog. Plug into the kernel" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset" })).toBeVisible();
   await expect(page.getByRole("group", { name: /Isometric map of the Moku family/ })).toBeVisible();
 });
@@ -120,6 +120,6 @@ test("ARIA snapshot: search palette and demo filters", async ({ page }, testInfo
   });
   await press(page.locator('[data-component="site-header"] [data-part="search"]'), phone);
   await expect(page.getByRole("dialog", { name: "Search docs" })).toMatchAriaSnapshot({
-    name: "search-suggested.aria.yml"
+    name: `search-suggested-${testInfo.project.name}.aria.yml`
   });
 });

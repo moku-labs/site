@@ -29,20 +29,22 @@ export function DocumentMeta(props: DocumentMetaProperties): VNode {
   const fileName = props.markdownUrl.split("/").at(-1);
   return (
     <div data-component="doc-meta">
-      <button
-        type="button"
-        data-island="copy-page"
-        data-part="action"
-        data-markdown-url={props.markdownUrl}
-      >
-        Copy as Markdown
-      </button>
-      <a data-part="action" href={props.markdownUrl} target="_blank" rel="noopener">
-        {fileName}
-      </a>
-      <a data-part="action" href={LINKS.llms} target="_blank" rel="noopener">
-        llms.txt
-      </a>
+      <div data-part="actions">
+        <button
+          type="button"
+          data-island="copy-page"
+          data-part="action"
+          data-markdown-url={props.markdownUrl}
+        >
+          Copy as Markdown
+        </button>
+        <a data-part="action" href={props.markdownUrl} target="_blank" rel="noopener">
+          {fileName}
+        </a>
+        <a data-part="action" href={LINKS.llms} target="_blank" rel="noopener">
+          llms.txt
+        </a>
+      </div>
       {props.children}
     </div>
   );

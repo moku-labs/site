@@ -235,7 +235,16 @@ function openPalette(ctx: PaletteContext): void {
   if (ctx.state.pushed) location.hash = PALETTE_HASH;
   root.hidden = false;
   const input = inputOf(root);
-  if (input !== null) input.value = "";
+  if (input !== null) {
+    input.value = "";
+    // A phone has room for a few words, not the desktop sentence.
+    const short = input.dataset.placeholderShort;
+    if (input.dataset.placeholderLong === undefined) {
+      input.dataset.placeholderLong = input.placeholder;
+    }
+    const phone = short !== undefined && matchMedia("(max-width: 760px)").matches;
+    input.placeholder = phone ? short : input.dataset.placeholderLong;
+  }
   paint(root, ctx.state);
   input?.focus();
   void loadIndex(root, ctx.state);

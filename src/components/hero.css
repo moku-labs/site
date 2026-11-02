@@ -240,6 +240,7 @@
 
   /* The hit circle only exists for a finger: the phone block turns it on. */
   [data-part="hit"] {
+    display: none;
     fill: transparent;
     pointer-events: none;
   }
@@ -506,6 +507,7 @@
     }
 
     [data-part="hit"] {
+      display: inline;
       pointer-events: all;
     }
 
