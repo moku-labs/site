@@ -6,6 +6,29 @@
 /** Gap kept between the tooltip and the viewport's side edges, in px. */
 const EDGE = 12;
 
+/** Distance a hero block rises on hover (`translateY(-8px)` in `hero.css`), in px. */
+const HOVER_LIFT = 8;
+
+/**
+ * Measure how much of the hover lift a hero block has not travelled yet. Pyramid bricks do not
+ * lift, so they have none.
+ *
+ * @param target - The hovered or focused element.
+ * @returns The pending lift in px: 8 before the lift, 0 once it is done.
+ * @example
+ * ```ts
+ * pendingLift(heroBlock); // 8 at the first pointerover, 0 after the transition
+ * ```
+ */
+function pendingLift(target: HTMLElement | SVGElement): number {
+  const block = target.closest<HTMLElement | SVGElement>(
+    '[data-component="hero"] [data-part="block"]'
+  );
+  if (block === null) return 0;
+  const current = new DOMMatrix(getComputedStyle(block).transform).f;
+  return HOVER_LIFT + current;
+}
+
 /**
  * Set the text of one tooltip part, or hide the part when there is no text.
  *
@@ -46,7 +69,7 @@ export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): voi
     art.hidden = !tipArt;
   }
   const box = target.getBoundingClientRect();
-  tip.style.setProperty("--tip-y", `${box.top - 8}px`);
+  tip.style.setProperty("--tip-y", `${box.top - 8 - pendingLift(target)}px`);
   tip.hidden = false;
   // Centre the tip over the target, kept a margin inside the screen by its own measured width.
   const half = tip.offsetWidth / 2 + EDGE;
