@@ -1,0 +1,38 @@
+- contentinfo:
+  - link "Moku Labs":
+    - /url: /
+  - paragraph: Slop doesn't spread. A one-person lab by Alex Kucherenko, building frameworks an AI agent can write without making a mess.
+  - heading "Site" [level=2]
+  - list:
+    - listitem:
+      - link "Docs":
+        - /url: /docs/
+    - listitem:
+      - link "Packages":
+        - /url: /#packages
+    - listitem:
+      - link "Demos":
+        - /url: /demos/
+    - listitem:
+      - link "About":
+        - /url: /about/
+  - heading "For agents" [level=2]
+  - list:
+    - listitem:
+      - link "llms.txt":
+        - /url: /llms.txt
+    - listitem:
+      - link "Docs as .md":
+        - /url: /llms-full.txt
+    - listitem:
+      - link "Claude plugin":
+        - /url: /docs/claude/
+  - heading "Elsewhere" [level=2]
+  - list:
+    - listitem:
+      - link "GitHub":
+        - /url: https://github.com/moku-labs
+    - listitem:
+      - link "alexblog.net":
+        - /url: https://alexblog.net
+  - text: /© \d+ Moku Labs Built with @moku-labs\/web\. Not an ORM\./

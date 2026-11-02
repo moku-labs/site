@@ -1,0 +1,8 @@
+- banner:
+  - link "Moku Labs home":
+    - /url: /
+    - text: ""
+  - navigation "Main"
+  - button "Search docs"
+  - button "Switch to light theme"
+  - button "Menu"

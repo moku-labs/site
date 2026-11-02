@@ -1,0 +1,88 @@
+- group:
+  - navigation "@moku-labs/web pages":
+    - group: /@moku-labs\/web 2\.\d+\.\d+/
+    - heading "Get started" [level=2]
+    - list:
+      - listitem:
+        - link "Overview":
+          - /url: /docs/web/
+      - listitem:
+        - link "Quick start":
+          - /url: /docs/web/quick-start/
+      - listitem:
+        - link "How it works":
+          - /url: /docs/web/how-it-works/
+    - heading "Guides" [level=2]
+    - list:
+      - listitem:
+        - link "Routing":
+          - /url: /docs/web/guides/routing/
+      - listitem:
+        - link "Islands":
+          - /url: /docs/web/guides/islands/
+      - listitem:
+        - link "Content & collections":
+          - /url: /docs/web/guides/content/
+      - listitem:
+        - link "Head & SEO":
+          - /url: /docs/web/guides/head/
+      - listitem:
+        - link "i18n":
+          - /url: /docs/web/guides/i18n/
+      - listitem:
+        - link "Data":
+          - /url: /docs/web/guides/data/
+      - listitem:
+        - link "SPA navigation":
+          - /url: /docs/web/guides/spa/
+      - listitem:
+        - link "Build & deploy":
+          - /url: /docs/web/guides/deploy/
+    - heading "Plugins" [level=2]
+    - list:
+      - listitem:
+        - link "build node":
+          - /url: /docs/web/plugins/build/
+      - listitem:
+        - link "cli node":
+          - /url: /docs/web/plugins/cli/
+      - listitem:
+        - link "collection optional":
+          - /url: /docs/web/plugins/collection/
+      - listitem:
+        - link "content node":
+          - /url: /docs/web/plugins/content/
+      - listitem:
+        - link "data optional":
+          - /url: /docs/web/plugins/data/
+      - listitem:
+        - link "deploy node":
+          - /url: /docs/web/plugins/deploy/
+      - listitem:
+        - link "head":
+          - /url: /docs/web/plugins/head/
+      - listitem:
+        - link "i18n":
+          - /url: /docs/web/plugins/i18n/
+      - listitem:
+        - link "router":
+          - /url: /docs/web/plugins/router/
+      - listitem:
+        - link "site":
+          - /url: /docs/web/plugins/site/
+      - listitem:
+        - link "spa":
+          - /url: /docs/web/plugins/spa/
+    - heading "API reference" [level=2]
+    - list:
+      - listitem:
+        - link "API reference":
+          - /url: /docs/web/api/
+    - heading "Elsewhere" [level=2]
+    - list:
+      - listitem:
+        - link "Docs home":
+          - /url: /docs/
+      - listitem:
+        - link "What the kernel checks":
+          - /url: /docs/concepts/kernel-checks/
