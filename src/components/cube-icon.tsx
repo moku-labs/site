@@ -2,8 +2,8 @@
  * @file The isometric cube icon: three shaded faces with an optional glyph on the top face.
  */
 import type { VNode } from "preact";
-import type { GlyphName } from "./glyphs";
-import { glyphPath } from "./glyphs";
+import type { CubeTone, GlyphName } from "../lib/glyphs";
+import { glyphPath } from "../lib/glyphs";
 
 /** A glyph name. */
 export type CubeGlyph = GlyphName;
@@ -30,9 +30,6 @@ const CONCEPT_GLYPHS: Readonly<Record<string, CubeGlyph>> = {
 export function conceptGlyph(slug: string): CubeGlyph {
   return CONCEPT_GLYPHS[slug] ?? "page";
 }
-
-/** Face colours: the pink kernel, the calm docs cube, or a violet block of the landing world. */
-export type CubeTone = "kernel" | "docs" | "block";
 
 /** Props of {@link CubeIcon}. */
 type CubeIconProperties = {

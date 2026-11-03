@@ -2,7 +2,8 @@
  * @file The glyphs drawn on cube lids: one stroke path each, in a 100×100 box.
  *
  * Plain data shared by the cube icon, the hero world, the layers stack and the pipeline diagram.
- * The hero island copies a path from the tray onto a socket block, so it never needs this table.
+ * The hero's assembly draws its pieces, standing plugins and app cubes from the same table. It
+ * lives in `lib` so pure modules (the hero's view, the assembly data) can read it.
  */
 
 /** Glyph paths by name. */
@@ -35,11 +36,41 @@ const GLYPH_PATHS = {
   events:
     "M31 31A27 27 0 0 0 31 69M69 31A27 27 0 0 1 69 69M18 18A45 45 0 0 0 18 82M82 18A45 45 0 0 1 82 82 M50 46V54",
   checks: "M50 10L84 22V50C84 70 68 84 50 90C32 84 16 70 16 50V22Z M34 50L46 62L68 38",
-  page: "M24 12H76V88H24Z M36 32H64M36 46H64M36 60H54"
+  page: "M24 12H76V88H24Z M36 32H64M36 46H64M36 60H54",
+  // The hero's assembly: standing plugins, pieces and the three app cubes
+  site: "M14 50L50 18L86 50 M24 42V84H76V42 M42 84V62H58V84",
+  head: "M26 18V82M74 18V82M26 50H74",
+  spa: "M58 10L26 56H50L42 90L76 42H52Z",
+  log: "M18 28H38M48 28H82M18 50H30M40 50H82M18 72H50M60 72H82",
+  comments: "M14 18H86V64H46L28 82V64H14Z",
+  mail: "M12 24H88V76H12Z M12 24L50 54L88 24",
+  bindings:
+    "M50 12V40M50 40L22 70M50 40L78 70 M50 12A6 6 0 1 1 49.9 12Z M22 76A6 6 0 1 1 21.9 76Z M78 76A6 6 0 1 1 77.9 76Z",
+  server: "M14 22H86V46H14Z M14 54H86V78H14Z M26 34H34M26 66H34",
+  d1: "M20 24C20 12 80 12 80 24V76C80 88 20 88 20 76Z M20 24C20 36 80 36 80 24 M20 50C20 62 80 62 80 50",
+  kv: "M34 50A16 16 0 1 1 33.9 50Z M50 50H88M74 50V64M86 50V60",
+  tasks: "M18 22H30M40 22H84M18 50H30M40 50H84M18 78H30M40 78H84",
+  flow: "M14 30H70M58 18L70 30L58 42 M86 70H30M42 58L30 70L42 82",
+  time: "M26 14H74M26 86H74M30 14C30 40 70 60 70 86M70 14C70 40 30 60 30 86",
+  clock: "M86 50A36 36 0 1 1 14 50A36 36 0 1 1 86 50Z M50 28V50L66 60",
+  model: "M18 18H82V82H18Z M18 50H82 M50 18V82",
+  screen: "M12 18H88V68H12Z M38 84H62M50 68V84",
+  audio:
+    "M40 74V20L80 12V66 M40 74A10 10 0 1 1 20 74A10 10 0 1 1 40 74Z M80 66A10 10 0 1 1 60 66A10 10 0 1 1 80 66Z",
+  board: "M38 14V86M62 14V86M14 38H86M14 62H86",
+  window: "M8 14H92V86H8Z M8 34H92 M20 24H26M34 24H40M48 24H54 M22 50H62M22 66H50",
+  rack: "M14 10H86V34H14Z M14 40H86V64H14Z M14 70H86V92H14Z M24 22H32M24 52H32M24 81H32",
+  grid: "M10 10H90V90H10Z M36.7 10V90M63.3 10V90M10 36.7H90M10 63.3H90"
 } as const;
 
 /** A glyph name. */
 export type GlyphName = keyof typeof GLYPH_PATHS;
+
+/**
+ * Face colours of a cube icon: the pink kernel, the calm docs cube, a violet block of the landing
+ * world, or a cube of the hero's assembly (a piece, a standing plugin, the app).
+ */
+export type CubeTone = "kernel" | "docs" | "block" | "piece" | "standing" | "app";
 
 /**
  * The stroke path of a glyph; an unknown name draws nothing.

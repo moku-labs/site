@@ -72,6 +72,67 @@
         stroke: var(--iso-block-glyph);
       }
     }
+
+    /* The hero's assembly: a piece, a standing plugin, the app with its pink edge. */
+    &[data-tone="piece"],
+    &[data-tone="app"] {
+      [data-face] {
+        stroke: var(--assembly-piece-stroke);
+        stroke-width: 1.5;
+        stroke-linejoin: round;
+      }
+
+      [data-face="top"] {
+        fill: var(--assembly-piece-top);
+      }
+
+      [data-face="left"] {
+        fill: var(--assembly-piece-left);
+      }
+
+      [data-face="right"] {
+        fill: var(--assembly-piece-right);
+      }
+
+      [data-part="glyph"] {
+        stroke: var(--assembly-piece-glyph);
+      }
+    }
+
+    &[data-tone="app"] {
+      [data-face] {
+        stroke: var(--accent);
+        stroke-width: 3;
+      }
+
+      [data-part="glyph"] {
+        stroke: var(--accent);
+      }
+    }
+
+    &[data-tone="standing"] {
+      [data-face] {
+        stroke: var(--assembly-standing-stroke);
+        stroke-width: 1.5;
+        stroke-linejoin: round;
+      }
+
+      [data-face="top"] {
+        fill: var(--assembly-standing-top);
+      }
+
+      [data-face="left"] {
+        fill: var(--assembly-standing-left);
+      }
+
+      [data-face="right"] {
+        fill: var(--assembly-standing-right);
+      }
+
+      [data-part="glyph"] {
+        stroke: var(--assembly-standing-glyph);
+      }
+    }
   }
 }
 

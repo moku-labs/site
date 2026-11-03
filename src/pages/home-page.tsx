@@ -22,7 +22,7 @@ type HomePageProperties = {
 
 /**
  * The home page. Everything it shows comes from the view the home loader built: versions from
- * the installed packages, messages from the real kernel.
+ * the installed packages, the hero's goals from `src/data/assembly.ts`.
  *
  * @param props - Component props.
  * @returns The page root.
@@ -35,7 +35,7 @@ export function HomePage(props: HomePageProperties): VNode {
   const { view, url } = props;
   return (
     <div data-page="home">
-      <Hero hero={view.hero} packages={view.packages} url={url} />
+      <Hero hero={view.hero} url={url} />
       <LandingSection
         id="layers"
         title="Three layers. Nothing reaches back down."

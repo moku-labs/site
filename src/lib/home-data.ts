@@ -1,19 +1,19 @@
 /**
- * @file Build-time data of the home page: the hero tray and its kernel messages, the layers
- * code, the package family, the demos and the Claude section.
+ * @file Build-time data of the home page: the hero's goals with the installed versions, the
+ * layers code, the package family, the demos and the Claude section.
  *
  * `routes.tsx` imports this module lazily inside the home loader, which runs only at build. The
- * kernel and the Markdown renderer come in as plugin APIs (`ctx.require`), the versions from the
- * docs loader's `installedSources()`, so nothing here imports Node code. Everything the page
- * renders is in the returned view, which the build also writes as the page's data sidecar.
+ * Markdown renderer comes in as a plugin API (`ctx.require`), the versions from the docs loader's
+ * `installedSources()`, so nothing here imports Node code. Everything the page renders is in the
+ * returned view, which the build also writes as the page's data sidecar.
  */
+
+import { goals } from "../data/assembly";
 import type { DemoEntry } from "../data/demos";
 import { demos } from "../data/demos";
 import type { PackageGroup } from "../data/packages";
 import { claudeInstallCommands, claudePrompts } from "../data/prompts";
-import type { TrayPlugin } from "../data/tray";
-import { trayPlugins, traySeed } from "../data/tray";
-import type { TrayMessages, TrayRule } from "./kernel-errors";
+import type { HeroData } from "./hero-props";
 import type { ResolvedPackage } from "./packages";
 
 /** The three-layer sample: config makes a framework, a framework makes apps. */
@@ -27,11 +27,6 @@ const LAYERS_CODE = [
 
 /** What the home loader reads. */
 export type HomeSources = {
-  /** The kernel plugin's API. */
-  kernel: {
-    /** The hero tray's messages. */
-    trayMessages(tray: readonly TrayRule[]): Promise<TrayMessages>;
-  };
   /** The content plugin's Markdown renderer. */
   content: {
     /** Render Markdown with the docs pipeline. */
@@ -57,21 +52,12 @@ export type HomePackage = {
   group: PackageGroup;
 };
 
-/** What the hero world island needs. */
-export type HeroView = {
-  /** The tray in display order. */
-  tray: readonly TrayPlugin[];
-  /** The kernel's messages for the tray. */
-  messages: TrayMessages;
-  /** Tray items plugged in before first paint. */
-  seed: readonly string[];
-  /** Installed `@moku-labs/core` version, shown on the kernel's tooltip. */
-  kernelVersion: string;
-};
+/** What the hero shows and hands its island: the three goals and the installed versions. */
+export type HeroView = HeroData;
 
 /** Everything the home page renders. */
 export type HomeView = {
-  /** The hero tray and its kernel messages. */
+  /** The hero's goals and the versions it shows. */
   hero: HeroView;
   /** The layers code, rendered by the docs pipeline. */
   layersCode: string;
@@ -102,30 +88,31 @@ function versionOf(packages: readonly ResolvedPackage[], id: string): string {
 }
 
 /**
- * Load the home page at build: the real kernel's messages for the hero tray, the layers
- * code through the docs pipeline, and the family with installed versions.
+ * Load the home page at build: the hero's goals with the installed versions of core, common and
+ * the three frameworks, the layers code through the docs pipeline, and the family.
  *
- * @param sources - The kernel and content plugin APIs and the resolved family.
+ * @param sources - The content plugin API and the resolved family.
  * @returns The home view.
- * @throws {Error} When a kernel check stopped throwing.
  * @example
  * ```ts
- * // route("/").load(async ctx => loadHome({ kernel: ctx.require(kernelReference), content: ctx.require(contentReference), packages }))
- * const view = await loadHome({ kernel: app.kernel, content: app.content, packages: installedSources().packages });
- * view.hero.tray.length; // 6
+ * // route("/").load(async ctx => loadHome({ content: ctx.require(contentReference), packages }))
+ * const view = await loadHome({ content: app.content, packages: installedSources().packages });
+ * view.hero.versions.web; // "2.4.15", read from node_modules/@moku-labs/web/package.json
  * ```
  */
 export async function loadHome(sources: HomeSources): Promise<HomeView> {
-  const [messages, layersCode] = await Promise.all([
-    sources.kernel.trayMessages(trayPlugins),
-    sources.content.renderMarkdown(LAYERS_CODE)
-  ]);
+  const { packages } = sources;
+  const layersCode = await sources.content.renderMarkdown(LAYERS_CODE);
   return {
     hero: {
-      tray: trayPlugins,
-      messages,
-      seed: traySeed,
-      kernelVersion: versionOf(sources.packages, "core")
+      goals,
+      versions: {
+        core: versionOf(packages, "core"),
+        common: versionOf(packages, "common"),
+        web: versionOf(packages, "web"),
+        worker: versionOf(packages, "worker"),
+        game: versionOf(packages, "game")
+      }
     },
     layersCode,
     packages: sources.packages.map(({ id, name, version, versionLabel, tagline, group }) => ({

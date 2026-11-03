@@ -25,8 +25,8 @@ not a docs generator: the Markdown lives here, and the checks below make sure it
 
 - **Docs that cannot lie about versions.** Every version on the site is read from
   `node_modules/@moku-labs/*/package.json` at build. None is typed by hand.
-- **Kernel errors from the kernel.** The hero and the concepts page show
-  the exact messages the real kernel throws, captured at build.
+- **Kernel errors from the kernel.** The concepts page shows the exact messages the real kernel
+  throws, captured at build.
 - **Examples that compile.** A code block tagged `check` is compiled against the installed
   packages on every test run. A breaking release turns CI red, not the docs wrong.
 - **Readable by agents.** Every page has a Markdown twin, plus `/llms.txt` and `/llms-full.txt`.
@@ -154,7 +154,8 @@ bun run build
 | Guard | Where | Fails when |
 |---|---|---|
 | Versions from `node_modules` | `src/lib/packages.ts` | A package with docs is not installed. A typed version cannot exist. |
-| Kernel errors from the real kernel | `src/lib/kernel-errors.ts`, `src/plugins/kernel/` | A check stops throwing after a core release. |
+| Kernel errors from the real kernel | `src/lib/kernel-errors.ts`, `src/plugins/docs/` | A check stops throwing after a core release. |
+| Hero code compiled | `tests/integration/assembly-code.test.ts`, `content/snippet-stubs/assembly-*/` | The finished Site, App or Game code of the hero uses an export the installed `web`, `worker` or `game` no longer has. |
 | `check` blocks compiled | `src/lib/snippets.ts`, `tests/integration/docs-snippets.test.ts` | An example uses an API the installed packages no longer have, or a ts block has no `check` and no `no-check` reason. |
 | API reference vs exports | `tests/integration/api-reference.test.ts` | A package export is missing from `api.md`, or `api.md` shows a signature the package no longer exports. |
 | A full build in the tests | `tests/integration/build.test.ts` | A docs page has no HTML, no `.md` twin, no `llms.txt` line or no search row. |

@@ -3,8 +3,8 @@
  * the `iso` sheet through `data-tone`, so one drawing serves both themes.
  */
 import type { ComponentChildren, VNode } from "preact";
+import { glyphPath } from "../lib/glyphs";
 import type { IsoBoxSpec, IsoProjection } from "../lib/iso";
-import { glyphPath } from "./glyphs";
 
 /** Face colours of a box. */
 export type IsoTone = "ground" | "terrace-1" | "terrace-2" | "block" | "kernel" | "plugin";

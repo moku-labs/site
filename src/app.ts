@@ -1,6 +1,6 @@
 /**
  * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data/cli, and the
- * site's docs/search/llms/kernel plugins, which route loaders reach by name) on top of
+ * site's docs/search/llms plugins, which route loaders reach by name) on top of
  * `@moku-labs/web`'s browser-safe defaults. Driven by the thin `scripts/*.ts` entries via
  * `app.cli.*`. The browser entry (src/spa.tsx) omits the Node-only plugins.
  */
@@ -24,7 +24,6 @@ import { directives } from "./lib/markdown/directives";
 import { headingIds } from "./lib/markdown/heading-ids";
 import { tables } from "./lib/markdown/tables";
 import { docsPlugin } from "./plugins/docs";
-import { kernelPlugin } from "./plugins/kernel";
 import { llmsPlugin } from "./plugins/llms";
 import { searchPlugin } from "./plugins/search";
 import { routes } from "./routes";
@@ -49,8 +48,7 @@ export const app = createApp({
     cliPlugin,
     docsPlugin,
     searchPlugin,
-    llmsPlugin,
-    kernelPlugin
+    llmsPlugin
   ],
   config: { mode: "hybrid" },
   pluginConfigs: {

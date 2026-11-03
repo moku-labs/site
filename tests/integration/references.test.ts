@@ -2,9 +2,7 @@ import { contentPlugin } from "@moku-labs/web";
 import { describe, expect, it } from "vitest";
 import { contentReference } from "../../src/lib/content-reference";
 import { docsReference } from "../../src/lib/docs-reference";
-import { kernelReference } from "../../src/lib/kernel-reference";
 import { docsPlugin } from "../../src/plugins/docs";
-import { kernelPlugin } from "../../src/plugins/kernel";
 
 // The route loaders reach the Node plugins through `{ name } as typeof plugin` stand-ins, and the
 // kernel's `require` finds a plugin by that name. The cast hides a mismatch from `tsc`.
@@ -13,7 +11,6 @@ describe("plugin references for route loaders", () => {
   // sample loader fails at build with "Plugin is not registered".
   it("carry the exact name of the plugin they stand in for", () => {
     expect(docsReference.name).toBe(docsPlugin.name);
-    expect(kernelReference.name).toBe(kernelPlugin.name);
     expect(contentReference.name).toBe(contentPlugin.name);
   });
 });

@@ -109,8 +109,18 @@ for (const screen of SCREENS) {
 test("hero world is drawn full width on a phone, labels readable", async ({ page }, testInfo) => {
   test.skip(!isPhone(testInfo.project.name), "phone");
   await boot(page, "/");
+  // Bug: the world was drawn narrower than the hero's column on a phone, its cubes too small to tap.
   const world = await page.locator('svg[data-part="world"]').boundingBox();
-  expect(world?.width ?? 0).toBeGreaterThanOrEqual(360);
+  const column = await page.locator('[data-component="hero"]').evaluate(hero => {
+    const style = getComputedStyle(hero);
+    return (
+      hero.clientWidth -
+      Number.parseFloat(style.paddingLeft) -
+      Number.parseFloat(style.paddingRight)
+    );
+  });
+  expect(column).toBeGreaterThanOrEqual(350);
+  expect(world?.width ?? 0).toBeGreaterThanOrEqual(column - 1);
   const label = await page.locator('svg[data-part="world"] text').first().boundingBox();
   expect(label?.height ?? 0).toBeGreaterThanOrEqual(9);
 });

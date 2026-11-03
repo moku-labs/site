@@ -1,24 +1,27 @@
-/* A1 hero and §7 world: copy, the isometric world with kernel.log, the plugin tray, the plugin
-   in flight. The kernel-world island only sets data-* states and the --x/--y of the flyer. */
+/* A1 hero and §7 world: copy, the goal switch, the stepped kernel world with its info card, the
+   code card with kernel.log, the tray of pieces and the piece in flight. Numbers from the
+   hero-assembly prototype at 1×. The kernel-world island only sets data-* states, text and the
+   --x/--y of the flyer and the --info-x/--info-y of the info card. */
 @scope ([data-component="hero"]) {
   :scope {
     display: grid;
     grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
       "intro stage"
+      "switch stage"
       "tray stage";
     gap: 0 48px;
     align-items: start;
     max-width: var(--width-site);
     margin: 0 auto;
-    padding: 56px var(--gutter-site) 88px;
+    padding: 16px var(--gutter-site) 64px;
   }
 
-  /* — Copy — */
+  /* — B1 copy — */
   [data-part="intro"] {
     grid-area: intro;
-    padding-top: 30px;
+    padding-top: 24px;
     /* The H1 size reads this column's width (cqi), so the headline never runs under the stage. */
     container-type: inline-size;
   }
@@ -26,8 +29,7 @@
   h1 {
     margin: 0 0 24px;
     /* Under 367px the floor follows the screen, so the longest word ("framework") fits at 320.
-       In the two-column hero the intro column is ~41% of the row, so 6.2vw alone would push
-       "framework" past the column into the stage; 13.5cqi caps it to the column. */
+       In the two-column hero the intro column is ~41% of the row; 13.5cqi caps it to the column. */
     font: 800 clamp(min(44px, 12vw), min(6.2vw, 13.5cqi), 88px) / 0.94 var(--font-display);
     letter-spacing: -0.035em;
     color: var(--text-heading);
@@ -35,16 +37,16 @@
 
   [data-part="sub"] {
     max-width: 28ch;
-    margin: 0 0 14px;
-    font-size: clamp(19px, 1.8vw, 23px);
+    margin: 0 0 16px;
+    font-size: clamp(19px, 1.8vw, 22px);
     line-height: 1.35;
     color: var(--text-heading);
     opacity: 0.92;
   }
 
   [data-part="how"] {
-    max-width: 44ch;
-    margin: 0 0 28px;
+    margin: 0 0 24px;
+    font-size: 16px;
     color: var(--text-muted);
 
     strong {
@@ -55,31 +57,60 @@
   [data-part="actions"] {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 0 0 44px;
+    gap: 8px;
+    margin: 0 0 32px;
   }
 
-  /* — Tray — */
+  /* — B2 goal switch — */
+  [data-part="switch"] {
+    grid-area: switch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 4px;
+    border: 1px solid var(--line-default);
+    border-radius: var(--radius-panel);
+    background: var(--surface-card);
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 4px 8px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-control);
+      background: none;
+      color: var(--text-muted);
+      font: 600 14.5px var(--font-body);
+      cursor: pointer;
+
+      &:hover {
+        color: var(--text-heading);
+      }
+
+      &[aria-checked="true"] {
+        border-color: var(--line-strong);
+        background: var(--surface-raised);
+        color: var(--text-heading);
+        box-shadow: var(--assembly-switch-lift);
+      }
+    }
+  }
+
+  /* — B4 tray — */
   [data-part="tray"] {
     grid-area: tray;
-
-    ul {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
   }
 
   [data-part="tray-head"] {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 10px;
-    margin: 0 0 10px;
+    gap: 8px;
+    margin: 0 0 8px;
     font: 600 14px/1.2 var(--font-body);
     color: var(--text-heading);
   }
@@ -89,13 +120,25 @@
     color: var(--text-muted);
   }
 
-  [data-part="plug"] {
+  [data-part="cards"] {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* F6: idle, next, waiting, placed. */
+  [data-plug] {
+    position: relative;
     display: grid;
     grid-template-columns: 36px 1fr;
     gap: 2px 8px;
     align-items: center;
     width: 100%;
     height: 100%;
+    min-height: 64px;
     padding: 9px 10px;
     border: 1px solid var(--line-default);
     border-radius: var(--radius-card);
@@ -104,11 +147,11 @@
     text-align: left;
     cursor: grab;
     touch-action: none;
-    user-select: none;
     transition:
       border-color var(--duration-fast),
       transform var(--duration-fast),
-      box-shadow var(--duration-fast);
+      box-shadow var(--duration-fast),
+      background var(--duration-fast);
 
     [data-component="cube-icon"] {
       grid-row: span 2;
@@ -135,34 +178,105 @@
       opacity: 0.35;
     }
 
-    /* A plugin is flying: the kernel takes the next one when it lands. */
-    &[aria-disabled="true"] {
-      opacity: 0.55;
-      cursor: progress;
-    }
-
-    &[data-state="locked"] {
-      opacity: 0.5;
+    &[data-state="placed"] {
+      border-color: var(--synced-line);
+      background: var(--surface-raised);
       cursor: default;
 
       small {
-        color: var(--code-add);
+        color: var(--synced-text);
+
+        &::before {
+          content: "✓ ";
+        }
       }
     }
 
-    &[data-state="rejected"] {
+    &[data-state="waiting"] {
       border-style: dashed;
-      border-color: var(--accent-line);
+      border-color: var(--drift-text);
+      background: var(--drift-surface);
+      cursor: help;
 
       small {
-        color: var(--code-del);
+        color: var(--drift-text);
+      }
+    }
+
+    &[data-state="next"] {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--assembly-next-ring);
+
+      small {
+        font-weight: 600;
+        color: var(--text-heading);
       }
     }
   }
 
-  /* — The world — */
+  /* — B5 standing chips — */
+  [data-part="standing"] {
+    margin-top: 12px;
+
+    p {
+      margin: 0 0 6px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+  }
+
+  [data-part="chips"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  [data-chip] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 2px 7px;
+    border: 1px solid var(--line-default);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font: 500 12px var(--font-mono);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--accent-hover);
+      color: var(--text-heading);
+    }
+  }
+
+  /* A piece is in flight: the tray takes no other until it lands, and dims to say so. */
+  [data-part="tray"][data-busy] [data-plug] {
+    opacity: 0.55;
+    cursor: default;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  /* F7: the phone's one-line verdict. */
+  [data-part="verdict"] {
+    display: none;
+  }
+
+  /* — The stage: the world and kernel.log, one column the world's width — */
   [data-part="stage"] {
     grid-area: stage;
+    justify-self: center;
+    width: 100%;
+  }
+
+  [data-part="world-frame"] {
     position: relative;
   }
 
@@ -173,158 +287,654 @@
     overflow: visible;
   }
 
+  [data-part="under"] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 16px;
+    min-height: 20px;
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* F8: the phone's layer key. */
+  [data-part="layer-key"] {
+    display: none;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: 600 12.5px var(--font-body);
+    color: var(--text-body);
+
+    li {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    i {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+    }
+
+    [data-layer="kernel"] {
+      border-color: var(--kernel-left);
+      background: var(--kernel-top);
+    }
+
+    [data-layer="framework"] {
+      background: var(--assembly-framework-top);
+    }
+
+    [data-layer="app"] {
+      background: var(--assembly-app-top);
+    }
+  }
+
+  /* — The platforms — */
+  [data-shade] > [data-face] {
+    stroke-linejoin: round;
+  }
+
+  [data-shade="ground"] {
+    > [data-face="top"] {
+      fill: var(--assembly-ground-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--iso-ground-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--iso-ground-right);
+    }
+  }
+
+  [data-shade="framework-ring"],
+  [data-shade="app-ring"] {
+    > [data-face] {
+      stroke: var(--assembly-seam);
+      stroke-width: 0.6;
+    }
+  }
+
+  [data-shade="framework-ring"] {
+    > [data-face="top"] {
+      fill: var(--assembly-framework-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--assembly-framework-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--assembly-framework-right);
+    }
+  }
+
+  [data-shade="app-ring"] {
+    > [data-face="top"] {
+      fill: var(--assembly-app-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--assembly-app-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--assembly-app-right);
+    }
+  }
+
   [data-part="grid"] {
     fill: none;
-    stroke: var(--iso-ground-line);
+    stroke: var(--assembly-ground-line);
     stroke-width: 0.8;
   }
 
   [data-part="rim"] {
     fill: none;
-    stroke: var(--iso-rim);
+    stroke: var(--assembly-rim);
     stroke-width: 1.3;
+  }
+
+  [data-part="lip"] {
+    fill: none;
+    stroke: var(--assembly-lip);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
   }
 
   [data-part="shadow"] {
     fill: var(--iso-shadow);
   }
 
-  [data-part="wire"] {
-    stroke: var(--kernel-top);
-    stroke-width: 1.2;
-    stroke-dasharray: 3 6;
-    opacity: 0.55;
+  [data-part="glow-stop"] {
+    stop-color: var(--accent);
   }
 
-  [data-part="block"] {
-    cursor: pointer;
-    outline: none;
-    transition: transform 0.22s var(--ease-lift);
-    animation: hero-rise 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
-    animation-delay: calc(350ms + var(--depth, 0) * 40ms);
+  /* — The cubes: G — */
+  [data-shade="piece"] > [data-face] {
+    stroke: var(--assembly-piece-stroke);
+    stroke-width: 0.6;
+  }
 
-    &[data-floating] {
-      animation-delay: 250ms;
+  [data-shade="piece"],
+  [data-shade="app"] {
+    > [data-face="top"] {
+      fill: var(--assembly-piece-top);
     }
 
+    > [data-face="left"] {
+      fill: var(--assembly-piece-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--assembly-piece-right);
+    }
+  }
+
+  [data-shade="app"] > [data-face] {
+    stroke: var(--accent);
+    stroke-width: 1.4;
+  }
+
+  [data-shade="standing"] {
+    > [data-face] {
+      stroke: var(--assembly-standing-stroke);
+      stroke-width: 0.6;
+    }
+
+    > [data-face="top"] {
+      fill: var(--assembly-standing-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--assembly-standing-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--assembly-standing-right);
+    }
+  }
+
+  [data-shade="scenery"] {
+    > [data-face="top"] {
+      fill: var(--assembly-scenery-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--assembly-scenery-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--assembly-scenery-right);
+    }
+  }
+
+  [data-shade="kernel"] {
+    > [data-face="top"] {
+      fill: var(--kernel-top);
+    }
+
+    > [data-face="left"] {
+      fill: var(--kernel-left);
+    }
+
+    > [data-face="right"] {
+      fill: var(--kernel-right);
+    }
+  }
+
+  [data-shade] [data-part="glyph"] {
+    fill: none;
+    stroke: var(--assembly-piece-glyph);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+
+  [data-shade="kernel"] [data-part="glyph"] {
+    stroke: var(--kernel-glyph);
+  }
+
+  [data-shade="app"] [data-part="glyph"] {
+    stroke: var(--accent);
+  }
+
+  [data-shade="standing"] [data-part="glyph"] {
+    stroke: var(--assembly-standing-glyph);
+  }
+
+  [data-shade="scenery"] [data-part="glyph"] {
+    stroke: var(--assembly-scenery-glyph);
+  }
+
+  [data-part="scenery"] {
+    pointer-events: none;
+  }
+
+  [data-part="sign"] {
+    font: 700 10.5px var(--font-mono);
+    letter-spacing: 0.02em;
+    fill: var(--kernel-glyph);
+    pointer-events: none;
+  }
+
+  [data-item] {
+    outline: none;
+    cursor: pointer;
+
+    &:focus-visible [data-face="top"],
+    &[data-selected] [data-face="top"] {
+      stroke: var(--accent);
+      stroke-width: 2.4;
+    }
+  }
+
+  [data-part="lift"] {
+    transition: transform 0.22s var(--ease-lift);
+  }
+
+  [data-role="standing"],
+  [data-role="piece"] {
     &:hover,
     &:focus-visible {
-      transform: translateY(-8px);
-
-      [data-face="top"] {
-        fill: var(--iso-block-hover);
+      [data-part="lift"] {
+        transform: translateY(-5px);
       }
-
-      [data-part="label"] {
-        fill: var(--text-heading);
-      }
-    }
-
-    &:focus-visible [data-face="top"] {
-      stroke: var(--accent);
-      stroke-width: 2;
     }
   }
 
-  [data-part="label"],
-  [data-part="plugin-label"] {
-    font: 600 10.5px var(--font-mono);
-    fill: var(--text-body);
+  [data-role="kernel"] {
+    cursor: help;
+
+    &:focus-visible,
+    &[data-selected] {
+      [data-face="top"] {
+        stroke: var(--assembly-select-stroke);
+      }
+    }
+
+    &[data-flash] [data-face="top"] {
+      animation: hero-flash 0.6s;
+    }
+
+    > [data-motion="intro"] {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: hero-grow 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+    }
+  }
+
+  [data-role="app"] {
+    &[data-selected] [data-face="top"] {
+      stroke: var(--assembly-select-stroke);
+    }
+
+    [data-part="lift"] {
+      filter: drop-shadow(0 0 3px var(--assembly-app-glow))
+        drop-shadow(0 0 14px var(--assembly-app-glow-far));
+    }
+  }
+
+  /* F2: a piece waiting for its need hovers and bobs, outlined in amber. */
+  [data-waiting] {
+    [data-part="lift"] {
+      animation: hero-bob 1.8s ease-in-out infinite;
+    }
+
+    polygon {
+      stroke: var(--drift-text);
+      stroke-width: 1.5;
+    }
+
+    [data-part="shadow"] {
+      opacity: 0.5;
+    }
+  }
+
+  [data-motion="intro"] {
+    animation: hero-rise 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
+    animation-delay: calc(250ms + var(--d, 0) * 40ms);
+  }
+
+  [data-motion="snap"] {
+    animation: hero-snap 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) backwards;
+  }
+
+  [data-motion="settle"] [data-part="hover"],
+  text[data-motion="settle"] {
+    animation: hero-settle 0.55s cubic-bezier(0.3, 1.3, 0.5, 1) backwards;
+  }
+
+  /* F4: the app cube rises alone. */
+  [data-motion="rise"] {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: hero-build 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
+  }
+
+  /* The circle a finger hits on a small cube: only a phone turns it on. */
+  [data-part="hit"] {
+    display: none;
+    fill: transparent;
+  }
+
+  /* F1: an empty socket, neutral lavender, gently breathing. */
+  [data-socket] {
+    fill: var(--assembly-socket-fill);
+    stroke: var(--assembly-socket-line);
+    stroke-width: 1.2;
+    cursor: pointer;
+    animation: hero-breathe 3.2s ease-in-out infinite;
+
+    &[data-wanted] {
+      stroke: var(--drift-text);
+      stroke-width: 1.8;
+    }
+
+    &[data-hot] {
+      fill: var(--assembly-socket-hot);
+      stroke-width: 2;
+      animation: none;
+    }
+  }
+
+  /* A piece dragged over the kernel. */
+  [data-part="stage"][data-hot] [data-role="kernel"] {
+    filter: drop-shadow(0 0 16px var(--kernel-glow));
+  }
+
+  /* — F3 needs arcs: for the selected cube, a waiting piece and the finish — */
+  [data-part="arc-line"] {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: var(--arc-stroke);
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px var(--assembly-arc-glow));
+  }
+
+  [data-part="arrow"] {
+    fill: var(--accent);
+
+    &[data-size="phone"] {
+      display: none;
+    }
+  }
+
+  [data-arc="wait"] {
+    [data-part="arc-line"] {
+      stroke: var(--drift-text);
+      stroke-dasharray: 6 5;
+      filter: none;
+      animation: hero-flow 1s linear infinite;
+    }
+
+    [data-part="arrow"] {
+      fill: var(--drift-text);
+    }
+  }
+
+  [data-arc="finish"] {
+    [data-part="arc-line"] {
+      stroke-dasharray: var(--len);
+      stroke-dashoffset: var(--len);
+      animation: hero-draw 0.45s calc(var(--t) * 0.3s) ease-out forwards;
+    }
+
+    [data-part="arrow"] {
+      animation: hero-fade 0.2s calc(var(--t) * 0.3s + 0.35s) backwards;
+    }
+  }
+
+  [data-part="spark"] {
+    fill: none;
+    stroke: var(--assembly-spark);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 10 2000;
+    stroke-dashoffset: -2000;
+    filter: drop-shadow(0 0 4px var(--accent));
+    animation: hero-spark 0.55s calc(var(--t) * 0.3s + 0.1s) ease-in-out forwards;
+  }
+
+  [data-part="arcs"][data-fading] {
+    animation: hero-out 0.35s ease-in forwards;
+  }
+
+  /* — Labels: live text with a halo in the ground colour; the size is set per layer — */
+  [data-label],
+  [data-callout="app"] {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    line-height: normal;
+    fill: var(--text-heading);
     paint-order: stroke;
     stroke: var(--surface-page);
     stroke-width: 3.5px;
     stroke-linejoin: round;
     pointer-events: none;
-    transition: fill var(--duration-normal);
   }
 
-  [data-part="plugin-label"] {
-    font-size: 11px;
+  [data-label="standing"] {
+    font-weight: 500;
+    fill: var(--text-body);
+  }
+
+  [data-label="socket"] {
+    font-weight: 500;
+    fill: var(--text-muted);
+  }
+
+  [data-callout="app"] {
+    font-weight: 700;
+  }
+
+  [data-part="tick"] {
+    stroke: var(--text-muted);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+
+  /* D1 waiting callout and D2 completion strip. */
+  [data-callout="waiting"],
+  [data-callout="running"] {
+    pointer-events: none;
+
+    rect {
+      fill: var(--surface-page);
+      stroke-width: 1.2;
+    }
+
+    text {
+      font-family: var(--font-body);
+      font-weight: 600;
+      line-height: normal;
+    }
+  }
+
+  [data-callout="waiting"] {
+    rect {
+      stroke: var(--drift-text);
+    }
+
+    text {
+      fill: var(--drift-text);
+    }
+  }
+
+  [data-callout="running"] {
+    rect {
+      stroke: var(--accent);
+    }
+
+    text {
+      fill: var(--text-heading);
+    }
+
+    &[data-motion="late"] {
+      animation: hero-fade 0.4s 0.9s backwards;
+    }
+  }
+
+  [data-labels="phone"] {
+    display: none;
+  }
+
+  /* F9: the layer brackets under the front-left edge. */
+  [data-part="bracket"] {
+    polyline {
+      fill: none;
+      stroke: var(--text-muted);
+      stroke-width: 1;
+    }
+  }
+
+  [data-part="bracket-name"] {
+    font: 600 12.5px var(--font-body);
     fill: var(--text-heading);
   }
 
-  /* The hit circle only exists for a finger: the phone block turns it on. */
-  [data-part="hit"] {
-    display: none;
-    fill: transparent;
-    pointer-events: none;
+  [data-part="bracket-version"] {
+    font: 500 10px var(--font-mono);
+    fill: var(--text-muted);
   }
 
-  [data-part="kernel"] {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    cursor: help;
-    outline: none;
-    animation: hero-grow 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+  /* — C1 info card: inverted, like the world tip — */
+  [data-part="info"] {
+    position: absolute;
+    left: var(--info-x, 8px);
+    top: var(--info-y, 8px);
+    z-index: 20;
+    width: min(300px, calc(100% - 16px));
+    padding: 8px 12px 12px;
+    border-radius: var(--radius-card);
+    background: var(--tooltip-surface);
+    color: var(--tooltip-text);
+    font-size: 14px;
+    line-height: 1.4;
+    box-shadow: var(--tooltip-lift);
 
-    &:focus-visible [data-face="top"] {
-      stroke: var(--color-white);
-      stroke-width: 2;
-    }
-
-    &[data-shake] {
-      animation: hero-shake 0.45s;
-    }
-
-    &[data-pulse] [data-face="top"] {
-      animation: hero-pulse 0.6s;
-    }
-  }
-
-  [data-part="outline"] {
-    fill: var(--socket-fill);
-    stroke: var(--accent);
-    stroke-width: 1.2;
-    stroke-dasharray: 4 4;
-    opacity: 0.65;
-  }
-
-  [data-part="socket"] {
-    &[data-filled] [data-part="outline"],
-    &:not([data-filled]) [data-part="plugin"] {
+    &[hidden] {
       display: none;
     }
 
-    &[data-snap] [data-part="plugin"] {
-      animation: hero-snap 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) backwards;
+    p {
+      margin: 6px 0 0;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 3px 12px;
+      margin: 8px 0 0;
+      font-size: 13px;
+    }
+
+    dt {
+      opacity: 0.62;
+    }
+
+    dd {
+      margin: 0;
+      font: 12.5px var(--font-mono);
     }
   }
 
-  /* F2: a plugin dragged over the kernel. */
-  [data-part="stage"][data-hot] {
-    [data-part="kernel"] {
-      filter: drop-shadow(0 0 16px var(--kernel-glow));
+  [data-part="info-head"] {
+    display: grid;
+    grid-template-columns: 30px 1fr 40px;
+    gap: 8px;
+    align-items: center;
+
+    b {
+      display: block;
+      font: 600 14px var(--font-mono);
     }
 
-    [data-part="outline"] {
-      opacity: 1;
-      fill: var(--socket-fill-hot);
+    span {
+      display: block;
+      font: 12px var(--font-mono);
+      opacity: 0.7;
     }
   }
 
-  /* — kernel.log — */
+  [data-part="info-close"] {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--assembly-close-hover);
+    }
+  }
+
+  [data-part="info-status"] {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--tooltip-emphasis);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  [data-part="info-add"] {
+    min-height: 40px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--accent);
+    color: var(--on-accent);
+    font: 600 13.5px var(--font-body);
+    cursor: pointer;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  /* — B6 code card: kernel.log with the live code — */
   [data-part="console"] {
-    margin-top: 6px;
     overflow: hidden;
     border: 1px solid var(--console-line);
     border-radius: var(--radius-panel);
     background: var(--console-bg);
     color: var(--console-text);
-    font: 13px/1.55 var(--font-mono);
+    font: 12px/1.55 var(--font-mono);
   }
 
   [data-part="console-bar"] {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 7px 10px 7px 14px;
+    gap: 8px;
+    padding: 4px 8px 4px 14px;
     border-bottom: 1px solid var(--console-line);
     font-size: 12px;
     color: var(--console-muted);
   }
 
+  /* Full opacity: the prototype's 0.7 gave 3.42:1, under WCAG AA. */
+  [data-part="file"] {
+    margin-right: auto;
+  }
+
   [data-part="reset"] {
-    padding: 4px 9px;
+    min-height: 32px;
+    padding: 4px 10px;
     border: 1px solid var(--console-button-line);
     border-radius: var(--radius-small);
     background: none;
@@ -338,49 +948,88 @@
     }
   }
 
-  [data-part="app-line"] {
-    display: block;
-    padding: 10px 14px 2px;
-    font: inherit;
+  [data-part="code"] {
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
     color: var(--console-code);
-    white-space: pre-wrap;
-    word-break: break-word;
+
+    li {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      padding: 0 14px 0 0;
+      border-left: 2px solid transparent;
+    }
+
+    code {
+      font: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* F5: the new-line mark fades after about 2.5 s. */
+    [data-new] {
+      animation: hero-new-line 2.6s ease-out forwards;
+    }
+  }
+
+  [data-part="line-number"] {
+    padding-right: 10px;
+    text-align: right;
+    color: var(--console-line-number);
+    user-select: none;
+  }
+
+  [data-token="keyword"] {
+    color: var(--console-keyword);
+  }
+
+  [data-token="string"] {
+    color: var(--console-string);
   }
 
   [data-token="function"] {
     color: var(--console-function);
   }
 
+  [data-token="plugin"] {
+    font-weight: 600;
+    color: var(--console-win);
+  }
+
   [data-part="log"] {
-    min-height: 122px;
+    min-height: 60px;
     margin: 0;
-    padding: 4px 14px 12px;
+    padding: 6px 14px 8px;
+    border-top: 1px solid var(--console-line);
     list-style: none;
 
     li {
-      padding: 2px 0;
+      padding: 1px 0;
       white-space: pre-wrap;
       word-break: break-word;
     }
+  }
 
-    [data-kind="system"] {
-      color: var(--console-muted);
-    }
+  [data-part="log"] [data-kind="system"] {
+    color: var(--console-muted);
+  }
 
-    [data-kind="ok"]::before {
+  [data-part="log"] [data-kind] {
+    &[data-kind="ok"]::before {
       content: "✓  ";
       color: var(--console-ok);
     }
 
-    [data-kind="error"] {
-      color: var(--console-error);
+    &[data-kind="wait"] {
+      color: var(--console-wait);
 
       &::before {
-        content: "✕  ";
+        content: "◌  ";
       }
     }
 
-    [data-kind="win"] {
+    &[data-kind="win"] {
       font-weight: 700;
       color: var(--console-win);
 
@@ -391,16 +1040,33 @@
     }
   }
 
-  /* — F1: the plugin in flight (and the drag ghost) — */
+  /* F7: the verdict marks its kind like the log, in its own colours (set with the phone layout). */
+  [data-part="verdict"] {
+    &[data-kind="ok"]::before {
+      content: "✓  ";
+    }
+
+    &[data-kind="wait"]::before {
+      content: "◌  ";
+    }
+
+    &[data-kind="win"]::before {
+      content: "▲  ";
+    }
+  }
+
+  /* — The piece in flight and the drag ghost — */
   [data-part="flyer"] {
     position: fixed;
-    left: -24px;
-    top: -28px;
+    left: 0;
+    top: 0;
     z-index: 60;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: -26px 0 0 -24px;
     pointer-events: none;
+    filter: drop-shadow(0 10px 12px var(--flyer-shadow));
     will-change: transform;
     transform: translate(var(--x, 0), var(--y, 0));
 
@@ -408,17 +1074,20 @@
       display: none;
     }
 
-    &[data-ghost] {
-      filter: drop-shadow(0 10px 12px var(--flyer-shadow));
-    }
-
     span {
       margin-top: -2px;
       padding: 1px 6px;
       border-radius: 4px;
       background: var(--flyer-label);
-      color: var(--color-white);
+      color: var(--flyer-text);
       font: 600 11px var(--font-mono);
+    }
+  }
+
+  /* The world, its stage and the code card fit 1440×900 without a scroll. */
+  @media (min-width: 961px) {
+    [data-part="stage"] {
+      width: min(100%, calc((100svh - var(--header-height) - 336px) * 1.295));
     }
   }
 
@@ -428,9 +1097,10 @@
       grid-template-rows: auto;
       grid-template-areas:
         "intro"
+        "switch"
         "stage"
         "tray";
-      padding: 28px var(--gutter-narrow) 64px;
+      padding: 24px var(--gutter-narrow) 64px;
     }
 
     [data-part="intro"] {
@@ -438,18 +1108,320 @@
     }
 
     [data-part="actions"] {
-      margin-bottom: 12px;
+      margin-bottom: 24px;
     }
 
     [data-part="tray"] {
-      margin-top: 22px;
+      margin-top: 16px;
     }
   }
 
-  @media (max-width: 520px) {
-    [data-part="tray"] ul {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* The phone: copy, switch, world, layer key, tray, verdict, code card. */
+  @media (max-width: 760px) {
+    :scope {
+      grid-template-areas:
+        "intro"
+        "switch"
+        "world"
+        "tray"
+        "log";
+      padding: 16px 16px 40px;
     }
+
+    [data-part="stage"] {
+      display: contents;
+    }
+
+    [data-part="world-wrap"] {
+      grid-area: world;
+    }
+
+    [data-part="console"] {
+      grid-area: log;
+      margin-top: 16px;
+    }
+
+    h1 {
+      margin-bottom: 16px;
+    }
+
+    [data-part="sub"] {
+      margin-bottom: 12px;
+    }
+
+    [data-part="how"] {
+      margin-bottom: 16px;
+    }
+
+    [data-part="actions"] {
+      margin-bottom: 24px;
+    }
+
+    [data-part="actions"] [data-component="button"] {
+      flex: 1 1 140px;
+      justify-content: center;
+      min-height: 48px;
+      padding-inline: 12px;
+      white-space: nowrap;
+    }
+
+    [data-part="switch"] {
+      margin-bottom: 8px;
+
+      button {
+        min-height: 44px;
+      }
+    }
+
+    [data-part="tray"] {
+      margin-top: 0;
+    }
+
+    [data-part="tray-head"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+
+    [data-part="cards"] {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    [data-plug] {
+      grid-template-columns: 30px 1fr;
+      min-height: 52px;
+      padding: 6px 12px;
+
+      [data-component="cube-icon"] {
+        width: 30px;
+        height: 31px;
+      }
+    }
+
+    [data-part="reset"] {
+      min-height: 40px;
+      padding: 4px 14px;
+    }
+
+    [data-part="log"] {
+      min-height: 0;
+    }
+
+    [data-chip] {
+      min-height: 40px;
+    }
+
+    [data-part="standing"] {
+      display: none;
+    }
+
+    [data-part="layer-key"] {
+      display: flex;
+    }
+
+    /* The tap hint sits directly under the layer key. */
+    [data-part="under"] {
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+  }
+
+  /* F7: the one-line verdict under the tray, on a phone and on a phone on its side. */
+  @media (max-width: 760px), (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
+    [data-part="verdict"] {
+      display: block;
+      margin: 8px 0 0;
+      padding: 8px 12px;
+      border: 1px solid var(--line-default);
+      border-radius: var(--radius-control);
+      background: var(--surface-card);
+      color: var(--text-body);
+      font: 12.5px/1.4 var(--font-mono);
+
+      &[data-kind="wait"] {
+        border-color: var(--drift-line);
+        color: var(--drift-text);
+      }
+
+      &[data-kind="win"] {
+        border-color: var(--accent);
+        color: var(--text-heading);
+      }
+
+      &[data-kind="ok"]::before {
+        color: var(--synced-text);
+      }
+    }
+  }
+
+  /* The phone drawing shows the platform's width only, with labels laid out for it. */
+  @media (max-width: 520px) {
+    [data-part="world-frame"] {
+      overflow-x: clip;
+    }
+
+    /* Until the island sets the phone viewBox (or without JS), the whole-world drawing is widened
+       and shifted so only the phone window shows. */
+    [data-part="world"]:not([data-window="phone"]) {
+      width: var(--phone-width);
+      max-width: none;
+      margin-left: var(--phone-shift);
+    }
+
+    [data-part="hit"] {
+      display: inline;
+      pointer-events: all;
+    }
+
+    [data-part="sign"],
+    [data-part="brackets"],
+    [data-labels="desktop"],
+    [data-part="arrow"][data-size="desktop"] {
+      display: none;
+    }
+
+    [data-labels="phone"],
+    [data-part="arrow"][data-size="phone"] {
+      display: inline;
+    }
+
+    [data-part="arc-line"] {
+      stroke-width: var(--arc-stroke-phone);
+    }
+
+    [data-part="spark"] {
+      stroke-width: 4.5;
+    }
+  }
+
+  /* A phone on its side: the world and the tray side by side, so a piece is dragged to the kernel
+     without scrolling. The world is as tall as the screen under the header, drawn like the phone's
+     (phone labels and arrows, the layer key under it). Beside it, from the top: the goal switch,
+     the cards in one row and the verdict, so the result of an add shows without scrolling. The
+     code card below. Portrait phones and desktops never match. */
+  @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
+    :scope {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto auto auto 1fr auto;
+      grid-template-areas:
+        "intro intro"
+        "world switch"
+        "world tray"
+        "world ."
+        "log log";
+      gap: 0 24px;
+    }
+
+    [data-part="switch"] {
+      margin-bottom: 12px;
+    }
+
+    [data-part="stage"] {
+      display: contents;
+    }
+
+    [data-part="world-wrap"] {
+      grid-area: world;
+      align-self: end;
+    }
+
+    [data-part="world"] {
+      width: min(100%, calc((100svh - var(--header-height) - 32px) * var(--world-ratio)));
+      max-width: 100%;
+      margin-inline: auto;
+    }
+
+    [data-part="tray"] {
+      align-self: start;
+      margin-top: 0;
+    }
+
+    [data-part="cards"] {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    [data-plug] {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      min-height: 0;
+      padding: 8px 10px;
+
+      [data-component="cube-icon"] {
+        grid-row: auto;
+        width: 24px;
+        height: 25px;
+      }
+    }
+
+    [data-part="standing"],
+    [data-part="tap-hint"],
+    [data-part="sign"],
+    [data-part="brackets"],
+    [data-labels="desktop"],
+    [data-part="arrow"][data-size="desktop"] {
+      display: none;
+    }
+
+    [data-labels="phone"],
+    [data-part="arrow"][data-size="phone"] {
+      display: inline;
+    }
+
+    [data-part="arc-line"] {
+      stroke-width: var(--arc-stroke-phone);
+    }
+
+    [data-part="layer-key"] {
+      display: flex;
+    }
+
+    [data-part="under"] {
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    [data-part="console"] {
+      grid-area: log;
+      margin-top: 16px;
+    }
+  }
+
+  /* Reduced motion: every motion is instant (utilities), and the new-line mark stays. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-part="code"] [data-new] {
+      border-left-color: var(--accent);
+      background: var(--console-new-line-still);
+      animation: none;
+    }
+  }
+
+  /* A finger needs 40 px targets at any width: the chips, Start over, and the circle around each
+     small cube. A mouse keeps the prototype's desktop sizes. */
+  @media (pointer: coarse) {
+    [data-chip],
+    [data-part="reset"] {
+      min-height: 40px;
+    }
+
+    [data-part="hit"] {
+      display: inline;
+      pointer-events: all;
+    }
+  }
+
+  /* Press and hold on a phone must not select the page's text or open the system callout (the
+     kernel world and the tray cards). */
+  [data-part="world"],
+  [data-plug] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 }
 
@@ -467,180 +1439,88 @@
   }
 }
 
-@keyframes hero-shake {
-  20% {
-    transform: translateX(-8px);
-  }
-
-  40% {
-    transform: translateX(7px);
-  }
-
-  60% {
-    transform: translateX(-4px);
-  }
-
-  80% {
-    transform: translateX(2px);
+@keyframes hero-snap {
+  from {
+    transform: translateY(-38px);
+    opacity: 0.2;
   }
 }
 
-@keyframes hero-pulse {
+@keyframes hero-settle {
+  from {
+    transform: translateY(var(--hover-lift));
+  }
+}
+
+@keyframes hero-build {
+  from {
+    transform: translateY(40px) scaleY(0.05);
+    opacity: 0;
+  }
+}
+
+@keyframes hero-bob {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes hero-flash {
   30% {
     fill: var(--kernel-flash);
   }
 }
 
-@keyframes hero-snap {
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hero-spark {
   from {
-    transform: translateY(-36px);
+    stroke-dashoffset: 10;
+  }
+
+  to {
+    stroke-dashoffset: calc(var(--len) * -1);
   }
 }
 
-/* D13: the phone hero. The world is cropped to its middle 500 units and drawn 1.24 times as big
-   (--phone-width / --phone-shift come from lib/hero-world.ts), with labels that stay >= 10px. */
-@scope ([data-component="hero"]) {
-  @media (max-width: 520px) {
-    [data-part="world-frame"] {
-      overflow-x: clip;
-    }
-
-    [data-part="world"] {
-      width: var(--phone-width);
-      max-width: none;
-      margin-left: var(--phone-shift);
-    }
-
-    [data-part="hit"] {
-      display: inline;
-      pointer-events: all;
-    }
-
-    [data-part="label"],
-    [data-part="plugin-label"] {
-      font-size: calc(var(--phone-label) * 1px);
-      stroke-width: 6px;
-    }
-  }
-
-  @media (max-width: 760px) {
-    :scope {
-      grid-template-areas:
-        "intro"
-        "world"
-        "tray"
-        "log";
-      padding: 24px var(--gutter-narrow) 44px;
-    }
-
-    /* The world and the tray sit together, so a finger can drag from one to the other on one
-       screen; kernel.log comes last. The stage keeps its data-hot state but draws no box. */
-    [data-part="stage"] {
-      display: contents;
-    }
-
-    [data-part="world-frame"] {
-      grid-area: world;
-    }
-
-    [data-part="console"] {
-      grid-area: log;
-      margin-top: 20px;
-    }
-
-    h1 {
-      margin-bottom: 18px;
-    }
-
-    [data-part="actions"] {
-      margin-bottom: 20px;
-    }
-
-    [data-part="actions"] [data-component="button"] {
-      flex: 1 1 140px;
-      justify-content: center;
-      min-height: 48px;
-      padding-inline: 14px;
-      white-space: nowrap;
-    }
-
-    [data-part="tray"] {
-      margin-top: 16px;
-    }
-
-    [data-part="tray-head"] {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-    }
-
-    [data-part="reset"] {
-      min-height: 40px;
-      padding: 4px 14px;
-    }
-
-    [data-part="console-bar"] {
-      padding-block: 3px;
-    }
-
-    [data-part="log"] {
-      min-height: 0;
-    }
-  }
-
-  /* A phone on its side: the world is as tall as the screen under the header and the tray stands
-     beside it, so a plugin is dragged from the tray to the kernel without scrolling. */
-  @media (orientation: landscape) and (max-height: 520px) and (max-width: 960px) {
-    :scope {
-      /* The world's viewBox is 620 by 485 units. */
-      --world-ratio: 1.28;
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      grid-template-areas:
-        "intro intro"
-        "world tray"
-        "log log";
-      gap: 0 24px;
-      padding-block: 20px 36px;
-    }
-
-    [data-part="stage"] {
-      display: contents;
-    }
-
-    [data-part="world-frame"] {
-      grid-area: world;
-      justify-self: center;
-      width: min(100%, calc((100svh - var(--header-height) - 24px) * var(--world-ratio)));
-    }
-
-    [data-part="world"] {
-      width: 100%;
-      margin-left: 0;
-    }
-
-    [data-part="tray"] {
-      align-self: start;
-      margin-top: 0;
-
-      ul {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    [data-part="console"] {
-      grid-area: log;
-      margin-top: 20px;
-    }
+@keyframes hero-fade {
+  from {
+    opacity: 0;
   }
 }
 
-/* Press-and-hold shows a tip: on a phone a long press must not select the page's text or open the
-   system callout (the kernel world and its plugs). */
-@scope ([data-component="hero"]) {
-  [data-part="world"],
-  [data-plug] {
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
+@keyframes hero-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+
+@keyframes hero-breathe {
+  50% {
+    stroke-opacity: 0.45;
+    fill-opacity: 0.5;
+  }
+}
+
+@keyframes hero-new-line {
+  0%,
+  55% {
+    border-left-color: var(--accent);
+    background: var(--console-new-line);
+  }
+
+  100% {
+    border-left-color: transparent;
+    background: transparent;
   }
 }
