@@ -41,7 +41,7 @@
     "shiki": "3.22.0",
     "typescript": "7.0.2",
     "vitest": "4.0.18",
-    "wrangler": "4.95.0"
+    "wrangler": "4.156.0"
   },
   "scripts": {
     "build": "bun scripts/build.ts",
