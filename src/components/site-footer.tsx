@@ -77,7 +77,7 @@ export function SiteFooter(props: { url: UrlBuilder }): VNode {
           <div data-part="brand">
             <a data-part="logo" href={props.url("home")}>
               <CubeIcon tone="kernel" size={26} />
-              <span>{SITE.name}</span>
+              <span>Moku</span>
             </a>
             <p>
               Moku Labs builds Moku, an agentic TypeScript framework for reliable software written

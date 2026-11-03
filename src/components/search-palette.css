@@ -48,16 +48,6 @@ html:has([data-component="search-palette"]:not([hidden])) {
     padding: 14px 16px;
     border-bottom: 1px solid var(--docs-line);
     color: var(--docs-muted);
-
-    input {
-      flex: 1;
-      min-width: 0;
-      border: 0;
-      background: none;
-      font: 500 17px var(--font-body);
-      color: var(--docs-heading);
-      outline: none;
-    }
   }
 
   /* The label sits inside the list's 8px inset, so the first result follows it directly. */
@@ -192,4 +182,15 @@ html:has([data-component="search-palette"]:not([hidden])) {
       display: none;
     }
   }
+}
+
+/* Not @scope: WebKit does not apply the @scope rule to this input, and iOS zooms the page on focus when its text is under 16px. */
+[data-component="search-palette"] [data-part="field"] input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: 500 17px var(--font-body);
+  color: var(--docs-heading);
+  outline: none;
 }

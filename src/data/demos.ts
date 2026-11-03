@@ -33,7 +33,7 @@ export const demos: readonly DemoEntry[] = [
     id: "tracker",
     name: "Tracker",
     description: "Real-time kanban",
-    stack: ["web", "worker"],
+    stack: ["web", "worker", "common", "ci"],
     alt: "Isometric kanban board with three columns of cards",
     hue: 262
   },
@@ -41,7 +41,7 @@ export const demos: readonly DemoEntry[] = [
     id: "atlas",
     name: "Atlas",
     description: "Real-time kanban, new UI",
-    stack: ["web", "worker"],
+    stack: ["web", "worker", "common", "ci"],
     alt: "Isometric dashboard with a map grid, location pins and a sidebar",
     hue: 236
   },
@@ -49,7 +49,7 @@ export const demos: readonly DemoEntry[] = [
     id: "timber-town",
     name: "Timber Town",
     description: "Merge puzzle",
-    stack: ["game", "editor"],
+    stack: ["game", "editor", "system", "ai", "common", "ci"],
     alt: "Isometric village of small houses and round trees on a square board",
     hue: 300
   },
@@ -57,7 +57,7 @@ export const demos: readonly DemoEntry[] = [
     id: "ticktoe",
     name: "TickToe",
     description: "Tic-tac-toe in a candy toy box",
-    stack: ["game", "native"],
+    stack: ["game", "native", "system", "ai", "common", "ci"],
     alt: "Open candy-pink toy box holding a tic-tac-toe grid of crosses and rings",
     hue: 335
   },
@@ -65,7 +65,7 @@ export const demos: readonly DemoEntry[] = [
     id: "todo",
     name: "Todo",
     description: "Offline todo for macOS/iOS",
-    stack: ["web", "system", "native"],
+    stack: ["web", "system", "native", "common", "ci"],
     alt: "Laptop and phone showing the same checked to-do list",
     hue: 222
   },
@@ -73,7 +73,7 @@ export const demos: readonly DemoEntry[] = [
     id: "trivia",
     name: "Trivia",
     description: "Couch party quiz",
-    stack: ["web", "room", "worker"],
+    stack: ["web", "room", "worker", "common", "ci"],
     alt: "TV showing a quiz question with four phones as answer buttons in front",
     hue: 275
   }

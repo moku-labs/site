@@ -463,6 +463,30 @@
     [data-part="screen"] {
       --cover: var(--terminal-bg);
     }
+
+    /* Phone code size. The figure rules above sit inside `:scope { }`, so `:scope` here gives the
+       same weight and source order decides. `pre` and `pre code` inherit from the body part. */
+    :scope [data-part="body"],
+    :scope [data-part="screen"] {
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+
+    :scope [data-part="gutter"] {
+      width: 28px;
+      padding-right: 6px;
+    }
+
+    /* A gutter row is as tall as a code line, or the numbers drift off their lines. */
+    :scope [data-part="gutter"] > span {
+      height: 1.6em;
+    }
+
+    /* The 19px marker is taller than the 18.4px line and would push its line off the gutter. */
+    :scope [data-part="note-marker"] {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 

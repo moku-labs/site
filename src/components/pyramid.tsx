@@ -1,5 +1,5 @@
 /**
- * @file "Everything stands on one kernel" (A1, U7): the core brick on top, the other eleven
+ * @file "Everything stands on one kernel" (A1, U7): the core brick on top, ten more
  * packages under it, the six demos at the base. The `pyramid` island lights relations.
  */
 import type { VNode } from "preact";
@@ -24,12 +24,9 @@ type PyramidProperties = {
 /** Face colours per row. */
 const TONES: Readonly<Record<Brick["kind"], IsoTone>> = {
   core: "kernel",
-  package: "block",
+  package: "plugin",
   demo: "terrace-2"
 };
-
-/** Brick labels that differ from the package id; the core brick shows the package name. */
-const BRICK_LABELS: Readonly<Record<string, string>> = { claude: "Claude" };
 
 /** What a brick says on its tooltip and where it leads. */
 type BrickInfo = {
@@ -162,15 +159,16 @@ function PyramidDrawing(props: {
 }): VNode {
   const { layout, pyramid } = props;
   const { bricks, width, height } = pyramidBricks(props.labelled, pyramid.demos, layout);
-  // The base first: a lifted brick slides under the row above, never over it.
-  const drawOrder = bricks.toReversed();
+  // The base first: a lifted brick slides under the row above, never over it. Inside a row, left
+  // to right: a brick's side face goes behind its right neighbour's front.
+  const drawOrder = bricks.toSorted((first, second) => second.y - first.y);
   return (
     // biome-ignore lint/a11y/useSemanticElements: an SVG drawing cannot be a fieldset; group names the set of focusable shapes
     <svg
       data-layout={layout}
       viewBox={`0 0 ${width} ${height}`}
       role="group"
-      aria-label="Pyramid: the kernel on top, eleven packages, six demo apps at the base"
+      aria-label="Pyramid: the kernel on top, ten packages, six demo apps at the base"
     >
       {drawOrder.map(brick => (
         <BrickShape
@@ -198,10 +196,12 @@ function PyramidDrawing(props: {
  * ```
  */
 export function Pyramid(props: PyramidProperties): VNode {
-  const labelled: PyramidPackage[] = props.packages.map(entry => ({
-    id: entry.id,
-    label: entry.id === "core" ? entry.name : (BRICK_LABELS[entry.id] ?? entry.id)
-  }));
+  const labelled: PyramidPackage[] = props.packages
+    .filter(entry => entry.id !== "claude")
+    .map(entry => ({
+      id: entry.id,
+      label: entry.id === "core" ? entry.name : entry.id
+    }));
   return (
     <div data-component="pyramid" data-island="pyramid">
       <div data-part="scroller">

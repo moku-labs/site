@@ -1,6 +1,7 @@
 /* B3 docs sidebar, D3 package switcher, C2 mobile "<package> pages" disclosure. */
-@scope ([data-component="docs-sidebar"]) {
-  :scope {
+/* Not @scope: WebKit does not apply @scope rules to content slotted in <details>. */
+[data-component="docs-sidebar"] {
+  & {
     position: sticky;
     top: var(--header-height);
     align-self: stretch;
@@ -12,12 +13,12 @@
   }
 
   /* Wide screens: the disclosure is always open and its summary is hidden. */
-  :scope > summary {
+  & > summary {
     display: none;
   }
 
   @media (min-width: 861px) {
-    :scope::details-content {
+    &::details-content {
       content-visibility: visible;
       display: contents;
     }
@@ -130,7 +131,7 @@
   }
 
   @media (max-width: 860px) {
-    :scope {
+    & {
       position: static;
       max-height: none;
       border-right: 0;
@@ -138,7 +139,7 @@
       padding: 12px 20px;
     }
 
-    :scope > summary {
+    & > summary {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -153,7 +154,7 @@
       }
     }
 
-    :scope[open] > summary {
+    &[open] > summary {
       margin-bottom: 10px;
     }
 
@@ -164,9 +165,10 @@
 }
 
 /* D13: 40px rows in the phone page switcher. */
-@scope ([data-component="docs-sidebar"]) {
+/* Not @scope: WebKit does not apply @scope rules to content slotted in <details>. */
+[data-component="docs-sidebar"] {
   @media (max-width: 860px) {
-    :scope > summary {
+    & > summary {
       min-height: 40px;
     }
 

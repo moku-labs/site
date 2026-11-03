@@ -133,7 +133,7 @@
   [data-plug] {
     position: relative;
     display: grid;
-    grid-template-columns: 36px 1fr;
+    grid-template-columns: 36px minmax(0, 1fr);
     gap: 2px 8px;
     align-items: center;
     width: 100%;
@@ -159,6 +159,9 @@
 
     b {
       font: 600 14px/1.1 var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       color: var(--text-heading);
     }
 
@@ -1139,6 +1142,8 @@
     [data-part="console"] {
       grid-area: log;
       margin-top: 16px;
+      font-size: 11.5px;
+      line-height: 1.6;
     }
 
     h1 {
@@ -1190,7 +1195,7 @@
     }
 
     [data-plug] {
-      grid-template-columns: 30px 1fr;
+      grid-template-columns: 30px minmax(0, 1fr);
       min-height: 52px;
       padding: 6px 12px;
 

@@ -158,7 +158,7 @@
   --color-grey-wash: rgb(128 128 128 / 0.15);
 
   /* — Primitives: type — */
-  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
   --font-body: "Instrument Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
