@@ -2,6 +2,7 @@
 title: "@moku-labs/core"
 description: "Micro-kernel plugin framework. Under 8 KB, zero deps."
 section: Get started
+order: 1
 ---
 
 ## Overview
@@ -88,3 +89,10 @@ Make my search plugin depend on the router plugin
 ```text prompt
 Add an infrastructure plugin to my framework with createCorePlugin
 ```
+
+## Where to next
+
+- [Quick start](/docs/core/quick-start/): a framework and an app, file by file.
+- [How it works](/docs/core/how-it-works/): what `createApp` does, config merging, `require`, events.
+- [Write a framework](/docs/core/guides/write-a-framework/): a package people install.
+- [API reference](/docs/core/api/): every export and type.
