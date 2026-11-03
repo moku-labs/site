@@ -16,14 +16,18 @@ import { claudeInstallCommands, LANDING_PROMPT_COUNT, landingPrompts } from "../
 import type { HeroData } from "./hero-props";
 import type { ResolvedPackage } from "./packages";
 
-/** The three-layer sample: config makes a framework, a framework makes apps. */
-const LAYERS_CODE = [
-  '```ts file="my-site.ts"',
+/**
+ * The three-layer sample, one line per layer: config makes a framework, a framework makes apps.
+ * Code line N is layer N, so the page shows no imports; the compile test supplies them.
+ */
+export const LAYERS_LINES: readonly string[] = [
   'const config = createCoreConfig<Config, Events>("my-site", { config: { title: "Hi" } });',
-  "const framework = createCore(config, { plugins: [routerPlugin] });",
-  "const app = framework.createApp({ plugins: [blogPlugin] });",
-  "```"
-].join("\n");
+  "const framework = config.createCore(config, { plugins: [routerPlugin] });",
+  "const app = framework.createApp({ plugins: [blogPlugin] });"
+];
+
+/** The sample as the Markdown the docs pipeline renders. */
+const LAYERS_CODE = ['```ts file="my-site.ts"', ...LAYERS_LINES, "```"].join("\n");
 
 /** What the home loader reads. */
 export type HomeSources = {
