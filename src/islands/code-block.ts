@@ -1,8 +1,10 @@
 /**
  * @file The `code-block` island: copy buttons, file tabs and note markers for the code figures
- * of a docs page. Mounted once on the page's `[data-content]` root.
+ * of a docs page. Mounted once on the page's `[data-content]` root, and on the landing's
+ * "Start with Claude" parts, where it also swaps the example prompts.
  */
 import { createIsland } from "@moku-labs/web/browser";
+import { swapPrompts } from "../lib/landing-prompts";
 import { copyText, flashButton } from "./clipboard";
 
 /** Figures that get their own Copy button; a figure inside a tab group shares the group's. */
@@ -11,6 +13,9 @@ const COPYABLE =
 
 /** A tab group of code figures. */
 const GROUP = '[data-component="code-group"]';
+
+/** The landing's example prompts: the island swaps in others from the pool on each visit. */
+const LANDING_PROMPTS = '[data-component="claude-prompts"]';
 
 /**
  * A Copy button.
@@ -107,7 +112,8 @@ function highlightNote(item: Element, active: boolean): void {
 
 /**
  * Code blocks: Copy flips to "Copied" for 1.6 s, file tabs switch the shown file, and
- * hovering a note lights its line.
+ * hovering a note lights its line. On the landing's prompts it first swaps in other prompts, so
+ * each Copy button attaches next to the text it copies.
  */
 export const codeBlockIsland = createIsland("code-block", {
   events: {
@@ -123,5 +129,8 @@ export const codeBlockIsland = createIsland("code-block", {
       if (!(next instanceof Node && item.contains(next))) highlightNote(item, false);
     }
   },
-  onMount: ctx => enhance(ctx.el)
+  onMount: ctx => {
+    if (ctx.el.matches(LANDING_PROMPTS)) swapPrompts(ctx.el);
+    enhance(ctx.el);
+  }
 });

@@ -39,6 +39,12 @@
     margin: 30px 0 8px;
   }
 
+  /* A long entry name ("@moku-labs/editor/agent/page") breaks rather than pushing a phone sideways. */
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+  }
+
   a {
     color: var(--docs-link);
     text-underline-offset: 3px;

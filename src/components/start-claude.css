@@ -35,13 +35,43 @@
     background: var(--surface-card);
     border-color: var(--line-default);
 
+    /* Two lines reserved: the island swaps the prompts after paint, with no layout shift.
+       A one-line prompt sits in the middle of the two, level with its Copy button. */
     [data-part="text"] {
+      min-block-size: 2lh;
+      align-content: center;
       font-size: 16px;
       color: var(--text-heading);
 
+      /* The mono "›" sits on the text's baseline without growing its line box, so a two-line
+         prompt is exactly the reserved 2lh, the same as a one-line prompt. */
       &::before {
         color: var(--text-link);
+        line-height: 1;
       }
+    }
+  }
+}
+
+/* On a phone the longest pool prompts would wrap to a third line at 16px: at 15px every prompt
+   fits the two reserved lines from 360px up, and the narrowest phones reserve three. The Copy
+   button drops its vertical margin so its 40px target fits the reserved lines too. */
+@scope ([data-component="claude-prompts"]) {
+  @media (max-width: 760px) {
+    figure[data-component="prompt"] {
+      [data-part="text"] {
+        font-size: 15px;
+      }
+
+      > [data-part="copy"] {
+        margin-block: 0;
+      }
+    }
+  }
+
+  @media (max-width: 359px) {
+    figure[data-component="prompt"] [data-part="text"] {
+      min-block-size: 3lh;
     }
   }
 }

@@ -8,7 +8,7 @@ import { about } from "../../data/about";
 import { demos } from "../../data/demos";
 import type { PackageEntry } from "../../data/packages";
 import { packages } from "../../data/packages";
-import { claudeInstallCommands, claudePrompts } from "../../data/prompts";
+import { claudeInstallCommands, landingPrompts } from "../../data/prompts";
 import { resolvePackages } from "../../lib/packages";
 import { docsPlugin } from "../docs";
 import type { DocumentPage } from "../docs/types";
@@ -40,7 +40,7 @@ const defaultSources: LlmsSources = {
   demos,
   about,
   installCommands: claudeInstallCommands,
-  prompts: claudePrompts,
+  prompts: landingPrompts,
   nodeModules: "node_modules"
 };
 
