@@ -51,16 +51,19 @@ const app = createApp({
 });
 await app.start();
 
-const { code, joinUrl } = app.stage.createRoom(); // [!note] Synchronous: a 6-character code and the join URL.
-console.log(`Join ${code} at ${joinUrl}`);
+app.sync.registerSlice("scores", {}); // [!note] `mutate` throws on a slice that was never registered.
+app.intent.register("score", { fields: {}, additionalFields: false }); // [!note] An intent with no schema is dropped without a word, and `onIntent` does nothing.
 
 app.stage.onIntent("score", (_payload, peerId) => {
   app.stage.mutate("scores", draft => ({ ...draft, [peerId]: Number(draft[peerId] ?? 0) + 1 }));
 });
+
+const { code, joinUrl } = app.stage.createRoom(); // [!note] Synchronous: a 6-character code and the join URL.
+console.log(`Join ${code} at ${joinUrl}`);
 ```
 
 A phone is the same framework with `controllerPlugin`: `await app.controller.joinRoom(code)`, then
-`app.controller.intent("score", {})`.
+`app.controller.intent("score", {})`. The [quick start](/docs/room/quick-start/) has both sides.
 
 ## Start with Claude
 
