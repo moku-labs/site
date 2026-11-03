@@ -2,17 +2,16 @@
 title: "@moku-labs/worker"
 description: "Cloudflare Workers backend. D1, KV, R2, Queues, DO — each one a plugin."
 section: Get started
+order: 1
 ---
 
 ## Overview
 
 `@moku-labs/worker` is the Cloudflare Workers backend for Moku. Every Cloudflare primitive is a
 plugin that resolves its binding per request from the Worker `env`. A `server` plugin owns HTTP
-routing and dispatch. The build-time `deploy` and `cli` plugins ship the Worker but stay out of the
-runtime bundle.
+routing and dispatch. The Node-side `deploy` and `cli` plugins ship the Worker.
 
-- **Every primitive is a plugin.** KV, D1, R2, Queues and Durable Objects. Add only what you use;
-  the rest tree-shakes away.
+- **Every primitive is a plugin.** KV, D1, R2, Queues and Durable Objects. Add only what you use.
 - **`env` is a call argument, never state.** One isolate serves many requests at once, so a
   binding lives on the call stack and cannot leak between them.
 - **Thin typed wrappers.** The plugins add types over the real Cloudflare APIs.
@@ -21,7 +20,8 @@ runtime bundle.
 | --- | --- |
 | `bindings` | Resolves bindings from the per-request `env`. A default. |
 | `server` | HTTP routing and request dispatch. A default. |
-| `kv`, `d1`, `storage`, `queues`, `durableObjects` | KV, D1, R2, Queues and Durable Objects. |
+| `kv`, `d1`, `storage`, `queues`, `durableObjects` | KV, D1, R2, Queues and Durable Objects. Added when you use them. |
+| `turn` | Cloudflare Realtime TURN keys as a deploy resource. Build-time metadata. |
 | `deploy`, `cli` | Provision, generate the wrangler config, deploy. Node only. |
 
 ## Install
@@ -65,7 +65,11 @@ export default {
 } satisfies ExportedHandler;
 ```
 
-A request to `/api/data/fr` returns `{ "lang": "fr" }`. An unmatched path returns `404`.
+The Worker needs the `nodejs_compat` flag, even with no Node plugin in this app: see
+[How it works](/docs/worker/how-it-works/#runtime-and-node).
+
+A request to `/api/data/fr` returns `{ "lang": "fr" }`. An unmatched path returns `404`. The
+[quick start](/docs/worker/quick-start/) goes from an empty folder to a deployed URL.
 
 :::callout{tone="warn"}
 Do not list a default plugin again. `plugins` appends after `[log, env, bindings, server]`, so a
