@@ -103,7 +103,7 @@ UI:
 - `src/islands/` — `code-block`, `copy-page`, `demo-filter`, `kernel-world`, `layers-stack`,
   `pyramid`, `search-palette`, `site-nav`, `theme-toggle`, `toc-spy` (registered in
   `islands/index.ts`; `kernel-world.ts` only wires its parts in `kernel-world/`); `clipboard`,
-  `dataset`, `world-tip` are shared helpers, not islands. Inputs
+  `dataset`, `fragment`, `world-tip` are shared helpers, not islands. Inputs
   arrive as a JSON `data-props` attribute rendered by the host component.
 - `src/styles/main.css` — the CSS bundle entry (`@layer` order, tokens, code theme variables).
 

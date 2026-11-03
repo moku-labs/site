@@ -34,12 +34,13 @@ test("an SPA navigation shows a visible progress bar while the page loads", asyn
   page
 }, testInfo) => {
   const phone = isPhone(testInfo.project.name);
-  await boot(page, "/");
-  // A slow network: the next page's data takes a while.
+  // A slow network, from before boot: the prefetch of a link in view must not beat the delay and
+  // find the next page's data in the cache, which is a navigation too fast to show the bar.
   await page.route("**/_data/**", async route => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     await route.continue();
   });
+  await boot(page, "/");
   await press(page.locator('main a[href="/docs/"]').first(), phone);
   const bar = page.locator("[data-progress][data-active]");
   await expect(bar).toBeVisible();
