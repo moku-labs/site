@@ -27,7 +27,7 @@
         - link "Head & SEO":
           - /url: /docs/web/guides/head/
       - listitem:
-        - link "i18n":
+        - link "i18n guide":
           - /url: /docs/web/guides/i18n/
       - listitem:
         - link "Data":
