@@ -126,14 +126,14 @@ describe("buildCards", () => {
 
     expect(card.title).toBe("web");
     expect(card.line).toBe("Static site + islands SPA.");
-    expect(card.meta).toEqual({ name: "@moku-labs/web", version: "2.4.15", section: undefined });
+    expect(card.meta).toEqual({ name: "@moku-labs/web", section: undefined });
   });
 
-  // Bug: the Claude plugin shows its display name or a doubled `moku moku 0.85.6` chip. Row A3.
-  it("shows the Claude plugin as moku with its manual version", () => {
+  // Bug: the Claude plugin shows its display name. Row A3.
+  it("shows the Claude plugin as moku", () => {
     const card = cardOf({ ...packageHome, path: "/docs/claude/", pkg: "claude", title: "Claude" });
 
-    expect(card.meta).toEqual({ name: "moku", version: "0.85.6", section: undefined });
+    expect(card.meta).toEqual({ name: "moku", section: undefined });
     expect(card.line).toBe("A conductor in Claude Code");
   });
 
@@ -146,17 +146,17 @@ describe("buildCards", () => {
     expect(card.meta?.name).toBe("Local tool");
   });
 
-  // Bug: a docs page loses its nav group or version, or its description is not shortened. Row A4.
-  it("gives a docs page its title, package, version, nav group and short line", () => {
+  // Bug: a docs page loses its nav group, or its description is not shortened. Row A4.
+  it("gives a docs page its title, package, nav group and short line", () => {
     const card = cardOf({ section: "guides", group: "Guides" });
 
     expect(card.title).toBe("Quick start");
-    expect(card.meta).toEqual({ name: "@moku-labs/web", version: "2.4.15", section: "Guides" });
+    expect(card.meta).toEqual({ name: "@moku-labs/web", section: "Guides" });
     expect(card.line).toBe("From an empty folder to a deployed static blog with…");
     expect(artIds(card)).toEqual(["icon-web-512"]);
   });
 
-  // Bug: a concepts page shows the core icon and version instead of the kernel's own look. Row A5.
+  // Bug: a concepts page shows the core icon instead of the kernel's own look. Row A5.
   it("gives a concepts page the cluster and the bare concepts label", () => {
     const card = cardOf({
       path: "/docs/concepts/events/",
@@ -166,10 +166,10 @@ describe("buildCards", () => {
     });
 
     expect(card.object).toEqual({ kind: "cluster" });
-    expect(card.meta).toEqual({ name: "concepts", version: undefined, section: undefined });
+    expect(card.meta).toEqual({ name: "concepts", section: undefined });
   });
 
-  // Bug: a page of an unknown package gets a card with no version instead of stopping the run.
+  // Bug: a page of an unknown package gets a card with no package instead of stopping the run.
   it("refuses a page whose package is not in the family", () => {
     expect(() => buildCards([page({ pkg: "nope" })], [web])).toThrow(/package "nope"/);
   });
@@ -224,7 +224,7 @@ describe("the real cards", () => {
         [card.title, inSora],
         [card.line, inInstrument],
         [card.meta?.section ?? "", inInstrument],
-        [`${card.meta?.name ?? ""}${card.meta?.version ?? ""}`, inMono]
+        [card.meta?.name ?? "", inMono]
       ];
       return fields.flatMap(([text, inSubset]) =>
         [...text]

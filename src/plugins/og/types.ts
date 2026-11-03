@@ -28,8 +28,6 @@ export type OgConfig = {
 export type OgMeta = {
   /** Package name, or `concepts`. */
   name: string;
-  /** Version in the chip; absent on a concepts card. */
-  version: string | undefined;
   /** Nav group of the page; absent on a package home and a concepts card. */
   section: string | undefined;
 };
@@ -43,7 +41,7 @@ export type OgMeta = {
  *   path: "/docs/concepts/events/",
  *   file: "docs/concepts/events.png",
  *   title: "Events",
- *   meta: { name: "concepts", version: undefined, section: undefined },
+ *   meta: { name: "concepts", section: undefined },
  *   line: "Typed notifications between plugins.",
  *   object: { kind: "cluster" }
  * };
@@ -144,7 +142,7 @@ export type OgApi = {
    * @throws {Error} When a card cannot be drawn. The manifest then stays as it was, so the next run draws it again.
    * @example
    * ```ts
-   * // scripts/og.ts, the only caller: `bun run og` after a page or a version changed.
+   * // scripts/og.ts, the only caller: `bun run og` after a page changed.
    * const { drawn, kept, removed } = await app.og.write(); // 1, 164, 0
    * ```
    */
