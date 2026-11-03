@@ -65,17 +65,17 @@ A phone is the same framework with `controllerPlugin`: `await app.controller.joi
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Build a couch trivia game: the TV asks, phones buzz in
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Show a QR code on the TV so phones can join the room
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Let phones send moves that the shared screen checks and applies
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Tell players when the Wi-Fi blocks phones from connecting
 ```

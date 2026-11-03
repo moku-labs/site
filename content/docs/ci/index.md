@@ -70,17 +70,17 @@ bun run release:doctor
 Ask Claude to set up CI and releases.
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Set up CI and npm releases for my package with @moku-labs/ci
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Publish to npm with Trusted Publishing, no NPM_TOKEN
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Check my CI and release setup with release:doctor
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Add Dependabot and a branch ruleset to my repo with release:setup
 ```

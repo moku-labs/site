@@ -66,17 +66,17 @@ Add `.moku/` and `dist-native/` to `.gitignore`. The generated Tauri project is 
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Package my web app as a macOS app with @moku-labs/native
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Add iOS and Android targets to my native build
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Open myapp:// links in my desktop app with a deep-link scheme
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Check that my build's secret env vars are set, with doctor
 ```
