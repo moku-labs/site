@@ -6,6 +6,7 @@ import { createIsland } from "@moku-labs/web/browser";
 import type { BrickKind, PyramidDemo, PyramidPackage } from "../lib/pyramid";
 import { relatedBricks } from "../lib/pyramid";
 import { readData } from "./dataset";
+import { openHref } from "./fragment";
 import { hideTip, showTip } from "./world-tip";
 
 /** What the island reads from the bricks once, at mount. */
@@ -129,7 +130,7 @@ function tap(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
  */
 function open(ctx: Spa.IslandContext<PyramidState>, brick: Element): void {
   const href = readData(brick, "href");
-  if (href !== undefined) ctx.navigate(href);
+  if (href !== undefined) openHref(ctx, href);
 }
 
 /**

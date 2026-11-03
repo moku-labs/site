@@ -3,8 +3,11 @@
  */
 import { createIsland } from "@moku-labs/web/browser";
 
-/** The band of the viewport that decides the current section: under the header, top third. */
-const SPY_MARGIN = "-80px 0px -65% 0px";
+/** A section is current from the moment its heading passes this part of the viewport's height. */
+const SPY_LINE = 0.35;
+
+/** How close to the end of the page counts as the end, px. */
+const PAGE_END_SLACK = 2;
 
 /**
  * Mark one TOC link as current and clear the others.
@@ -20,8 +23,22 @@ function markCurrent(links: ReadonlyMap<string, HTMLElement>, id: string): void 
 }
 
 /**
- * Watches the article's h2/h3 headings and marks the matching TOC link. The first heading is
- * current until another one scrolls into the band.
+ * The heading of the section in view: the last one above the line, the first one above them all,
+ * and at the end of the page the last one, which a short last section never lifts to the line.
+ *
+ * @param headings - The headings, in document order.
+ * @returns The current heading.
+ */
+function currentHeading(headings: readonly Element[]): Element | undefined {
+  const { scrollHeight } = document.documentElement;
+  if (scrollY > 0 && scrollY + innerHeight >= scrollHeight - PAGE_END_SLACK) return headings.at(-1);
+  const line = innerHeight * SPY_LINE;
+  return headings.findLast(heading => heading.getBoundingClientRect().top <= line) ?? headings[0];
+}
+
+/**
+ * Watches the article's h2/h3 headings and marks the matching TOC link, once per frame of a scroll.
+ * The first heading is current until another one reaches the line.
  */
 export const tocSpyIsland = createIsland("toc-spy", {
   onMount: ctx => {
@@ -32,16 +49,24 @@ export const tocSpyIsland = createIsland("toc-spy", {
     const headings = [...document.querySelectorAll("[data-content] :is(h2, h3)[id]")].filter(
       heading => links.has(heading.id)
     );
-    const first = headings[0];
-    if (first === undefined) return;
-    markCurrent(links, first.id);
-    const observer = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) if (entry.isIntersecting) markCurrent(links, entry.target.id);
-      },
-      { rootMargin: SPY_MARGIN }
-    );
-    for (const heading of headings) observer.observe(heading);
-    ctx.cleanup(() => observer.disconnect());
+    if (headings.length === 0) return;
+
+    // Read the layout at most once a frame, however often the page scrolls.
+    let frame: number | undefined;
+    const mark = (): void => {
+      frame = undefined;
+      const current = currentHeading(headings);
+      if (current !== undefined) markCurrent(links, current.id);
+    };
+    const onScroll = (): void => {
+      frame ??= requestAnimationFrame(mark);
+    };
+
+    mark();
+    addEventListener("scroll", onScroll, { passive: true });
+    ctx.cleanup(() => {
+      removeEventListener("scroll", onScroll);
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    });
   }
 });
