@@ -9,6 +9,7 @@
  * burger toggles and Esc closes; a tap outside does not (browsers before 2024).
  */
 import { createIsland } from "@moku-labs/web/browser";
+import { landOnFragment } from "./fragment";
 
 const MENU = '[data-part="links"]';
 /** The widths where the header shows the burger (site-header.css). */
@@ -133,7 +134,8 @@ function listenForMenu(header: Element, menu: HTMLElement, signal: AbortSignal):
 
 /**
  * The header stays mounted across SPA navigation, so this island keeps it in step: the menu state
- * shows on the header, and every navigation closes the menu and moves the active underline.
+ * shows on the header, and every navigation closes the menu, moves the active underline and goes
+ * to the URL's fragment.
  */
 export const siteNavIsland = createIsland("site-nav", {
   state: (): SiteNavState => ({ listeners: new AbortController() }),
@@ -165,5 +167,6 @@ export const siteNavIsland = createIsland("site-nav", {
   onNavEnd: ctx => {
     closeMenu(ctx.el);
     markActive(ctx.el, ctx.meta.nav);
+    landOnFragment();
   }
 });

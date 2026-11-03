@@ -27,6 +27,7 @@ import {
 } from "../lib/search-palette";
 import { isSearchShard, markMatch, searchResults } from "../lib/search-results";
 import type { SearchEntry, SearchShard } from "../plugins/search/types";
+import { openHref } from "./fragment";
 
 /** A shard load that takes longer than this counts as failed; `loadCollectionShard` has no signal. */
 const LOAD_TIMEOUT_MS = 8000;
@@ -57,6 +58,8 @@ type PaletteState = {
   opener: Element | undefined;
   /** The palette pushed a history entry when it opened, so Back closes it. */
   pushed: boolean;
+  /** Closing asked history to pop that entry, and the pop has not arrived. */
+  popping: boolean;
 };
 
 /** The island context with its state. */
@@ -366,6 +369,7 @@ function closePalette(ctx: PaletteContext, kind: CloseKind = "back"): void {
   // Pop the history entry it pushed, when that is still to do.
   const pop = shouldPopEntry({ pushed: ctx.state.pushed, hash: location.hash, kind });
   ctx.state.pushed = false;
+  ctx.state.popping = pop;
   if (pop) history.back();
 
   // Give focus back to the element that opened it.
@@ -404,9 +408,15 @@ function chooseResult(ctx: PaletteContext, event: Event, link: Element): void {
     return;
   }
   event.preventDefault();
+
+  // The row of the page on show has nowhere to go: closing pops the palette's entry.
+  if (href === location.pathname + location.search) {
+    closePalette(ctx);
+    return;
+  }
   const replace = ctx.state.pushed && isPaletteEntry(location.hash);
   closePalette(ctx, "keep");
-  ctx.navigate(href, { replace });
+  openHref(ctx, href, { replace });
 }
 
 /**
@@ -496,7 +506,8 @@ export const searchPaletteIsland = createIsland("search-palette", {
     results: [],
     selected: 0,
     opener: undefined,
-    pushed: false
+    pushed: false,
+    popping: false
   }),
   events: {
     "input [data-part='field'] input": ctx => schedulePaint(ctx.el, ctx.state),
@@ -521,9 +532,18 @@ export const searchPaletteIsland = createIsland("search-palette", {
       if (openerTarget(event) !== undefined) void loadIndex(ctx.el, ctx.state);
     };
 
-    // Back from the palette's entry: the entry is gone already, so only hide the palette.
+    // Back from the palette's entry: the entry is gone already, so only hide the palette. The pop
+    // of a close arrives late: a palette opened since then is still open, and needs its entry back.
     const onPopState = (): void => {
-      if (isOpen(ctx.el) && !isPaletteEntry(location.hash)) closePalette(ctx, "keep");
+      const wasOwnPop = ctx.state.popping;
+      ctx.state.popping = false;
+      if (!isOpen(ctx.el) || isPaletteEntry(location.hash)) return;
+      if (wasOwnPop) {
+        ctx.state.pushed = true;
+        location.hash = PALETTE_HASH;
+        return;
+      }
+      closePalette(ctx, "keep");
     };
 
     // These live outside the island's element, so they go on the document and leave on destroy.
