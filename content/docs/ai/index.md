@@ -18,7 +18,7 @@ wrapper and not a job queue.
 - **Incremental by default.** Every item has an artifact key. A finished artifact is reused at no cost.
 
 Tasks: `voiceover`, `translate`, `prompt-gen`, `image`, `video`, `music`, `sfx`, `sprite`, `asset`.
-Providers: `elevenlabs`, `openai`, `codex`, `claude`, `fal`, `apimodels`, `ark`.
+Providers: `elevenlabs`, `openai`, `anthropic`, `codex`, `claude`, `fal`, `apimodels`, `ark`.
 
 ## Install
 
