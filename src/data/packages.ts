@@ -43,7 +43,7 @@ export const packages: readonly PackageEntry[] = [
     name: "Claude plugin",
     // oxlint-disable-next-line unicorn/no-null -- not on npm
     npm: null,
-    manualVersion: "0.85.6",
+    manualVersion: "0.85.9",
     releaseName: "moku",
     tagline: "A conductor in Claude Code: idea → plan → build → verify → release, on rails",
     group: "Start"
