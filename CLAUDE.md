@@ -39,7 +39,7 @@ This is a **Layer 3 consumer app** in the three-layer Moku model. It imports `cr
 Entries:
 
 - `src/app.ts` — Node SSG composition: web's browser-safe defaults plus the Node-only framework
-  plugins (content, collection, data, build, deploy, cli) and the site's four plugins. Driven by the
+  plugins (content, collection, data, build, deploy, cli) and the site's three plugins. Driven by the
   thin `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`. `scripts/build.ts` also
   awaits `app.search.write()` and `app.llms.write()` after `app.cli.build()`: the writes the
   `build:complete` hooks started, not a second write.
@@ -57,7 +57,6 @@ Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
 - `search` — builds the ⌘K index (pages, packages, docs headings, demos) and writes
   `dist/search/en.json` through `collectionPlugin`.
 - `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
-- `kernel` — `trayMessages()`: the real kernel's messages for the hero tray, captured at build.
 
 One browser plugin (`src/plugins/prefetch/`, composed only in `src/spa.tsx`):
 
@@ -65,7 +64,7 @@ One browser plugin (`src/plugins/prefetch/`, composed only in `src/spa.tsx`):
   the SPA finds the next page's data in the data plugin's cache. Logic in `src/lib/link-prefetch.ts`.
 
 The name-reference trick: `routes.tsx` ships to the browser, but its loaders need the Node
-plugins. `src/lib/docs-reference.ts`, `kernel-reference.ts` and `content-reference.ts` export
+plugins. `src/lib/docs-reference.ts` and `content-reference.ts` export
 `{ name: "docs" } as typeof docsPlugin` (type-only import). `ctx.require(docsReference)` finds the
 plugin by name at build and is fully typed, and the plugin code never enters the client bundle.
 Loaders also import their Node helpers lazily (`import("./lib/docs-data")`). Keep both rules when
@@ -81,8 +80,12 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
   diagram, terminal, prompt), `code-blocks` (rehype: file, group, hl, notes, diff), `heading-ids`,
   `tables`, and `agent-markdown` (docs Markdown to plain Markdown for the llms files).
 - Browser logic: `link-prefetch` (which links the `prefetch` plugin warms).
-- Island logic: `kernel-tray`, `kernel-flight`, `hero-world`, `hero-props`, `iso`, `pyramid`, `demos`, `search-results`, `search-palette`.
-- `url-builder`, and the three `*-reference` modules above.
+- Island logic: the hero's assembly in `assembly` (the rules: add, wait, settle, the code card),
+  `hero-world` (platforms, cubes, sockets, label placement, needs arcs), `hero-view` (the world
+  drawing as SVG nodes and the panel, shared by the SSR hero and the island), `hero-state` (which
+  goal shows and what a drop shows), `kernel-flight`, `hero-props`; then `glyphs` (lid glyph paths),
+  `iso`, `pyramid`, `demos`, `search-results`, `search-palette`.
+- `url-builder`, and the two `*-reference` modules above.
 
 UI:
 
@@ -91,7 +94,8 @@ UI:
   layers stack, search palette and the rest; each with its own CSS file.
 - `src/islands/` — `code-block`, `copy-page`, `demo-filter`, `kernel-world`, `layers-stack`,
   `pyramid`, `search-palette`, `site-nav`, `theme-toggle`, `toc-spy` (registered in
-  `islands/index.ts`); `clipboard`, `dataset`, `world-tip` are shared helpers, not islands. Inputs
+  `islands/index.ts`; `kernel-world.ts` only wires its parts in `kernel-world/`); `clipboard`,
+  `dataset`, `world-tip` are shared helpers, not islands. Inputs
   arrive as a JSON `data-props` attribute rendered by the host component.
 - `src/styles/main.css` — the CSS bundle entry (`@layer` order, tokens, code theme variables).
 
@@ -99,8 +103,9 @@ Data and content:
 
 - `content/docs/<pkg>/[<section>/]<page>.md` — the docs. `<pkg>` is an id from
   `src/data/packages.ts` or `concepts`. Syntax: see README "Writing docs".
-- `src/data/` — `packages`, `demos`, `about`, `prompts`, `tray`. No version or kernel error string
-  is ever typed here or in content (decision D1).
+- `src/data/` — `packages`, `demos`, `about`, `prompts`, `assembly` (the hero's goals, pieces and
+  every word it shows). No version or kernel error string is ever typed here or in content
+  (decision D1).
 - `public/` — art and fonts, copied to `dist/`.
 
 Source stays FLAT under `src/` (no client/server split).
@@ -118,7 +123,9 @@ live in the GitHub repository; locally in `.env` (gitignored).
 - `tests/unit/` and `tests/integration/`; plugin tests in `src/plugins/<name>/__tests__/`
 - `tests/integration/docs-snippets.test.ts` compiles every `check` block of `content/docs` (stubs of
   the reader's project in `content/snippet-stubs/<package>/`) and fails a ts block with no `check`
-  or `no-check="reason"`; `tests/integration/api-reference.test.ts` compares `api.md` with the real exports
+  or `no-check="reason"`; `tests/integration/api-reference.test.ts` compares `api.md` with the real exports;
+  `tests/integration/assembly-code.test.ts` compiles the hero's three finished snippets the same way
+  (stubs in `content/snippet-stubs/assembly-<goal>/`)
 - `tests/integration/build.test.ts` runs `bun scripts/build.ts` in a temp copy of the project
   (never touches `dist/`) and checks every docs page has HTML, a `.md` twin, an `llms.txt` line and
   a search row
