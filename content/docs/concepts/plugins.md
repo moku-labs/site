@@ -89,7 +89,7 @@ values.
 ## Core plugins
 
 Infrastructure such as `log` and `env`. Their context is `{ config, state }` only. They cannot have
-`depends`, `events` or `hooks`, and their APIs land flat on every regular plugin's `ctx`, not on
+`depends`, `events` or `hooks`, and their APIs land flat on every regular plugin's `ctx` and on
 `app`. They init and start first, and stop last. In `@moku-labs/web` they are `log` and `env`, so
 every plugin can call `ctx.log.info(...)`.
 

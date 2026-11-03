@@ -66,8 +66,8 @@ messages are on [What the kernel checks](/docs/concepts/kernel-checks/).
 ## Core plugins
 
 Core plugins have their own timeline: they init and start before regular plugins, and stop after
-them. `ctx.log` therefore works in every `onStop` of a regular plugin's teardown chain, and the
-logger stops last.
+them. The `onStop` context has no core APIs, so a plugin that logs during teardown keeps `ctx.log`
+in its state from `onStart`. That reference still works, because the logger stops last.
 
 ## In @moku-labs/web
 
