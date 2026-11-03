@@ -17,6 +17,19 @@ import type { SearchEntry, SearchShard } from "../../src/plugins/search/types";
 const repository = path.resolve(import.meta.dirname, "..", "..");
 const copied = ["src", "content", "public", "scripts", "package.json", "tsconfig.json"];
 const BUILD_TIMEOUT = 180_000;
+/** The pages outside the docs tree. */
+const SITE_PAGES = ["/", "/docs/", "/demos/", "/about/"];
+/** One page of each head shape: path, `og:type` and the JSON-LD types, in document order. */
+const ROUTE_HEADS: [string, string, string, string[]][] = [
+  ["home", "/", "website", ["WebSite", "Organization"]],
+  ["docs hub", "/docs/", "website", ["BreadcrumbList"]],
+  ["demos", "/demos/", "website", ["BreadcrumbList"]],
+  ["about", "/about/", "website", ["BreadcrumbList"]],
+  ["package index", "/docs/web/", "article", ["TechArticle", "BreadcrumbList"]],
+  ["docs page", "/docs/web/quick-start/", "article", ["TechArticle", "BreadcrumbList"]],
+  ["deep docs page", "/docs/web/guides/routing/", "article", ["TechArticle", "BreadcrumbList"]],
+  ["concepts page", "/docs/concepts/events/", "article", ["TechArticle", "BreadcrumbList"]]
+];
 
 /** The budget of `search/en.json`, gzipped: every visitor who opens ⌘K downloads it. */
 const SHARD_GZIP_BUDGET = 150 * 1024;
@@ -94,6 +107,26 @@ function readBuilt(relative: string): Promise<string> {
 async function markdownUrlOf(page: DocumentPage): Promise<string | undefined> {
   const html = await readBuilt(`${page.path}index.html`);
   return /data-markdown-url="([^"]+)"/.exec(html)?.[1];
+}
+
+/**
+ * The content of one meta element of a built page.
+ *
+ * @param html - The page's HTML.
+ * @param name - The element's `property` or `name`.
+ * @returns The content, or `undefined` when the page has no such element.
+ */
+function metaContent(html: string, name: string): string | undefined {
+  return new RegExp(`<meta (?:property|name)="${name}" content="([^"]*)"`).exec(html)?.[1];
+}
+
+/**
+ * The URL path of every built page.
+ *
+ * @returns The site pages, then the docs pages.
+ */
+function allPaths(): string[] {
+  return [...SITE_PAGES, ...pages.map(page => page.path)];
 }
 
 beforeAll(async () => {
@@ -224,5 +257,60 @@ describe("bun run build", () => {
     const html = await readBuilt("index.html");
 
     expect(/<title>([^<]*)<\/title>/.exec(html)?.[1]).toBe(SITE.name);
+  });
+
+  // Bug: a page points at a card nobody drew, its path drifts from `public/og/`, the copy skips a
+  // folder, or a card has another size: the shared link shows no image or a cropped one.
+  it("points every page's og:image at a PNG of 1200x630", async () => {
+    const broken: string[] = [];
+    for (const page of allPaths()) {
+      const html = await readBuilt(`${page}index.html`);
+      const image = metaContent(html, "og:image") ?? "";
+      const file = image.replace(SITE.url, "");
+      if (!file.startsWith("/og/") || !(await built(file))) {
+        broken.push(`${page} -> ${image}`);
+        continue;
+      }
+      const png = await readFile(path.join(project, "dist", file));
+      if (png.readUInt32BE(16) !== 1200 || png.readUInt32BE(20) !== 630) broken.push(file);
+    }
+
+    expect(broken).toEqual([]);
+  });
+
+  // Bug: a route type loses its tags, or a JSON-LD payload is not valid: search reads nothing.
+  it.each(ROUTE_HEADS)("writes the tags and JSON-LD of the %s", async (_, page, type, ldTypes) => {
+    const html = await readBuilt(`${page}index.html`);
+    const scripts = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)];
+    const linked = scripts.map(match => JSON.parse(match[1] ?? "") as Record<string, string>);
+
+    expect(metaContent(html, "og:type")).toBe(type);
+    expect(linked.map(item => item["@type"])).toEqual(ldTypes);
+    expect(linked.every(item => item["@context"] === "https://schema.org")).toBe(true);
+    expect(metaContent(html, "og:site_name")).toBe(SITE.name);
+    expect(metaContent(html, "og:locale")).toBe("en_US");
+    expect(metaContent(html, "og:image:width")).toBe("1200");
+    expect(metaContent(html, "og:image:height")).toBe("630");
+    expect(metaContent(html, "og:image:alt")).toMatch(/.+/);
+    expect(metaContent(html, "twitter:card")).toBe("summary_large_image");
+    expect(metaContent(html, "twitter:image")).toBe(metaContent(html, "og:image"));
+  });
+
+  // Bug: a new page takes a title another page has: search shows two links that read the same.
+  it("gives every page its own head title", async () => {
+    const owners = new Map<string, string[]>();
+    for (const page of allPaths()) {
+      const html = await readBuilt(`${page}index.html`);
+      const title = /<title>([^<]*)<\/title>/.exec(html)?.[1] ?? "";
+      owners.set(title, [...(owners.get(title) ?? []), page]);
+    }
+
+    expect([...owners].filter(([, paths]) => paths.length > 1)).toEqual([]);
+  });
+
+  // Bug: the 404 page gets indexed, or the sitemap sends crawlers to a page that does not exist.
+  it("keeps the 404 page out of the index and the sitemap", async () => {
+    expect(metaContent(await readBuilt("404.html"), "robots")).toBe("noindex");
+    expect(await readBuilt("sitemap.xml")).not.toContain("404");
   });
 });
