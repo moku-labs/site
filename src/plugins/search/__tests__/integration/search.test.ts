@@ -14,7 +14,7 @@ import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { SITE } from "../../../../config";
 import { docsPlugin } from "../../../docs";
 import { searchPlugin } from "../..";
-import type { SearchEntry } from "../../types";
+import type { SearchEntry, SearchShard } from "../../types";
 
 // The fixture tree uses these two packages; both are installed, so their versions resolve for real.
 vi.mock("../../../../data/packages", () => ({
@@ -80,26 +80,31 @@ function createSearchApp() {
   });
 }
 
-const readShard = (directory: string): SearchEntry[] =>
+const readShard = (directory: string): SearchShard =>
   JSON.parse(readFileSync(path.join(directory, "search", "en.json"), "utf8"));
 
 describe("search plugin in a real app", () => {
   // Bug: the shard is written under another path than the ⌘K island fetches, or the rows on disk
-  // lose docs sections, kinds or packages.
+  // lose docs sections, kinds, packages or the lookup tables.
   it("write() persists the index from the fixture docs to <outDir>/search/en.json", async () => {
     const app = createSearchApp();
     await app.start();
     const directory = temporaryDirectory();
 
     const { count } = await app.search.write(directory);
-    const rows = readShard(directory);
+    const shard = readShard(directory);
+    const rows = shard.entries;
 
-    expect(rows).toHaveLength(count);
+    expect(count).toBe(rows.length);
+    expect(shard.terms.length).toBeGreaterThan(0);
+    expect(shard.postings).toHaveLength(shard.terms.length);
+    expect(shard.aliases.fx).toEqual(["effects"]);
     expect(rows).toEqual(await app.search.entries());
     const routing = rows.filter(row => row.href.startsWith("/docs/web/guides/routing/"));
     expect(routing.map(row => [row.kind, row.href])).toEqual([
       ["Guide", "/docs/web/guides/routing/"],
       ["Section", "/docs/web/guides/routing/#define-a-route"],
+      ["Section", "/docs/web/guides/routing/#params"],
       ["Section", "/docs/web/guides/routing/#params-2"],
       ["Section", "/docs/web/guides/routing/#the-route-call"]
     ]);
@@ -127,8 +132,8 @@ describe("search plugin in a real app", () => {
     app.finishedBuild.finish(directory);
 
     // The kernel does not await hooks: poll until the whole file is on disk and parses.
-    const rows = await vi.waitFor(() => readShard(directory));
-    expect(rows.some(row => row.kind === "Section")).toBe(true);
+    const shard = await vi.waitFor(() => readShard(directory));
+    expect(shard.entries.some(row => row.kind === "Section")).toBe(true);
     await app.stop();
   });
 

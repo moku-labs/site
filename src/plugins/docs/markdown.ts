@@ -8,8 +8,11 @@ import type { DocumentHeading } from "./types";
 /** The marker a page puts where the generated kernel-error list goes. */
 export const KERNEL_ERRORS_MARKER = "<!-- kernel-errors -->";
 
-const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
-const HEADING = /^(#{2,3})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/;
+/** A line that opens or closes a fenced code block; group 1 is its marks. */
+export const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
+
+/** An h2 or h3 line outside a fence; group 1 is its marks, group 2 its text. */
+export const HEADING = /^(#{2,3})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/;
 
 export { headingSlug as slugify } from "../../lib/markdown/heading-ids";
 

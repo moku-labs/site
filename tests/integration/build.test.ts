@@ -2,10 +2,13 @@ import { spawn } from "node:child_process";
 import { cp, mkdtemp, readFile, rm, stat, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../../src/app";
 import { SITE } from "../../src/config";
+import { searchResults } from "../../src/lib/search-results";
 import type { DocumentPage } from "../../src/plugins/docs/types";
+import type { SearchEntry, SearchShard } from "../../src/plugins/search/types";
 
 // Slow on purpose: one real `bun scripts/build.ts` (43 pages). It runs in a copy of the project in a
 // temp dir, so the build never touches the working `dist/`. Sources are copied, not linked: the
@@ -14,6 +17,21 @@ import type { DocumentPage } from "../../src/plugins/docs/types";
 const repository = path.resolve(import.meta.dirname, "..", "..");
 const copied = ["src", "content", "public", "scripts", "package.json", "tsconfig.json"];
 const BUILD_TIMEOUT = 180_000;
+
+/** The budget of `search/en.json`, gzipped: every visitor who opens ⌘K downloads it. */
+const SHARD_GZIP_BUDGET = 150 * 1024;
+
+/** The ranking addendum's expected top result per query, on the real docs. */
+const EXPECTED_TOP: readonly (readonly [string, (top: SearchEntry) => boolean])[] = [
+  ["island", top => top.href === "/docs/web/guides/islands/"],
+  ["route", top => ["/docs/web/plugins/router/", "/docs/web/guides/routing/"].includes(top.href)],
+  ["plugin", top => top.href === "/docs/concepts/plugins/"],
+  ["deploy", top => top.href === "/docs/web/plugins/deploy/"],
+  ["fx", top => top.href === "/docs/game/plugins/effects/"],
+  ["createApp", top => top.kind === "Section" && top.title === "createApp"],
+  ["router", top => top.href === "/docs/web/plugins/router/"],
+  ["events", top => top.href === "/docs/concepts/events/"]
+];
 
 let project = "";
 let pages: DocumentPage[] = [];
@@ -136,10 +154,59 @@ describe("bun run build", () => {
   // Bug: the search index is built from another page set than the docs plugin's, or not
   // written: the ⌘K palette then cannot find a docs page.
   it("writes the search shard with every docs page", async () => {
-    const rows = JSON.parse(await readBuilt("search/en.json")) as { href: string }[];
-    const hrefs = new Set(rows.map(row => row.href));
+    const shard = JSON.parse(await readBuilt("search/en.json")) as SearchShard;
+    const hrefs = new Set(shard.entries.map(row => row.href));
 
     expect(pages.filter(page => !hrefs.has(page.path)).map(page => page.path)).toEqual([]);
+  });
+
+  // Bug: another page outranks the effects plugin, or the alias stops resolving on the real docs.
+  it("answers fx with the effects plugin on the built shard", async () => {
+    const shard = JSON.parse(await readBuilt("search/en.json")) as SearchShard;
+
+    expect(searchResults(shard, "fx", [])[0]?.href).toBe("/docs/game/plugins/effects/");
+  });
+
+  // Bug: a section or a far longer word outranks the main page of a topic on the real docs.
+  it("puts the main page of a topic first on the built shard", async () => {
+    const shard = JSON.parse(await readBuilt("search/en.json")) as SearchShard;
+    const wrong = EXPECTED_TOP.flatMap(([query, isExpected]) => {
+      const top = searchResults(shard, query, [])[0];
+      return top !== undefined && isExpected(top) ? [] : [`${query} -> ${top?.href}`];
+    });
+
+    expect(wrong).toEqual([]);
+    // Bug: `routing` does not start with `route`, so the Routing guide drops out of the
+    // results for `route` unless the alias lists it.
+    const routeTop = searchResults(shard, "route", []).slice(0, 3);
+    expect(routeTop.map(row => row.href)).toContain("/docs/web/guides/routing/");
+  });
+
+  // Bug: the Testing guide falls out of what the palette shows first. A section titled exactly Tests
+  // may lead, so the promise is the top 3.
+  it("lists a Testing guide in the top 3 for test on the built shard", async () => {
+    const shard = JSON.parse(await readBuilt("search/en.json")) as SearchShard;
+    const top = searchResults(shard, "test", [], 3);
+
+    expect(top.some(row => row.kind === "Guide" && row.title === "Testing")).toBe(true);
+  });
+
+  // Bug: a renamed page or word leaves an alias pointing at nothing, and it dies without a sound.
+  it("has every alias target in the terms", async () => {
+    const shard = JSON.parse(await readBuilt("search/en.json")) as SearchShard;
+    const terms = new Set(shard.terms);
+    const dead = Object.entries(shard.aliases).flatMap(([alias, targets]) =>
+      targets.filter(target => !terms.has(target)).map(target => `${alias} -> ${target}`)
+    );
+
+    expect(dead).toEqual([]);
+  });
+
+  // Bug: the docs grow, or noise enters the tables, until the first ⌘K costs a large download.
+  it("keeps the gzipped shard inside its budget", async () => {
+    const gzipped = gzipSync(await readBuilt("search/en.json")).length;
+
+    expect(gzipped).toBeLessThanOrEqual(SHARD_GZIP_BUDGET);
   });
 
   // Bug: `feeds: false` is lost from the build config, and the empty article model ships

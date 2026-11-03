@@ -126,6 +126,7 @@
     transition: transform var(--duration-normal);
   }
 
+  &[open] > summary > [data-part="chevron"],
   details[open] > summary > [data-part="chevron"] {
     transform: rotate(180deg);
   }
@@ -161,13 +162,8 @@
     a > [data-part="kind"] {
       font-size: 11px;
     }
-  }
-}
 
-/* D13: 40px rows in the phone page switcher. */
-/* Not @scope: WebKit does not apply @scope rules to content slotted in <details>. */
-[data-component="docs-sidebar"] {
-  @media (max-width: 860px) {
+    /* D13: 40px rows in the phone page switcher. */
     & > summary {
       min-height: 40px;
     }

@@ -1,5 +1,6 @@
 /**
- * @file API factory, index builder and shard writer of the search plugin.
+ * @file API factory, index rows and shard writer of the search plugin. The lookup tables are in
+ * `shard.ts`.
  */
 import { collectionPlugin } from "@moku-labs/web";
 import { SITE } from "../../config";
@@ -8,6 +9,7 @@ import { packages } from "../../data/packages";
 import { resolvePackages } from "../../lib/packages";
 import { docsPlugin } from "../docs";
 import type { DocumentPage } from "../docs/types";
+import { buildSearchShard, sectionHref } from "./shard";
 import type {
   PendingWrite,
   SearchApi,
@@ -76,21 +78,19 @@ function iconOf(page: DocumentPage): string {
 }
 
 /**
- * The `Section` rows of a page: one per h2, linking to its anchor.
+ * The `Section` rows of a page: one per h2 and h3, linking to its anchor.
  *
  * @param page - A docs page.
  * @returns The rows in document order.
  */
 function sectionsOf(page: DocumentPage): SearchEntry[] {
-  return page.headings
-    .filter(heading => heading.depth === 2)
-    .map(heading => ({
-      kind: "Section",
-      title: heading.text,
-      subtitle: page.title,
-      href: `${page.path}#${heading.id}`,
-      icon: iconOf(page)
-    }));
+  return page.headings.map(heading => ({
+    kind: "Section",
+    title: heading.text,
+    subtitle: page.title,
+    href: sectionHref(page, heading),
+    icon: iconOf(page)
+  }));
 }
 
 /**
@@ -151,24 +151,29 @@ export async function writeSearchIndex(
   outputDirectory: string,
   sources: SearchSources = defaultSources
 ): Promise<{ count: number }> {
-  const rows = await indexEntries(ctx, sources);
-  await ctx
-    .require(collectionPlugin)
-    .write([{ collection: ctx.config.collection, shard: ctx.config.shard, data: rows }], {
-      outDir: outputDirectory
-    });
+  const pages = await ctx.require(docsPlugin).all();
+  const rows = indexRows(pages, sources);
+  await ctx.require(collectionPlugin).write(
+    [
+      {
+        collection: ctx.config.collection,
+        shard: ctx.config.shard,
+        data: buildSearchShard(rows, pages)
+      }
+    ],
+    { outDir: outputDirectory }
+  );
   return { count: rows.length };
 }
 
 /**
- * Build the index rows from the docs plugin's pages and the sources.
+ * Build the index rows from docs pages and the sources.
  *
- * @param ctx - Plugin context, for `require` of the docs plugin.
+ * @param pages - The docs plugin's pages.
  * @param sources - Packages and demos.
  * @returns The index rows.
  */
-async function indexEntries(ctx: SearchContext, sources: SearchSources): Promise<SearchEntry[]> {
-  const pages = await ctx.require(docsPlugin).all();
+function indexRows(pages: readonly DocumentPage[], sources: SearchSources): SearchEntry[] {
   return buildSearchIndex({ pages, packages: sources.packages(), demos: sources.demos });
 }
 
@@ -210,7 +215,7 @@ export function createSearchApi(
   sources: SearchSources = defaultSources
 ): SearchApi {
   return {
-    entries: () => indexEntries(ctx, sources),
+    entries: async () => indexRows(await ctx.require(docsPlugin).all(), sources),
     write: (outputDirectory = ctx.config.outDir) => {
       // The build's own directory: hand out the write its build:complete hook started.
       const pending = ctx.state.pending;

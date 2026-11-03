@@ -304,6 +304,10 @@ function toFigure(pre: HastElement & { children: [HastElement] }): HastElement {
     code.properties.className = [`language-${meta.attributes.lang ?? "text"}`];
   }
 
+  // A code block scrolls sideways, so the keyboard must reach it. Shiki sets this on what it
+  // highlights and skips a fence with no language; a highlighted block keeps only Shiki's.
+  pre.properties.tabIndex = 0;
+
   // Take the notes and diff signs out; the <code> keeps only the displayed text.
   const diff = language === "diff" || meta.flags.has("diff");
   const { lines, notes } = splitCodeLines(textContent(code).replace(/\n$/, ""), diff);

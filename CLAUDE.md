@@ -54,8 +54,8 @@ Site plugins (`src/plugins/`, Node only, composed in `src/app.ts`):
 - `docs` — walks `content/docs/**`, parses frontmatter, enforces the depth rule, renders through
   `contentPlugin.renderMarkdown`. API: `all`, `get`, `byPackage`, `nav`, `neighbours`, `params`.
   Pages load once per build run: the `build:phase` that starts a run empties the cache.
-- `search` — builds the ⌘K index (pages, packages, docs headings, demos) and writes
-  `dist/search/en.json` through `collectionPlugin`.
+- `search` — builds the ⌘K index (pages, packages, docs headings and text, demos) with its lookup
+  tables and writes `dist/search/en.json` through `collectionPlugin`.
 - `llms` — writes `llms.txt`, `llms-full.txt` and one `.md` twin per page.
 
 One browser plugin (`src/plugins/prefetch/`, composed only in `src/spa.tsx`):
@@ -85,7 +85,7 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
   `hero-world` (platforms, cubes, sockets, label placement, needs arcs), `hero-view` (the world
   drawing as SVG nodes and the panel, shared by the SSR hero and the island), `hero-state` (which
   goal shows and what a drop shows), `kernel-flight`, `hero-props`; then `glyphs` (lid glyph paths),
-  `iso`, `pyramid`, `demos`, `search-results`, `search-palette`.
+  `iso`, `pyramid`, `demos`, `search-tokens`, `search-results`, `search-palette`.
 - `url-builder`, and the two `*-reference` modules above.
 
 UI:
@@ -107,6 +107,8 @@ Data and content:
 - `src/data/` — `packages`, `demos`, `about`, `prompts`, `assembly` (the hero's goals, pieces and
   every word it shows). No version or kernel error string is ever typed here or in content
   (decision D1).
+- `src/data/search-aliases.ts` — ⌘K aliases (`fx` to `effects`); every target must be a term of the
+  index, a build test checks it.
 - `public/` — art and fonts, copied to `dist/`.
 
 Source stays FLAT under `src/` (no client/server split).

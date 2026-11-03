@@ -9,6 +9,24 @@ import { render } from "./render";
 const fence = (meta: string, code: string, lang = "ts") =>
   `\`\`\`${lang} ${meta}\n${code}\n\`\`\`\n`;
 
+describe("code card keyboard access", () => {
+  // Catches: Shiki gives a highlighted <pre> its tabindex but skips a fence with no language, so a
+  // plain block that scrolls sideways cannot be reached by keyboard (axe scrollable-region-focusable).
+  it("makes the pre of a fence with no language focusable", async () => {
+    const html = await render("```\nplain text\n```\n");
+
+    expect(html).toMatch(/<pre tabindex="0"><code>plain text/);
+  });
+
+  // Catches: the build's tabindex added on top of Shiki's, so the attribute prints twice.
+  it("leaves one tabindex on the pre of a highlighted fence", async () => {
+    const html = await render(fence('file="a.ts"', "const a = 1;"));
+    const pre = /<pre[^>]*>/.exec(html)?.[0] ?? "";
+
+    expect(pre.match(/tabindex="0"/g)).toHaveLength(1);
+  });
+});
+
 describe("parseFenceMeta", () => {
   // Catches: quoted values cut at the space or keeping their quotes, flags read as attributes.
   it("reads quoted, single-quoted and bare values and bare flags", () => {
