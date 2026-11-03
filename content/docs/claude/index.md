@@ -45,8 +45,9 @@ route.
 
 | Size | Sign | Route |
 | --- | --- | --- |
+| Q | quick edits you steer one by one, no API change | intake → tweak → verify → close |
 | S | one plugin, public API unchanged | intake → build → verify → close |
-| M | new plugin, or an API changes | intake → plan → build → verify → e2e → release → close |
+| M | new plugin, or an API changes | intake → design → plan → build → verify → e2e → release → close |
 | L | several plugins, a new framework, an architecture shift | intake → brainstorm → design → plan → build → verify → e2e → release → close |
 
 :::flow
@@ -65,6 +66,8 @@ The rails act only in a directory where a moku session was started. Your other p
 gate, no hint and no hook output.
 :::
 
+The [stations page](/docs/claude/stations/) goes through them one by one.
+
 ## Packs
 
 | Pack | For |
@@ -78,6 +81,16 @@ gate, no hint and no hook output.
 | `moku-native` | `@moku-labs/native`, Tauri 2 desktop and mobile builds |
 | `moku-system` | `@moku-labs/system`, store, notify, clipboard, tray and deep links |
 | `moku-common` | `@moku-labs/common`, log, env and the branded CLI kit |
+
+## Where to go next
+
+| You want to | Read |
+|---|---|
+| Install it and start | [Quick start](/docs/claude/quick-start/) |
+| Understand the conductor and the rails | [How it works](/docs/claude/how-it-works/) |
+| See every station of a change | [Stations](/docs/claude/stations/) |
+| Pick the packs | [Packs](/docs/claude/packs/) |
+| See how it is used | [Day to day](/docs/claude/day-to-day/) |
 
 ## Start with Claude
 
