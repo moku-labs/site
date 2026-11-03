@@ -28,7 +28,7 @@ The project-root sandbox: list, read, an atomic write with a version check, imag
 [project index](/docs/editor/guides/project-index/) and the computer's engine fingerprint. A file
 must match the `allow` globs and none of the `deny` globs.
 
-API: `list`, `read`, `write`, `writeBinary`, `readBinary`, `resolve`, `root`, `find`, `project`,
+API: `list`, `read`, `write`, `writeBinary`, `writeDataUrl`, `readBinary`, `resolve`, `root`, `find`, `project`,
 `engine`, `refreshEngine`.
 
 ## hub

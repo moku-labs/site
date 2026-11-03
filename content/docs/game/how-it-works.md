@@ -171,7 +171,7 @@ it when the resting node lists it. See [Screens](/docs/game/guides/screens/).
 
 ## The plugins in order
 
-The logic plugins are registered first: `time`, `lifecycle`, `model`, `clock`, `flow`. The list
+The logic plugins are registered first: `time`, `lifecycle`, `model`, `clock`, `flow`, `debug`. The list
 `screen` follows: `world`, `renderer`, `input`, `assets`, `scenes`, `anim`, `i18n`, `text`, `ui`.
 Then the opt-in `effects`, `audio` and `platform`, `platform` last. `game.screen()` composes all of
 them for you; `game.headless()` composes the logic plugins only.

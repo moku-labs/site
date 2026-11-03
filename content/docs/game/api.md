@@ -163,7 +163,7 @@ The instances are for `plugins`, `depends` and `ctx.require` in game plugins. Ea
 [anim](/docs/game/plugins/anim/), [i18n](/docs/game/plugins/i18n/),
 [text](/docs/game/plugins/text/), [ui](/docs/game/plugins/ui/),
 [effects](/docs/game/plugins/effects/), [audio](/docs/game/plugins/audio/),
-[platform](/docs/game/plugins/platform/).
+[platform](/docs/game/plugins/platform/), [debug](/docs/game/plugins/debug/).
 
 `screen` is the list of the nine screen plugins a game spreads in:
 `plugins: [...screen, effectsPlugin, audioPlugin, platformPlugin]`, `platform` last.
