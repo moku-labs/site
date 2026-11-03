@@ -130,6 +130,9 @@ live in the GitHub repository; locally in `.env` (gitignored).
 - `tests/integration/build.test.ts` runs `bun scripts/build.ts` in a temp copy of the project
   (never touches `dist/`) and checks every docs page has HTML, a `.md` twin, an `llms.txt` line and
   a search row
+- `tests/support/shiki-languages.ts` trims Shiki to the languages the docs write, in the vitest workers
+  and in the build test's build. A new docs language goes on its list. The commit hook and CI build
+  with every language
 - Coverage is measured on the pure-logic dirs (`src/lib/`, `src/i18n/`, `src/plugins/`), 90% threshold
 - UI and islands are covered by the Playwright e2e station, not by unit tests
 
