@@ -39,7 +39,7 @@ const timerPlugin = createPlugin("timer", {
     ctx.state.handle = setInterval(() => ctx.log.info("timer:tick"), 1000); // [!note] Open a resource when the app starts.
   },
   onStop: ctx => {
-    clearInterval(ctx.state.handle); // [!note] onStop gets its own state back, nothing else.
+    clearInterval(ctx.state.handle); // [!note] onStop gets its own config and state back, no peers and no core APIs.
   }
 });
 
