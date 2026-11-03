@@ -63,6 +63,19 @@ export const app = createApp({
           contentDir: "content/articles",
           trustedContent: true,
           shikiTheme: mokuCodeTheme,
+          // A fence in a language not listed here renders as plain code, with no error.
+          shikiLanguages: [
+            "css",
+            "diff",
+            "html",
+            "json",
+            "markdown",
+            "shellscript",
+            "toml",
+            "tsx",
+            "typescript",
+            "yaml"
+          ],
           extraRemarkPlugins: [directives],
           extraRehypePlugins: [headingIds, codeBlocks, tables]
         })
