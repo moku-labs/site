@@ -11,7 +11,7 @@ order: 3
 | --- | --- | --- | --- | --- |
 | init | `onInit` | forward | inside `createApp()`, synchronous | full `ctx` |
 | start | `onStart` | forward | `await app.start()` | full `ctx` |
-| stop | `onStop` | **reverse** | `await app.stop()` | own `global`, `config`, `state` |
+| stop | `onStop` | **reverse** | `await app.stop()` | `global`, own `config` and `state` |
 
 Before the lifecycle, each plugin's factories run in this order:
 
