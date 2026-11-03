@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { app } from "../../../../app";
 import { packages } from "../../../../data/packages";
 import type { ResolvedPackage } from "../../../../lib/packages";
@@ -175,13 +175,15 @@ describe("buildCards", () => {
   });
 });
 
-// `cards()` renders every docs page. A busy CI runner needs more than the default 10 s.
+// `cards()` loads every docs page. A busy CI runner can stall that past the default 10 s.
 const LOAD_TIMEOUT = 120_000;
 
 describe("the real cards", () => {
   let cards: OgCard[] = [];
 
   beforeAll(async () => {
+    // A card reads the frontmatter, never the HTML, and rendering every page is slow.
+    vi.spyOn(app.content, "renderMarkdown").mockResolvedValue("");
     cards = await app.og.cards();
   }, LOAD_TIMEOUT);
 

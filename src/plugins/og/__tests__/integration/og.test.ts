@@ -23,7 +23,8 @@ vi.mock("../../../../data/packages", () => ({
 const PNG_PALETTE = 3;
 
 /**
- * Write a docs tree of one package home, one section page and one concepts page.
+ * Write a docs tree of one section page: its card is the deepest path, with a package icon. The
+ * four site cards draw the rest: the cluster, the hub icons, the stack and the portrait.
  *
  * @param root - The temp project directory.
  * @returns The docs directory.
@@ -31,18 +32,9 @@ const PNG_PALETTE = 3;
 function writeDocs(root: string): string {
   const docs = path.join(root, "docs");
   mkdirSync(path.join(docs, "web", "guides"), { recursive: true });
-  mkdirSync(path.join(docs, "concepts"));
-  writeFileSync(
-    path.join(docs, "web", "index.md"),
-    '---\ntitle: "@moku-labs/web"\ndescription: "The web package."\n---\n\nBody.\n'
-  );
   writeFileSync(
     path.join(docs, "web", "guides", "routing.md"),
     '---\ntitle: Routing\ndescription: "One typed builder."\nsection: Guides\n---\n\nBody.\n'
-  );
-  writeFileSync(
-    path.join(docs, "concepts", "events.md"),
-    '---\ntitle: Events\ndescription: "Typed notifications."\n---\n\nBody.\n'
   );
   return docs;
 }
@@ -63,6 +55,8 @@ describe("og plugin in a real app", () => {
       }
     });
     await app.start();
+    // A card reads the frontmatter, never the HTML, and the first render starts Shiki.
+    vi.spyOn(app.content, "renderMarkdown").mockResolvedValue("");
 
     const cards = await app.og.cards();
     const first = await app.og.write();
