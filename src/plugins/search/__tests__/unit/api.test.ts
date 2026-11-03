@@ -4,7 +4,7 @@ import { docsPlugin } from "../../../docs";
 import type { DocumentationApi, DocumentHeading, DocumentPage } from "../../../docs/types";
 import { buildSearchIndex, createSearchApi } from "../../api";
 import { createSearchState } from "../../state";
-import type { SearchContext, SearchEntry, SearchSources } from "../../types";
+import type { SearchContext, SearchEntry, SearchShard, SearchSources } from "../../types";
 
 function page(path: string, title: string, headings: DocumentHeading[] = []): DocumentPage {
   const [, pkg = "", ...rest] = path.split("/").filter(Boolean);
@@ -68,8 +68,8 @@ describe("buildSearchIndex", () => {
     expect(rows.find(row => row.href === "/docs/web/install/")?.icon).toBe("web");
   });
 
-  // Bug: a section links to a dead anchor, or h3 headings flood the palette.
-  it("turns every h2 of a page into a Section with the page path and the heading id", () => {
+  // Bug: a section links to a dead anchor, or an h3 section is unreachable from ⌘K.
+  it("turns every h2 and h3 of a page into a Section with the page path and the heading id", () => {
     const rows = buildSearchIndex({
       pages: [
         page("/docs/web/guides/routing/", "Routing", [
@@ -87,6 +87,13 @@ describe("buildSearchIndex", () => {
         title: "Define a route",
         subtitle: "Routing",
         href: "/docs/web/guides/routing/#define-a-route",
+        icon: "web"
+      },
+      {
+        kind: "Section",
+        title: "Params",
+        subtitle: "Routing",
+        href: "/docs/web/guides/routing/#params",
         icon: "web"
       },
       {
@@ -137,7 +144,10 @@ describe("buildSearchIndex", () => {
 });
 
 const PAGES = [
-  page("/docs/web/guides/routing/", "Routing", [{ id: "params", text: "Params", depth: 2 }])
+  {
+    ...page("/docs/web/guides/routing/", "Routing", [{ id: "params", text: "Params", depth: 2 }]),
+    markdown: "## Params\n\nThe wildcard form."
+  }
 ];
 
 function setup() {
@@ -174,11 +184,26 @@ describe("search api", () => {
 
     expect(await api.write("preview")).toEqual({ count: rows.length });
     expect(collection.write).toHaveBeenLastCalledWith(
-      [{ collection: "search", shard: "en", data: rows }],
+      [{ collection: "search", shard: "en", data: expect.objectContaining({ entries: rows }) }],
       { outDir: "preview" }
     );
 
     await api.write();
     expect(collection.write).toHaveBeenLastCalledWith(expect.any(Array), { outDir: "site-out" });
+  });
+
+  // Bug: write() persists the bare rows, so the browser has no terms, postings or aliases to query.
+  it("write() persists the lookup tables with the section text and the alias table", async () => {
+    const { api, collection } = setup();
+
+    await api.write();
+
+    const [[written]] = vi.mocked(collection.write).mock.lastCall ?? [[]];
+    const shard = written?.data as SearchShard;
+    const wildcard = shard.postings[shard.terms.indexOf("wildcard")];
+    expect(wildcard?.[0]).toBe(
+      shard.entries.findIndex(row => row.href === "/docs/web/guides/routing/#params")
+    );
+    expect(shard.aliases.fx).toEqual(["effects"]);
   });
 });

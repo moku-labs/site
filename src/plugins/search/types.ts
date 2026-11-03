@@ -50,6 +50,38 @@ export type SearchEntry = {
   icon: string;
 };
 
+/** Where a term was found. Higher wins. */
+export type SearchField = "title" | "heading" | "body";
+
+/**
+ * Everything the browser needs to answer a query. Plain JSON, one file: `dist/search/en.json`.
+ *
+ * @example
+ * ```ts
+ * const shard: SearchShard = {
+ *   entries: [{ kind: "Plugin", title: "effects", subtitle: "Particles.", href: "/docs/game/plugins/effects/", icon: "game" }],
+ *   terms: ["effects", "particles"],
+ *   postings: [[0, 8], [0, 3]],
+ *   aliases: { fx: ["effects"] }
+ * };
+ * ```
+ */
+export type SearchShard = {
+  /** Display rows. A posting's decoded entry index points into this array. */
+  entries: SearchEntry[];
+  /** Sorted terms, so a prefix is found with binary search. */
+  terms: string[];
+  /**
+   * Parallel to `terms`: flat `[entryDelta, weight, entryDelta, weight, ...]`, entry indices ascending.
+   * A delta is the distance from the entry before, the first from 0, so `[1, 8, 2, 3]` is entry 1 at
+   * weight 8 and entry 3 at weight 3. A term keeps every posting above weight 1 and its 60 earliest
+   * body-only postings (weight 1).
+   */
+  postings: number[][];
+  /** Lower-case alias to its target terms: `{ "fx": ["effects"] }`. */
+  aliases: Record<string, string[]>;
+};
+
 /**
  * The part of a `src/data/packages.ts` entry a `Package` row needs. Structural, so the resolved
  * entries of `resolvePackages` and the plain objects of a test both fit.
@@ -135,7 +167,8 @@ export type SearchContext = {
  */
 export type SearchApi = {
   /**
-   * Build the index rows: fixed pages, packages, docs pages, demos, then one `Section` per docs h2.
+   * Build the index rows: fixed pages, packages, docs pages, demos, then one `Section` per docs h2
+   * and h3.
    * The kind of a docs page comes from its path. Each `href` appears once: a package's index page
    * becomes its `Package` row.
    *
@@ -150,7 +183,8 @@ export type SearchApi = {
    */
   entries: () => Promise<SearchEntry[]>;
   /**
-   * Persist the index as one collection shard, `<outDir>/<collection>/<shard>.json`. After a
+   * Persist the rows and their lookup tables (`SearchShard`) as one collection shard,
+   * `<outDir>/<collection>/<shard>.json`. After a
    * build, a call for that build's output directory returns the write the `build:complete` hook
    * started instead of writing the shard a second time.
    *

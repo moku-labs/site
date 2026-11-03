@@ -194,3 +194,8 @@ html:has([data-component="search-palette"]:not([hidden])) {
   color: var(--docs-heading);
   outline: none;
 }
+
+/* The input has no outline of its own, so the keyboard sees its focus on the field. */
+[data-component="search-palette"] [data-part="field"]:focus-within {
+  box-shadow: inset 0 -2px var(--accent);
+}
