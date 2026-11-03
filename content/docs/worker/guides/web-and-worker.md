@@ -54,7 +54,7 @@ before you hand over, if that matters.
 
 ## The script
 
-```ts file="scripts/cli.ts" group="site" no-check="`./web` is your own @moku-labs/web app, which this page does not define"
+```ts file="scripts/cli.ts" group="site" no-check="the web import is your own @moku-labs/web app, which this page does not define"
 import {
   cliPlugin,
   createApp,
