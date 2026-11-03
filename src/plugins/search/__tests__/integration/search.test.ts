@@ -70,7 +70,11 @@ function createSearchApp() {
     ],
     pluginConfigs: {
       site: SITE,
-      content: { providers: [fileSystemContent({ contentDir: fixture("articles") })] },
+      content: {
+        providers: [
+          fileSystemContent({ contentDir: fixture("articles"), shikiLanguages: ["typescript"] })
+        ]
+      },
       docs: { dir: fixture("docs") }
     }
   });

@@ -4,14 +4,14 @@
  * the Node-only docs plugin through `ctx.require(docsReference)` and import their Node helpers
  * lazily, and loaders never run in the browser.
  */
-import type { Router } from "@moku-labs/web/browser";
+import type { Head, Router } from "@moku-labs/web/browser";
 import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { siteLayout } from "./components/site-layout";
-import { SITE } from "./config";
 import { contentReference } from "./lib/content-reference";
 import type { DocumentationPageView, DocumentationParameters } from "./lib/docs-data";
 import { packageParameters, pageParameters, sectionPageParameters } from "./lib/docs-params";
 import { docsReference } from "./lib/docs-reference";
+import { documentationHead, homeHead, sitePageHead } from "./lib/page-head";
 import { AboutPage } from "./pages/about-page";
 import { DemosPage } from "./pages/demos-page";
 import { DocumentationPage } from "./pages/doc-page";
@@ -58,17 +58,14 @@ async function loadDocumentationPage(
 }
 
 /**
- * Head of a docs page: its title and description.
+ * Head of a docs page: its title, description, card and article data.
  *
  * @param ctx - The route's render context.
  * @param ctx.data - The page view.
  * @returns The head fields.
  */
-function docsPageHead(ctx: { data: DocumentationPageView }): {
-  title: string;
-  description: string;
-} {
-  return { title: ctx.data.headTitle, description: ctx.data.page.description };
+function docsPageHead(ctx: { data: DocumentationPageView }): Head.HeadConfig {
+  return documentationHead(ctx.data);
 }
 
 /**
@@ -91,12 +88,7 @@ export const routes = defineRoutes({
       });
     })
     .render(ctx => <HomePage view={ctx.data} url={ctx.url} />)
-    // The keyed `title` element pins the tab title past the `%s — Moku Labs` template.
-    .head(() => ({
-      title: SITE.name,
-      description: SITE.description,
-      elements: [{ tag: "title", children: SITE.name, key: "title" }]
-    }))
+    .head(() => homeHead())
     .meta({ nav: "home" }),
   docsHub: route("/docs/")
     .layout(siteLayout)
@@ -105,10 +97,13 @@ export const routes = defineRoutes({
       return data.loadDocumentationHub(ctx.require(docsReference), data.installedSources());
     })
     .render(ctx => <DocumentationHubPage view={ctx.data} />)
-    .head(() => ({
-      title: "Docs",
-      description: "Docs for every Moku package, checked against the published releases."
-    }))
+    .head(() =>
+      sitePageHead({
+        path: "/docs/",
+        title: "Docs",
+        description: "Docs for every Moku package, checked against the published releases."
+      })
+    )
     .meta({ nav: "docs" }),
   docsPackage: route("/docs/{pkg}/")
     .layout(siteLayout)
@@ -134,20 +129,26 @@ export const routes = defineRoutes({
   demos: route("/demos/")
     .layout(siteLayout)
     .render(ctx => <DemosPage url={ctx.url} />)
-    .head(() => ({
-      title: "Demos",
-      description:
-        "Six apps on Moku. An agent wrote most of the code. The kernel checks every plugin before the app starts."
-    }))
+    .head(() =>
+      sitePageHead({
+        path: "/demos/",
+        title: "Demos",
+        description:
+          "Six apps on Moku. An agent wrote most of the code. The kernel checks every plugin before the app starts."
+      })
+    )
     .meta({ nav: "demos" }),
   about: route("/about/")
     .layout(siteLayout)
     .render(ctx => <AboutPage url={ctx.url} />)
-    .head(() => ({
-      title: "About",
-      description:
-        "Alex Kucherenko builds Moku, an agentic TypeScript framework for reliable software written with LLMs."
-    }))
+    .head(() =>
+      sitePageHead({
+        path: "/about/",
+        title: "About",
+        description:
+          "Alex Kucherenko builds Moku, an agentic TypeScript framework for reliable software written with LLMs."
+      })
+    )
     .meta({ nav: "about" })
 });
 

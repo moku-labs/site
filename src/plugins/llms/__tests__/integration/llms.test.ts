@@ -49,7 +49,11 @@ function createLlmsApp(siteUrl: string = SITE.url) {
     plugins: [contentPlugin, buildPlugin, docsPlugin, llmsPlugin, buildSignal],
     pluginConfigs: {
       site: SITE,
-      content: { providers: [fileSystemContent({ contentDir: fixture("articles") })] },
+      content: {
+        providers: [
+          fileSystemContent({ contentDir: fixture("articles"), shikiLanguages: ["typescript"] })
+        ]
+      },
       docs: { dir: fixture("docs") },
       llms: { siteUrl, outDir: temporary() }
     }

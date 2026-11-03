@@ -45,7 +45,11 @@ function createDocsApp(directory = fixture("docs")) {
     plugins: [contentPlugin, buildPlugin, docsPlugin, phaseSignal],
     pluginConfigs: {
       site: SITE,
-      content: { providers: [fileSystemContent({ contentDir: fixture("articles") })] },
+      content: {
+        providers: [
+          fileSystemContent({ contentDir: fixture("articles"), shikiLanguages: ["typescript"] })
+        ]
+      },
       docs: { dir: directory }
     }
   });

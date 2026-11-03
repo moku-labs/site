@@ -11,7 +11,7 @@ order: 3
 | --- | --- | --- | --- | --- |
 | init | `onInit` | forward | inside `createApp()`, synchronous | full `ctx` |
 | start | `onStart` | forward | `await app.start()` | full `ctx` |
-| stop | `onStop` | **reverse** | `await app.stop()` | own `global`, `config`, `state` |
+| stop | `onStop` | **reverse** | `await app.stop()` | `global`, own `config` and `state` |
 
 Before the lifecycle, each plugin's factories run in this order:
 
@@ -39,7 +39,7 @@ const timerPlugin = createPlugin("timer", {
     ctx.state.handle = setInterval(() => ctx.log.info("timer:tick"), 1000); // [!note] Open a resource when the app starts.
   },
   onStop: ctx => {
-    clearInterval(ctx.state.handle); // [!note] onStop gets its own state back, nothing else.
+    clearInterval(ctx.state.handle); // [!note] onStop gets its own config and state back, no peers and no core APIs.
   }
 });
 

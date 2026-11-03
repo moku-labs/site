@@ -1,7 +1,6 @@
 import { defineConfig } from "vitest/config";
 
-// The first Shiki render of a file was 6-8 s on a CI runner with coverage on, before the setup file.
-const SHIKI_LANGUAGES = "tests/support/shiki-languages.ts";
+// The first Shiki render of a file was 6-8 s on a CI runner with coverage on, before `shikiLanguages`.
 const SHIKI_WARMUP_TIMEOUT = 30_000;
 
 export default defineConfig({
@@ -11,7 +10,6 @@ export default defineConfig({
         test: {
           name: "unit",
           testTimeout: SHIKI_WARMUP_TIMEOUT,
-          setupFiles: [SHIKI_LANGUAGES],
           include: ["tests/unit/**/*.test.ts", "src/plugins/**/__tests__/unit/**/*.test.ts"]
         }
       },
@@ -19,7 +17,6 @@ export default defineConfig({
         test: {
           name: "integration",
           testTimeout: SHIKI_WARMUP_TIMEOUT,
-          setupFiles: [SHIKI_LANGUAGES],
           include: [
             "tests/integration/**/*.test.ts",
             "src/plugins/**/__tests__/integration/**/*.test.ts"
