@@ -200,6 +200,7 @@ written; `--update` rewrites them; any other is compared.
 | Flag | Does |
 |---|---|
 | `--update` | Rewrites the baselines of every test it runs. |
+| `--no-verify-frames` | Turns off the check of skipped frames. A missed frame no longer fails the step. |
 | `--only <name>` | Runs one test. Repeats. |
 | `--no-pixels`, `--pixels` | The headless leg alone, or the pixel leg off a Mac too. |
 | `--webgl` | The tests with `webgl: true`, on the page with `?renderer=webgl`. |
