@@ -62,7 +62,7 @@ export function SiteHeader(props: SiteHeaderProperties): VNode {
       <div data-part="bar">
         <a data-part="logo" href={url("home")} aria-label={`${SITE.name} home`}>
           <CubeIcon tone="kernel" size={28} />
-          <span>{SITE.name}</span>
+          <span>Moku</span>
         </a>
         <nav aria-label="Main">
           {/* A manual popover: the burger's popovertarget opens and closes it before the island

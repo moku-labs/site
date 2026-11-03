@@ -19,6 +19,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (max-width: 760px) {
+  body {
+    font-size: 15.5px;
+  }
+}
+
 /* Docs mode: the calm sheet ground with a fine isometric grid. */
 body:has([data-mode="docs"]) {
   color: var(--docs-text);

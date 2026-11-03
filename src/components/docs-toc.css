@@ -69,8 +69,9 @@
 
 /* The same links for a phone: a closed disclosure at the top of the article, under the docs
    breakpoint only (the side column shows above it). */
-@scope ([data-component="docs-toc-inline"]) {
-  :scope {
+/* Not @scope: WebKit does not apply @scope rules to content slotted in <details>. */
+[data-component="docs-toc-inline"] {
+  & {
     display: none;
     margin: 0 0 24px;
     border: 1px solid var(--docs-line);
@@ -79,6 +80,7 @@
   }
 
   summary {
+    list-style: none;
     display: flex;
     align-items: center;
     min-height: 44px;
@@ -86,6 +88,10 @@
     font-weight: 600;
     color: var(--docs-heading);
     cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
   }
 
   summary::after {
@@ -119,7 +125,7 @@
   }
 
   @media (max-width: 860px) {
-    :scope {
+    & {
       display: block;
     }
   }

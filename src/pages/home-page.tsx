@@ -46,7 +46,7 @@ export function HomePage(props: HomePageProperties): VNode {
       <LandingSection
         id="stack"
         title="Everything stands on one kernel."
-        lede="The kernel on top, eleven packages under it, six demo apps at the base. Hover or tap a demo to see what it is built from, or a package to see what was built with it."
+        lede="The kernel on top, ten packages under it, six demo apps at the base. Hover or tap a demo to see what it is built from, or a package to see what was built with it."
       >
         <Pyramid packages={view.packages} demos={view.demos} url={url} />
       </LandingSection>

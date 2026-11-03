@@ -57,5 +57,9 @@
     [data-part="crumbs"] {
       margin-bottom: 4px;
     }
+
+    [data-part="lead"] {
+      font-size: 17px;
+    }
   }
 }

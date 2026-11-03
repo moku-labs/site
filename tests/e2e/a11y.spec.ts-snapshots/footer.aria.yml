@@ -1,5 +1,5 @@
 - contentinfo:
-  - link "Moku Labs":
+  - link "Moku":
     - /url: /
   - paragraph: Moku Labs builds Moku, an agentic TypeScript framework for reliable software written with LLMs.
   - heading "Site" [level=2]

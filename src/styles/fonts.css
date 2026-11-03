@@ -4,11 +4,11 @@
  */
 
 @font-face {
-  font-family: "Unbounded";
+  font-family: "Sora";
   font-style: normal;
   font-display: swap;
-  font-weight: 200 900;
-  src: url(/fonts/unbounded/unbounded-latin-wght-normal.woff2) format("woff2");
+  font-weight: 100 800;
+  src: url(/fonts/sora/sora-latin-wght-normal.woff2) format("woff2");
 }
 
 @font-face {

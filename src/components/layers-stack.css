@@ -138,6 +138,10 @@
       li {
         padding: 12px 10px;
       }
+
+      code {
+        font-size: 12.5px;
+      }
     }
   }
 }
