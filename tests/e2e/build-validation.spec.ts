@@ -40,7 +40,9 @@ test("llms.txt lists every docs page and llms-full.txt carries them", async ({ r
 test("the search index has a row for every docs page", async ({ request }) => {
   const response = await request.get("/search/en.json");
   expect(response.status()).toBe(200);
-  const rows = (await response.json()) as { href: string; title: string; kind: string }[];
+  const { entries: rows } = (await response.json()) as {
+    entries: { href: string; title: string; kind: string }[];
+  };
   const hrefs = new Set(rows.map(row => row.href));
   for (const screen of DOC_SCREENS) expect(hrefs.has(screen.path), screen.path).toBe(true);
   for (const row of rows) {

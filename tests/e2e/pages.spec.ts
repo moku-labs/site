@@ -1,5 +1,5 @@
 /**
- * @file Demos filter chips (filter, empty state, show all), demo card links (Source only until a
+ * @file Demos filter chips (filter, show all), demo card links (Source only until a
  * demo is deployed), the About page and the 404 page.
  */
 import { about, principles } from "../../src/data/about";
@@ -8,30 +8,22 @@ import { boot, expect, isPhone, press, test } from "./_fixtures";
 import { NOT_FOUND_PATH, SITE_SCREENS } from "./_inventory";
 
 test.describe("demos", () => {
-  test("chips filter the cards; an unused package shows its empty state", async ({
-    page
-  }, testInfo) => {
+  test("chips filter the cards; All shows every card again", async ({ page }, testInfo) => {
     const phone = isPhone(testInfo.project.name);
     await boot(page, "/demos/");
     const cards = page.locator("[data-demo]");
     const chip = (id: string) => page.locator(`[data-part="filters"] [data-filter="${id}"]`);
     await expect(cards).toHaveCount(demos.length);
     await expect(chip("all")).toHaveAttribute("aria-pressed", "true");
-    for (const id of ["web", "game", "native"]) {
+    for (const id of ["web", "game", "native", "ai"]) {
       await press(chip(id), phone);
       await expect(chip(id)).toHaveAttribute("aria-pressed", "true");
       await expect(chip("all")).toHaveAttribute("aria-pressed", "false");
       const expected = demos.filter(demo => demo.stack.includes(id)).length;
       await expect(cards.locator("visible=true")).toHaveCount(expected);
     }
-    await press(chip("ai"), phone);
-    await expect(cards.locator("visible=true")).toHaveCount(0);
-    const empty = page.locator('[data-empty-for="ai"]');
-    await expect(empty).toBeVisible();
-    await expect(empty).toContainText("No demo uses @moku-labs/ai");
-    await press(empty.getByRole("button", { name: "Show all six demos" }), phone);
+    await press(chip("all"), phone);
     await expect(cards.locator("visible=true")).toHaveCount(demos.length);
-    await expect(empty).toBeHidden();
     await expect(chip("all")).toHaveAttribute("aria-pressed", "true");
   });
 
