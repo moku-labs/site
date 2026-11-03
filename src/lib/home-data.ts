@@ -12,7 +12,7 @@ import { goals } from "../data/assembly";
 import type { DemoEntry } from "../data/demos";
 import { demos } from "../data/demos";
 import type { PackageGroup } from "../data/packages";
-import { claudeInstallCommands, claudePrompts } from "../data/prompts";
+import { claudeInstallCommands, LANDING_PROMPT_COUNT, landingPrompts } from "../data/prompts";
 import type { HeroData } from "./hero-props";
 import type { ResolvedPackage } from "./packages";
 
@@ -71,7 +71,7 @@ export type HomeView = {
     version: string;
     /** The install commands. */
     install: readonly string[];
-    /** Example prompts. */
+    /** The example prompts the server renders: the first `LANDING_PROMPT_COUNT` of the landing pool. */
     prompts: readonly string[];
   };
 };
@@ -127,7 +127,7 @@ export async function loadHome(sources: HomeSources): Promise<HomeView> {
     claude: {
       version: versionOf(sources.packages, "claude"),
       install: claudeInstallCommands,
-      prompts: claudePrompts
+      prompts: landingPrompts.slice(0, LANDING_PROMPT_COUNT)
     }
   };
 }
