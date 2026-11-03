@@ -49,9 +49,7 @@ async function ask(page: Page, query: string) {
 test.describe("keys", () => {
   // Bug: closing gives focus back to the header's button, so a second Enter presses that button and
   // the palette opens again over the page just chosen.
-  test.fixme("Enter pressed twice on a result leaves the palette closed", async ({
-    page
-  }, testInfo) => {
+  test("Enter pressed twice on a result leaves the palette closed", async ({ page }, testInfo) => {
     test.skip(isPhone(testInfo.project.name), "a hardware keyboard");
     await boot(page, "/");
     await openPalette(page, false);
@@ -78,7 +76,7 @@ test.describe("keys", () => {
   });
 
   // Bug: the shortcut reads `key`, and a Cyrillic layout reports `л` for the K key.
-  test.fixme("the shortcut works on a non-Latin keyboard layout", async ({ page }, testInfo) => {
+  test("the shortcut works on a non-Latin keyboard layout", async ({ page }, testInfo) => {
     test.skip(isPhone(testInfo.project.name), "a hardware keyboard");
     await boot(page, "/docs/");
     await page.evaluate(() => {
@@ -89,7 +87,7 @@ test.describe("keys", () => {
   });
 
   // Bug: the shortcut ignores Shift, so it takes ⌘⇧K and Ctrl+Shift+K from the browser.
-  test.fixme("the shortcut with Shift is left to the browser", async ({ page }, testInfo) => {
+  test("the shortcut with Shift is left to the browser", async ({ page }, testInfo) => {
     test.skip(isPhone(testInfo.project.name), "a hardware keyboard");
     await boot(page, "/docs/");
     await page.keyboard.press("ControlOrMeta+Shift+k");
@@ -131,7 +129,7 @@ test.describe("keys", () => {
 
 test.describe("results", () => {
   // Bug: the filter keeps the card hidden, so the palette closes, the URL changes and nothing shows.
-  test.fixme("a demo hidden by the filter is shown when the palette opens it", async ({
+  test("a demo hidden by the filter is shown when the palette opens it", async ({
     page
   }, testInfo) => {
     const phone = isPhone(testInfo.project.name);
@@ -146,6 +144,44 @@ test.describe("results", () => {
     await expect(palette(page)).toBeHidden();
     await expect(page).toHaveURL(/\/demos\/#tracker$/);
     await expect(card).toBeInViewport();
+  });
+
+  // Bug: the landing from another page replaces the URL with the fragment it already has, so no
+  // `hashchange` fires, and a filter left on the demos page must not hide the card.
+  test("a demo opened from another page after a filter is in view", async ({ page }, testInfo) => {
+    const phone = isPhone(testInfo.project.name);
+    await boot(page, "/demos/");
+    await press(page.locator('[data-part="filters"] [data-filter="room"]'), phone);
+    const card = page.locator('[id="tracker"]');
+    await expect(card).toBeHidden();
+    await press(page.locator('[data-component="site-header"] [data-part="logo"]'), phone);
+    await expect(page).toHaveURL(url => url.pathname === "/");
+    await openPalette(page, phone);
+    await ask(page, "Tracker");
+    await press(options(page).first(), phone);
+    await expect(page).toHaveURL(/\/demos\/#tracker$/);
+    await expect(page.locator('[id="tracker"]')).toBeInViewport();
+  });
+
+  // Bug: closing the palette goes back to the fragment URL, so `hashchange` takes the card the visitor
+  // just filtered away for one to show: the filter is gone and the page jumps.
+  test("Esc in the palette keeps a filter that hides the fragment's card", async ({
+    page
+  }, testInfo) => {
+    const phone = isPhone(testInfo.project.name);
+    await boot(page, "/demos/#tracker");
+    const room = page.locator('[data-part="filters"] [data-filter="room"]');
+    await press(room, phone);
+    const card = page.locator('[id="tracker"]');
+    await expect(card).toBeHidden();
+    const scroll = await page.evaluate(() => scrollY);
+    await openPalette(page, phone);
+    await page.keyboard.press("Escape");
+    await expect(palette(page)).toBeHidden();
+    await page.waitForTimeout(300);
+    await expect(room).toHaveAttribute("aria-pressed", "true");
+    await expect(card).toBeHidden();
+    expect(await page.evaluate(() => scrollY)).toBe(scroll);
   });
 
   // Bug: a Cmd click closes the palette behind the new tab, a middle click leaves it open.
@@ -167,9 +203,7 @@ test.describe("results", () => {
 
   // Bug: a section row says only its heading and its page, so `createApp` lists seven rows that read
   // the same, to the eye and to a screen reader; only a 34px icon tells their packages apart.
-  test.fixme("the rows of one query can be told apart by their text", async ({
-    page
-  }, testInfo) => {
+  test("the rows of one query can be told apart by their text", async ({ page }, testInfo) => {
     await boot(page, "/");
     await openPalette(page, isPhone(testInfo.project.name));
     await ask(page, "createApp");
@@ -184,7 +218,7 @@ test.describe("results", () => {
     ["official plugins", "native/how-it-works.md", "/docs/native/how-it-works/"],
     ["browser library", "room/quick-start.md", "/docs/room/quick-start/"]
   ] as const) {
-    test.fixme(`"${phrase}" finds the page that says it`, async ({ page }, testInfo) => {
+    test(`"${phrase}" finds the page that says it`, async ({ page }, testInfo) => {
       expect(readFileSync(nodePath.join(DOCS_DIR, file), "utf8")).toContain(phrase);
       await boot(page, "/");
       await openPalette(page, isPhone(testInfo.project.name));
