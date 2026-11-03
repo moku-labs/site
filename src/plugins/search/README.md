@@ -85,7 +85,12 @@ A term keeps its highest weight per row.
 The query in `src/lib/search-results.ts` multiplies the weight by what the match is worth: exact or
 alias 1, the token plus `s` or `es` 0.95, a prefix `0.5 + 0.4 × token length / term length`, a typo
 0.4. A row that is not a `Section` then counts 1.5 times, and a row whose whole title is the query
-or an alias target, plurals folded, counts twice.
+or an alias target, plurals folded, counts twice. A query lists the rows that hold all its words;
+when every word has matches but no row has them all, it lists the rows of the rarest word, and a word
+with no match at all gives nothing.
+
+A `Section` row's subtitle is `<package id> · <page title>`, so rows with the same heading differ. It
+is not indexed.
 
 Text inside code fences is indexed, so `createApp` is found. Fence lines with their meta, directive
 lines, `[!note]`, HTML comments and link targets are not. A page whose sections and headings differ

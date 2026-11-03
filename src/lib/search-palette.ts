@@ -35,6 +35,12 @@ export type ShortcutKeys = {
   metaKey: boolean;
   /** Ctrl is held. */
   ctrlKey: boolean;
+  /** `KeyboardEvent.code`: the physical key, for a layout whose K key types no Latin letter. */
+  code?: string;
+  /** Shift is held: ⌘⇧K and Ctrl+Shift+K belong to the browser. */
+  shiftKey?: boolean;
+  /** Alt is held. */
+  altKey?: boolean;
 };
 
 /** The props when the palette has none: the default search shard and no suggestions. */
@@ -162,18 +168,25 @@ export function nextTabStop(current: number, backwards: boolean, stops: number):
 }
 
 /**
- * Whether a keydown is the palette's shortcut: ⌘K, or Ctrl+K off a Mac.
+ * Whether a keydown is the palette's shortcut: ⌘K, or Ctrl+K off a Mac. A Latin layout is read by
+ * its letter, wherever K sits on it; any other layout by the physical key. With Shift or Alt the
+ * keys are left to the browser.
  *
- * @param keys - The keydown's key and modifiers.
- * @returns `true` for ⌘K and Ctrl+K, in either case.
+ * @param keys - The keydown's key, physical key and modifiers.
+ * @returns `true` for ⌘K and Ctrl+K, in either case and on any layout.
  * @example
  * ```ts
  * isPaletteShortcut({ key: "K", metaKey: true, ctrlKey: false }); // true
+ * isPaletteShortcut({ key: "л", code: "KeyK", metaKey: true, ctrlKey: false }); // true
+ * isPaletteShortcut({ key: "k", metaKey: true, ctrlKey: false, shiftKey: true }); // false
  * isPaletteShortcut({ key: "k", metaKey: false, ctrlKey: false }); // false
  * ```
  */
 export function isPaletteShortcut(keys: ShortcutKeys): boolean {
-  return (keys.metaKey || keys.ctrlKey) && keys.key.toLowerCase() === "k";
+  const isLetterK = /^[a-z]$/i.test(keys.key)
+    ? keys.key.toLowerCase() === "k"
+    : keys.code === "KeyK";
+  return (keys.metaKey || keys.ctrlKey) && !keys.shiftKey && !keys.altKey && isLetterK;
 }
 
 /**

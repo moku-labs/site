@@ -78,7 +78,9 @@ function iconOf(page: DocumentPage): string {
 }
 
 /**
- * The `Section` rows of a page: one per h2 and h3, linking to its anchor.
+ * The `Section` rows of a page: one per h2 and h3, linking to its anchor. The subtitle names the
+ * package, so rows with the same heading and page title differ. It is display text only: the shard
+ * does not index the subtitle of a `Section`.
  *
  * @param page - A docs page.
  * @returns The rows in document order.
@@ -87,7 +89,7 @@ function sectionsOf(page: DocumentPage): SearchEntry[] {
   return page.headings.map(heading => ({
     kind: "Section",
     title: heading.text,
-    subtitle: page.title,
+    subtitle: `${page.pkg} · ${page.title}`,
     href: sectionHref(page, heading),
     icon: iconOf(page)
   }));

@@ -415,6 +415,9 @@ function chooseResult(ctx: PaletteContext, event: Event, link: Element): void {
     return;
   }
   const replace = ctx.state.pushed && isPaletteEntry(location.hash);
+
+  // No opener: focus on the header's button would let a second Enter open the palette again.
+  ctx.state.opener = undefined;
   closePalette(ctx, "keep");
   openHref(ctx, href, { replace });
 }
