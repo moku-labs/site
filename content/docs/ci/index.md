@@ -30,8 +30,9 @@ bun run release:setup
 ```
 
 `release:setup` writes the two workflow files and the Dependabot files, adds the missing scripts,
-registers the trusted publisher and applies the branch ruleset. Run it again any time: it only does
-what is still missing.
+does the first publish, registers the trusted publisher and applies the branch ruleset. Run it again
+any time: it only does what is still missing. The [quick start](/docs/ci/quick-start/) walks through
+it.
 
 :::callout{tone="warn"}
 Two steps are yours alone, because the CLI never handles a credential: `gh auth login` and
@@ -58,12 +59,24 @@ jobs:
     uses: moku-labs/ci/.github/workflows/package-ci.yml@v1
 ```
 
-Every pull request then reports four checks: `ci / lint`, `ci / types`, `ci / test` and
-`ci / build`. Check the setup any time:
+Every pull request then reports the four required checks, `ci / lint`, `ci / types`, `ci / test`
+and `ci / build`, plus `ci / preview`. Check the setup any time:
 
 ```sh terminal
 bun run release:doctor
 ```
+
+## Where to go next
+
+| You want to | Read |
+|---|---|
+| Set up a package | [Quick start](/docs/ci/quick-start/) |
+| Understand the pipeline | [How it works](/docs/ci/how-it-works/) |
+| Publish to npm, previews, a failed release | [Package publishing](/docs/ci/workflows/package-publishing/) |
+| Deploy an app to Cloudflare | [App deploy](/docs/ci/workflows/app-deploy/) |
+| Test an engine change on real games | [Demos](/docs/ci/workflows/demos/) |
+| Look up a command or a check | [moku-release](/docs/ci/moku-release/) |
+| Protect `main` | [Rulesets](/docs/ci/rulesets/) |
 
 ## Start with Claude
 
