@@ -2,6 +2,7 @@
 title: "@moku-labs/common"
 description: "Shared plugins: log, env, branded CLI."
 section: Get started
+order: 1
 ---
 
 ## Overview
@@ -20,9 +21,9 @@ plugins in your framework's `createCoreConfig`.
 | --- | --- |
 | `logPlugin` | In-memory trace and an `expect()` DSL for testable workflows. Injected as `ctx.log`. |
 | `envPlugin` | Validated, frozen environment from several providers. Injected as `ctx.env`. |
-| `dotenv`, `processEnv`, `cloudflareBindings` | Env providers for Node and Workers. |
+| `dotenv`, `processEnv`, `cloudflareBindings`, `workerSafeProcessEnv` | Env providers for Node and Workers. |
 | `browserEnv` | Env provider for the browser, from `@moku-labs/common/browser`. |
-| `createBrandConsole`, `createBrandPrompts` | The branded terminal kit, from `@moku-labs/common/cli`. |
+| `createBrandConsole`, `createBrandPrompts`, `brandedSink` | The branded terminal kit, from `@moku-labs/common/cli`. |
 
 ## Install
 
@@ -81,3 +82,11 @@ Test my signup workflow with the expect() DSL of logPlugin
 ```text prompt
 Give my CLI a branded console and prompts from @moku-labs/common/cli
 ```
+
+## Where to next
+
+- [Quick start](/docs/common/quick-start/): log and env in a framework, with an assertion on the trace.
+- [How it works](/docs/common/how-it-works/): the catalog, the entries, the order of a run.
+- [log plugin](/docs/common/plugins/log/) and [env plugin](/docs/common/plugins/env/): config and API.
+- [Branded CLI](/docs/common/guides/branded-cli/): a console and prompts for a terminal tool.
+- [API reference](/docs/common/api/): every export of all three entries.
