@@ -36,7 +36,7 @@ Then add the pack for each framework you use. Packs install the same way:
 /plugin install moku-design@moku
 ```
 
-Requirements: Bun 1.3.14 or newer, Node 24 or newer, a recent Claude Code release.
+Requirements: Bun, Node 24 or newer, a recent Claude Code release.
 
 ## Stations
 
