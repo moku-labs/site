@@ -16,7 +16,7 @@
     "bun": ">=1.4.3"
   },
   "dependencies": {
-    "@moku-labs/web": "2.4.17",
+    "@moku-labs/web": "2.4.18",
     "preact": "10.29.2",
     "preact-render-to-string": "6.6.0"
   },
@@ -27,13 +27,13 @@
     "@fontsource/jetbrains-mono": "5.3.0",
     "@fontsource/sora": "5.3.0",
     "@moku-labs/ai": "0.16.13",
-    "@moku-labs/ci": "1.5.7",
-    "@moku-labs/editor": "0.10.19",
-    "@moku-labs/game": "0.15.89",
-    "@moku-labs/native": "0.3.13",
-    "@moku-labs/room": "0.8.9",
+    "@moku-labs/ci": "1.5.8",
+    "@moku-labs/editor": "0.10.20",
+    "@moku-labs/game": "0.15.92",
+    "@moku-labs/native": "0.3.14",
+    "@moku-labs/room": "0.8.10",
     "@moku-labs/system": "0.3.7",
-    "@moku-labs/worker": "0.20.9",
+    "@moku-labs/worker": "0.20.11",
     "@playwright/test": "1.64.1",
     "@resvg/resvg-js": "2.6.2",
     "@types/bun": "1.4.2",
