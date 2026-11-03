@@ -1,6 +1,6 @@
 /**
  * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data/cli, and the
- * site's docs/search/llms plugins, which route loaders reach by name) on top of
+ * site's docs/search/llms/og plugins, which route loaders and scripts reach) on top of
  * `@moku-labs/web`'s browser-safe defaults. Driven by the thin `scripts/*.ts` entries via
  * `app.cli.*`. The browser entry (src/spa.tsx) omits the Node-only plugins.
  */
@@ -25,12 +25,14 @@ import { headingIds } from "./lib/markdown/heading-ids";
 import { tables } from "./lib/markdown/tables";
 import { docsPlugin } from "./plugins/docs";
 import { llmsPlugin } from "./plugins/llms";
+import { ogPlugin } from "./plugins/og";
 import { searchPlugin } from "./plugins/search";
 import { routes } from "./routes";
 
 /**
  * The site's Node SSG app: `@moku-labs/web`'s browser-safe defaults plus the Node-only build,
- * deploy, data and cli plugins. Driven by `scripts/{build,serve,preview,deploy}.ts` via `app.cli.*`.
+ * deploy, data and cli plugins. Driven by `scripts/{build,serve,preview,deploy}.ts` via `app.cli.*`,
+ * and by `scripts/og.ts` via `app.og.write()`.
  *
  * @example
  * ```ts
@@ -48,12 +50,13 @@ export const app = createApp({
     cliPlugin,
     docsPlugin,
     searchPlugin,
-    llmsPlugin
+    llmsPlugin,
+    ogPlugin
   ],
   config: { mode: "hybrid" },
   pluginConfigs: {
     site: SITE,
-    i18n: { locales: ["en"], defaultLocale: "en" },
+    i18n: { locales: ["en"], defaultLocale: "en", ogLocaleMap: { en: "en_US" } },
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
     // Content is only the Markdown renderer for the docs plugin: no articles, no feeds.
@@ -89,6 +92,8 @@ export const app = createApp({
       outDir: OUT_DIRECTORY
     },
     llms: { siteUrl: SITE.url, outDir: OUT_DIRECTORY },
+    // Drawn by `bun run og` and committed: the build copies `public/og/` and never draws.
+    og: { outDir: "public/og", manifest: "src/data/og-manifest.json" },
     build: {
       outDir: OUT_DIRECTORY,
       sitemap: true,
