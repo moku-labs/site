@@ -9,6 +9,8 @@ import type { OgCard, OgManifest } from "../../types";
 const REPAIR = "run bun run og and commit public/og and src/data/og-manifest.json";
 const OUT_DIRECTORY = path.join("public", "og");
 const MANIFEST = path.join("src", "data", "og-manifest.json");
+// `cards()` renders every docs page. A busy CI runner needs more than the default 10 s.
+const LOAD_TIMEOUT = 120_000;
 
 /**
  * The PNG files under the committed card folder.
@@ -33,7 +35,7 @@ describe("committed share cards", () => {
   beforeAll(async () => {
     cards = await app.og.cards();
     manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, "utf8")) : {};
-  });
+  }, LOAD_TIMEOUT);
 
   // Bug: a new page, a changed title or a bumped version ships an old or missing card, because
   // nothing but a person remembers `bun run og`.

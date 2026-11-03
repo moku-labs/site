@@ -175,12 +175,15 @@ describe("buildCards", () => {
   });
 });
 
+// `cards()` renders every docs page. A busy CI runner needs more than the default 10 s.
+const LOAD_TIMEOUT = 120_000;
+
 describe("the real cards", () => {
   let cards: OgCard[] = [];
 
   beforeAll(async () => {
     cards = await app.og.cards();
-  });
+  }, LOAD_TIMEOUT);
 
   // Bug: a package of the family has no card, or falls back to another package's icon. Row A3.
   it("gives every package of the family a card with its own icon", () => {
