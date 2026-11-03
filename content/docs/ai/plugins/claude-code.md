@@ -27,10 +27,6 @@ Its own public API is one method, `app.claude.info()`.
 
 No API key. The CLI is found on `PATH`, read through `ctx.env`, and must be logged in.
 
-```sh terminal title="setup"
-$ claude login
-```
-
 `info().configured` is true when `bin` exists: a path-like `bin` is checked directly, a bare name
 is searched on `PATH`.
 

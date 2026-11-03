@@ -8,12 +8,22 @@ order: 3
 ## The picture
 
 :::flow
-- **Build file.** `buildfile` compiles `*.moku.yaml` through one zod schema into a `BuildSpec`.
-- **Runner.** `runner` plans every item and drives it through the pipeline below.
-- **Registry.** `registry` finds the handler for the item's task and provider.
-- **Provider.** The handler calls the service and returns bytes and a real cost.
-- **Store, then journal.** `store` keeps the bytes. `journal` then records the hash and the cost.
+- `*.moku.yaml`
+- `buildfile`
+- `runner`
+- `registry`
+- provider handler
+- `store`, then `journal`
 :::
+
+| Part | Job |
+|---|---|
+| `buildfile` | Compiles the build files through one zod schema into a `BuildSpec`. |
+| `runner` | Plans every item and drives it through the steps below. |
+| `registry` | Finds the handler for the item's task and provider. |
+| Provider handler | Calls the service. Returns the bytes and the real cost. |
+| `store` | Keeps the bytes. |
+| `journal` | Records the hash and the cost, after the bytes are safe. |
 
 Tasks and providers never import each other. A task plugin owns a contract, a provider plugin
 registers a handler for it, and the runner only sees the handler.
