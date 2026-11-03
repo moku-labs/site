@@ -7,15 +7,13 @@ import { app } from "../../src/app";
 import { SITE } from "../../src/config";
 import type { DocumentPage } from "../../src/plugins/docs/types";
 
-// Slow on purpose: one real `bun scripts/build.ts` (43 pages). The preload trims Shiki's languages
-// only: no test here reads highlighting, and the hook and CI build without it. It runs in a copy of
-// the project in a temp dir, so the build never touches the working `dist/`. Sources are copied,
-// not linked: the build's asset copy refuses a symlinked directory. `node_modules` is linked.
+// Slow on purpose: one real `bun scripts/build.ts` (43 pages). It runs in a copy of the project in a
+// temp dir, so the build never touches the working `dist/`. Sources are copied, not linked: the
+// build's asset copy refuses a symlinked directory. `node_modules` is linked.
 // No 404.html test: `app.cli.build()` itself fails without it, so the beforeAll fails first.
 const repository = path.resolve(import.meta.dirname, "..", "..");
 const copied = ["src", "content", "public", "scripts", "package.json", "tsconfig.json"];
 const BUILD_TIMEOUT = 180_000;
-const SHIKI_LANGUAGES = path.join(repository, "tests", "support", "shiki-languages.ts");
 
 let project = "";
 let pages: DocumentPage[] = [];
@@ -29,7 +27,7 @@ let pages: DocumentPage[] = [];
  */
 function runBuild(cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn("bun", ["--preload", SHIKI_LANGUAGES, "scripts/build.ts"], { cwd });
+    const child = spawn("bun", ["scripts/build.ts"], { cwd });
     let output = "";
     child.stdout.on("data", (chunk: Buffer) => {
       output += chunk.toString();

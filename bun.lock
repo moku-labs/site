@@ -5,13 +5,16 @@
     "": {
       "name": "site",
       "dependencies": {
-        "@moku-labs/web": "2.4.17",
+        "@moku-labs/web": "2.4.18",
         "preact": "10.29.2",
         "preact-render-to-string": "6.6.0",
       },
       "devDependencies": {
         "@axe-core/playwright": "4.14.0",
         "@biomejs/biome": "2.4.16",
+        "@fontsource/instrument-sans": "5.3.0",
+        "@fontsource/jetbrains-mono": "5.3.0",
+        "@fontsource/sora": "5.3.0",
         "@moku-labs/ai": "0.16.13",
         "@moku-labs/ci": "1.5.8",
         "@moku-labs/editor": "0.10.20",
@@ -21,13 +24,15 @@
         "@moku-labs/system": "0.3.7",
         "@moku-labs/worker": "0.20.11",
         "@playwright/test": "1.64.1",
+        "@resvg/resvg-js": "2.6.2",
         "@types/bun": "1.4.2",
         "@vitest/coverage-istanbul": "4.0.18",
         "eslint-plugin-jsdoc": "65.1.0",
         "eslint-plugin-unicorn": "63.0.0",
         "lefthook": "2.1.1",
         "oxlint": "1.86.0",
-        "shiki": "3.22.0",
+        "satori": "0.19.1",
+        "sharp": "0.35.5",
         "typescript": "7.0.2",
         "vitest": "4.0.18",
         "wrangler": "4.95.0",
@@ -183,6 +188,12 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.3", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q=="],
 
+    "@fontsource/instrument-sans": ["@fontsource/instrument-sans@5.3.0", "", {}, "sha512-QwXc4hb/px3XvSPS2CPAOgey8nyrQFxgxrmXQQ+pN+P51hKdAcchxpg8rSbjANFfPu6VKXhDqkVDucXMZ9CM5g=="],
+
+    "@fontsource/jetbrains-mono": ["@fontsource/jetbrains-mono@5.3.0", "", {}, "sha512-fqDfB5I9f1p1TV486aUgB9t8zP84P0O1FtQR5Ol9vjwPy+S+EIGlVYm1cvj2W5shcZMTg2nZFdVMoH5wFu8a1A=="],
+
+    "@fontsource/sora": ["@fontsource/sora@5.3.0", "", {}, "sha512-SqW3OpKxxfKvxDLPlbdrWf2KooPfbd+W3jaYn483o+Y/JrmU87vjFPNptDqwP428c3vY+gnranLhjcbRaXB0Jw=="],
+
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 
     "@humanfs/node": ["@humanfs/node@0.16.8", "", { "dependencies": { "@humanfs/core": "^0.19.2", "@humanfs/types": "^0.15.0", "@humanwhocodes/retry": "^0.4.0" } }, "sha512-gE1eQNZ3R++kTzFUpdGlpmy8kDZD/MLyHqDwqjkVQI0JMdI1D51sy1H958PNXYkM2rAac7e5/CnIKZrHtPh3BQ=="],
@@ -281,7 +292,7 @@
 
     "@moku-labs/system": ["@moku-labs/system@0.3.7", "", { "dependencies": { "idb-keyval": "6.3.0" }, "peerDependencies": { "@moku-labs/common": "^0.3.4", "@moku-labs/core": "^1.7.1", "@tauri-apps/api": "^2.12.0", "@tauri-apps/plugin-clipboard-manager": "^2.3.0", "@tauri-apps/plugin-deep-link": "^2.4.0", "@tauri-apps/plugin-haptics": "^2.4.0", "@tauri-apps/plugin-notification": "^2.3.0", "@tauri-apps/plugin-store": "^2.4.0" }, "optionalPeers": ["@tauri-apps/api", "@tauri-apps/plugin-clipboard-manager", "@tauri-apps/plugin-deep-link", "@tauri-apps/plugin-haptics", "@tauri-apps/plugin-notification", "@tauri-apps/plugin-store"] }, "sha512-UtxvJDOoe030Ns7eXxO8snn/y6Rs+WlodIBMGLNpD0ZtaZyt6qdSxDY4ln6YXT3AB76Ax86MHqoMGEuV0bWE0Q=="],
 
-    "@moku-labs/web": ["@moku-labs/web@2.4.17", "", { "dependencies": { "@resvg/resvg-js": "2.6.2", "@shikijs/rehype": "3.22.0", "feed": "5.2.0", "gray-matter": "4.0.3", "hast-util-sanitize": "5.0.2", "p-limit": "6.2.0", "reading-time": "1.5.0", "rehype-raw": "7.0.0", "rehype-sanitize": "6.0.0", "rehype-stringify": "10.0.1", "remark-directive": "4.0.0", "remark-frontmatter": "5.0.0", "remark-gfm": "4.0.1", "remark-parse": "11.0.0", "remark-rehype": "11.1.2", "satori": "0.19.1", "shiki": "3.22.0", "unified": "11.0.5", "unist-util-visit": "5.1.0" }, "peerDependencies": { "@moku-labs/common": "^0.3.4", "@moku-labs/core": "^1.7.1", "mermaid-isomorphic": "^3.0.0", "preact": "^10.29.2", "preact-render-to-string": "^6.6.0" }, "optionalPeers": ["mermaid-isomorphic"] }, "sha512-XjFV0TSjRHg+GM7/RIWpNe3p08yQXQvUTdeFtkKE+Vu18FoSO9nsISFS/749YbsrJ/8HWbU/yednFV0Jlp9iwA=="],
+    "@moku-labs/web": ["@moku-labs/web@2.4.18", "", { "dependencies": { "@resvg/resvg-js": "2.6.2", "@shikijs/rehype": "3.22.0", "feed": "5.2.0", "gray-matter": "4.0.3", "hast-util-sanitize": "5.0.2", "p-limit": "6.2.0", "reading-time": "1.5.0", "rehype-raw": "7.0.0", "rehype-sanitize": "6.0.0", "rehype-stringify": "10.0.1", "remark-directive": "4.0.0", "remark-frontmatter": "5.0.0", "remark-gfm": "4.0.1", "remark-parse": "11.0.0", "remark-rehype": "11.1.2", "satori": "0.19.1", "shiki": "3.22.0", "unified": "11.0.5", "unist-util-visit": "5.1.0" }, "peerDependencies": { "@moku-labs/common": "^0.3.4", "@moku-labs/core": "^1.7.1", "mermaid-isomorphic": "^3.0.0", "preact": "^10.29.2", "preact-render-to-string": "^6.6.0" }, "optionalPeers": ["mermaid-isomorphic"] }, "sha512-nI7T6Wv6i7wu7kVILN6oCcs/OPi8TrxnPYb6HRFERiGQjC4bGRKTg9KelWCTzPHG65jzwpYOk64mk4oEereKDw=="],
 
     "@moku-labs/worker": ["@moku-labs/worker@0.20.11", "", { "peerDependencies": { "@moku-labs/common": "^0.3.11", "@moku-labs/core": "^1.7.1", "wrangler": ">=3" }, "optionalPeers": ["wrangler"] }, "sha512-MwV1GS5UXdmxr0kte/K7/SLzuoHGQRvRLMse8PhWMeDLzxRdFPDfkWb/8wCdsI0n/vQAjKIDpPRQP3PQ48V52Q=="],
 
