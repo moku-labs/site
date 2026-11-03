@@ -216,17 +216,26 @@ function keepIntersection(totals: Scores, scores: Scores): void {
 }
 
 /**
- * The entries that match every token, with the sum of their scores.
+ * The entries that match every token, with the sum of their scores. When every token has matches
+ * but no row has all of them, the rows of the rarest token: each word keeps at most 60 body
+ * postings, so two words side by side in the docs can share no row, and the rarer word says more
+ * about the page. A token with no match at all gives nothing.
  *
  * @param shard - The shard.
  * @param tokens - The query tokens, at least one.
  * @returns Entry index to total score.
  */
 function scoreQuery(shard: SearchShard, tokens: readonly string[]): Scores {
-  const [first = "", ...rest] = tokens;
-  const totals = scoreToken(shard, first);
-  for (const token of rest) keepIntersection(totals, scoreToken(shard, token));
-  return totals;
+  // The rows that match every token.
+  const perToken = tokens.map(token => scoreToken(shard, token));
+  const totals = new Map(perToken[0]);
+  for (const scores of perToken.slice(1)) keepIntersection(totals, scores);
+  if (totals.size > 0 || perToken.some(scores => scores.size === 0)) return totals;
+
+  // No such row: the rarest token's rows, or the common word fills every place in the list.
+  let rarest = perToken[0] ?? totals;
+  for (const scores of perToken) if (scores.size < rarest.size) rarest = scores;
+  return rarest;
 }
 
 /**
@@ -357,8 +366,8 @@ function compareRanked(first: RankedRow, second: RankedRow): number {
 
 /**
  * The palette's results. An empty query lists the suggested entries in their order (or the first
- * entries when none of them exists). A query lists the entries that match all its tokens: highest
- * rank first (a row that is not a section counts 1.5 times, a row whose whole title is the query
+ * entries when none of them exists). A query lists the entries that match all its tokens, or with
+ * no such entry those of its rarest token when each token has matches: highest rank first (a row that is not a section counts 1.5 times, a row whose whole title is the query
  * twice); at equal rank a package or page row before a section, then index order.
  *
  * @param shard - The search shard.

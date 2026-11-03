@@ -24,6 +24,8 @@ test("header button opens the palette with suggestions", async ({ page }, testIn
   await expect(options(page)).toHaveCount(5);
   await expect(options(page).first()).toHaveAttribute("aria-selected", "true");
   await expect(palette(page).locator('[data-part="foot"]')).not.toContainText("llms");
+  // Bug: the foot holds only keyboard hints, so a touch screen shows an empty strip under the results.
+  if (phone) await expect(palette(page).locator('[data-part="foot"]')).toBeHidden();
 });
 
 test("typing filters with highlight; arrows and Enter open the pick", async ({ page }) => {
