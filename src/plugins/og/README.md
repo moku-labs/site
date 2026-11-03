@@ -10,14 +10,14 @@ No events, no hooks, no state. Node only: never imported by `routes.tsx` or `spa
 bun run og   # scripts/og.ts: awaits app.og.write(), prints drawn, kept, removed
 ```
 
-Run it after a change of card inputs: a page title or description, a package version or tagline, a
+Run it after a change of card inputs: a page title or description, a package tagline, a
 line in `src/data/og.ts`, the layout. Then commit `public/og/` and `src/data/og-manifest.json`.
 `__tests__/integration/committed.test.ts` fails with "run bun run og" until you do.
 
 ## How a run decides
 
-`src/data/og-manifest.json` maps a card file to the sha256 of what the card draws: title, meta row with
-the version, line, art ids and places, and `OG_LAYOUT_VERSION`. Keys are sorted, so a small change is a
+`src/data/og-manifest.json` maps a card file to the sha256 of what the card draws: title, meta row,
+line, art ids and places, and `OG_LAYOUT_VERSION`. Keys are sorted, so a small change is a
 small diff.
 
 | Card | Action |
@@ -36,14 +36,14 @@ so a card whose drawing failed is drawn again by the next run. **After a change 
 |---|---|---|---|---|---|
 | A1 | home | Moku | none | `src/data/og.ts` | cube cluster |
 | A2 | docs hub | Docs | none | `src/data/og.ts` | four package icons |
-| A3 | package home | package id | name, version | tagline by the line rule | its icon |
-| A4 | docs page | page title | name, version, nav group | description by the line rule | its package's icon |
+| A3 | package home | package id | name | tagline by the line rule | its icon |
+| A4 | docs page | page title | name, nav group | description by the line rule | its package's icon |
 | A5 | concepts page | page title | `concepts` | description by the line rule | cube cluster |
 | A6 | demos | Demos | none | `src/data/og.ts` | three dioramas |
 | A7 | about | About | none | `src/data/og.ts` | portrait |
 
-The `claude` package shows its release name `moku`. Versions come from `node_modules` through
-`src/lib/packages.ts`, never typed by hand.
+The `claude` package shows its release name `moku`. A card prints no version, so a package update
+redraws nothing.
 
 **Line rule (`text.ts`):** a text of 56 characters or less stays whole. A longer one becomes its first
 sentence, ended by `.` or `:` before a space, if that line has 20 to 56 characters; a `:` is dropped.

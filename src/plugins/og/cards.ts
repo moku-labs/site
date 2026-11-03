@@ -53,7 +53,7 @@ function conceptCard(page: OgPage): OgCard {
     path: page.path,
     file: ogCardFile(page.path),
     title: page.title,
-    meta: { name: CONCEPTS, version: undefined, section: undefined },
+    meta: { name: CONCEPTS, section: undefined },
     line: cardLine(page.description),
     object: CLUSTER
   };
@@ -76,7 +76,6 @@ function packagePageCard(page: OgPage, family: readonly ResolvedPackage[]): OgCa
     title: isHome ? own.id : page.title,
     meta: {
       name: own.releaseName ?? own.npm ?? own.name,
-      version: own.version,
       section: isHome ? undefined : page.group
     },
     line: cardLine(isHome ? own.tagline : page.description),

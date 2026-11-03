@@ -104,7 +104,7 @@ function placed(src: string, spot: Spot): OgNode {
 }
 
 /**
- * The meta row: package name, version chip, section. The name never shrinks.
+ * The meta row: package name, section. The name never shrinks.
  *
  * @param meta - The row's content.
  * @returns The node.
@@ -113,24 +113,6 @@ function metaRow(meta: OgMeta): OgNode {
   const nodes: OgNode[] = [
     box({ flexShrink: 0, fontFamily: OG_FONT.mono, fontSize: SMALL_TEXT, color: INK }, meta.name)
   ];
-  if (meta.version !== undefined) {
-    nodes.push(
-      box(
-        {
-          display: "flex",
-          marginLeft: 14,
-          padding: "4px 13px",
-          border: "2px solid rgba(255,92,138,.55)",
-          borderRadius: 10,
-          backgroundColor: "rgba(255,46,99,.13)",
-          fontFamily: OG_FONT.mono,
-          fontSize: SMALL_TEXT,
-          color: "#ff86a8"
-        },
-        meta.version
-      )
-    );
-  }
   if (meta.section !== undefined) {
     nodes.push(
       box(

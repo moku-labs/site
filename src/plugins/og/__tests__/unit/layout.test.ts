@@ -48,9 +48,9 @@ describe("cardTree", () => {
     expect(texts(cardTree(card(undefined), assets))).toEqual(["Title", "Line.", "moku-labs.com"]);
   });
 
-  // Bug: a concepts card shows an empty version chip and an empty section after a divider.
+  // Bug: a concepts card shows an empty section after a divider.
   it("draws only the name of a concepts card", () => {
-    const meta = { name: "concepts", version: undefined, section: undefined };
+    const meta = { name: "concepts", section: undefined };
 
     expect(texts(cardTree(card(meta), assets))).toEqual([
       "Title",
@@ -61,13 +61,12 @@ describe("cardTree", () => {
   });
 
   // Bug: the meta row is drawn in another order, or below the line.
-  it("draws title, name, version, section, line and domain in that order", () => {
-    const meta = { name: "@moku-labs/web", version: "2.4.15", section: "Guides" };
+  it("draws title, name, section, line and domain in that order", () => {
+    const meta = { name: "@moku-labs/web", section: "Guides" };
 
     expect(texts(cardTree(card(meta), assets))).toEqual([
       "Title",
       "@moku-labs/web",
-      "2.4.15",
       "Guides",
       "Line.",
       "moku-labs.com"

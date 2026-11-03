@@ -39,7 +39,7 @@ describe("committed share cards", () => {
     manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, "utf8")) : {};
   }, LOAD_TIMEOUT);
 
-  // Bug: a new page, a changed title or a bumped version ships an old or missing card, because
+  // Bug: a new page, or a changed title ships an old or missing card, because
   // nothing but a person remembers `bun run og`.
   it("has a card file with a matching hash for every page", () => {
     const { draw } = planCards(cards, manifest, committedFiles());

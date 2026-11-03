@@ -6,7 +6,7 @@ const card: OgCard = {
   path: "/docs/web/",
   file: "docs/web.png",
   title: "web",
-  meta: { name: "@moku-labs/web", version: "2.4.15", section: undefined },
+  meta: { name: "@moku-labs/web", section: undefined },
   line: "Static site + islands SPA.",
   object: {
     kind: "art",
@@ -17,14 +17,11 @@ const other: OgCard = { ...card, path: "/about/", file: "about.png", title: "Abo
 
 describe("cardHash", () => {
   // Bug: an input is left out of the hash, and a changed card is never redrawn, so a shared link
-  // shows an old title, line, version or icon.
+  // shows an old title, line, section or icon.
   it.each([
     ["title", { ...card, title: "other" }],
     ["line", { ...card, line: "other" }],
-    [
-      "version",
-      { ...card, meta: { name: "@moku-labs/web", version: "9.9.9", section: undefined } }
-    ],
+    ["section", { ...card, meta: { name: "@moku-labs/web", section: "Guides" } }],
     [
       "art id",
       {
@@ -62,7 +59,7 @@ describe("planCards", () => {
     expect(plan.orphans).toEqual([]);
   });
 
-  // Bug: a bumped version keeps the old card.
+  // Bug: a changed title keeps the old card.
   it("draws a card whose hash changed", () => {
     const plan = planCards(
       [card, other],

@@ -113,8 +113,8 @@ describe("og api", () => {
     expect(createDrawer).not.toHaveBeenCalled();
   });
 
-  // Bug: a version bump keeps the old chip on every shared card of the package.
-  it("write() redraws only the cards a version bump changes", async () => {
+  // Bug: a package update changes a card, so every Dependabot PR fails until someone redraws.
+  it("write() redraws nothing after a version bump", async () => {
     const { api, draw, nodeModules } = setup();
     await api.write();
     draw.mockClear();
@@ -122,8 +122,8 @@ describe("og api", () => {
 
     const result = await api.write();
 
-    expect(result).toEqual({ drawn: 1, kept: SITE_CARDS, removed: 0 });
-    expect(draw.mock.calls.map(([card]) => card.path)).toEqual(["/docs/web/quick-start/"]);
+    expect(result).toEqual({ drawn: 0, kept: SITE_CARDS + 1, removed: 0 });
+    expect(draw).not.toHaveBeenCalled();
   });
 
   // Bug: a removed page leaves its PNG committed, or its entry in the manifest.

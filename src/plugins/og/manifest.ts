@@ -6,7 +6,7 @@ import { OG_LAYOUT_VERSION } from "./layout";
 import type { OgCard, OgManifest, OgPlan } from "./types";
 
 /**
- * The hash of what a card draws: all text, the version, the art ids and the layout version. Where
+ * The hash of what a card draws: all text, the art ids and the layout version. Where
  * the card is written is not part of it.
  *
  * @param card - The card.
