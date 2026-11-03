@@ -16,7 +16,7 @@
     "bun": ">=1.4.3"
   },
   "dependencies": {
-    "@moku-labs/web": "2.4.17",
+    "@moku-labs/web": "2.4.18",
     "preact": "10.29.2",
     "preact-render-to-string": "6.6.0"
   },
