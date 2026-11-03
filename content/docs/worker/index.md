@@ -76,17 +76,17 @@ through `pluginConfigs` instead.
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Build a URL shortener on @moku-labs/worker that keeps links in KV
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Add an /upload endpoint that stores files in R2
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Keep a live vote count per poll in a Durable Object
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Generate the wrangler config and deploy my Worker
 ```

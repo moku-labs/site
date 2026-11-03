@@ -89,15 +89,23 @@ framework, writes the routes, the islands and the tests, and runs the build.
 
 ```sh terminal title="Claude Code"
 $ /plugin marketplace add moku-labs/claude
-$ /plugin install moku@moku-labs
+$ /plugin install moku@moku
 ```
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Add an island that filters my article list in the browser
 ```
 
 ```text prompt
-Add a search box that reads a JSON index built at deploy time
+Translate my site into German, with hreflang tags on every page
+```
+
+```text prompt
+Give every page Open Graph tags, a sitemap and an RSS feed
+```
+
+```text prompt
+Deploy my @moku-labs/web site to Cloudflare Pages
 ```
 
 ## Where to next

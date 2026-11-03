@@ -67,17 +67,17 @@ import { browserEnv } from "@moku-labs/common/browser"; // browser, node-free
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Register logPlugin and envPlugin from @moku-labs/common in my framework
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Validate the API keys my framework needs with envPlugin
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Test my signup workflow with the expect() DSL of logPlugin
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Give my CLI a branded console and prompts from @moku-labs/common/cli
 ```

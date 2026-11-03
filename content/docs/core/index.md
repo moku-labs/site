@@ -74,17 +74,17 @@ export, `createCorePlugin`, builds infrastructure plugins such as `log` and `env
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Write my own framework on @moku-labs/core with a router plugin
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Add a typed event to my framework and emit it from a plugin
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Make my search plugin depend on the router plugin
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Add an infrastructure plugin to my framework with createCorePlugin
 ```

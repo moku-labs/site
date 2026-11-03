@@ -36,7 +36,7 @@ Then add the pack for each framework you use. Packs install the same way:
 /plugin install moku-design@moku
 ```
 
-Requirements: Bun 1.3.14 or newer, Node 24 or newer, a recent Claude Code release.
+Requirements: Bun, Node 24 or newer, a recent Claude Code release.
 
 ## Stations
 
@@ -84,17 +84,17 @@ gate, no hint and no hook output.
 Describe what you want. The conductor picks the packages.
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+I have an idea for a recipe app. Help me plan it.
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Where does this project stand, and what is the next step?
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Add a dark mode toggle and take it through verify
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Which packs do I need for a couch game with a docs site?
 ```

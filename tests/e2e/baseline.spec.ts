@@ -8,6 +8,19 @@ import { siteGoal } from "../../src/data/assembly";
 import { boot, expect, isPhone, point, press, scrollTo, settle, test } from "./_fixtures";
 import { RICH_DOC, SCREENS } from "./_inventory";
 
+// The landing's prompts are a random pick from a pool: a seeded Math.random makes the pick, and so
+// every golden, the same on each run.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    // Park-Miller: integer steps stay exact in a double.
+    let seed = 20_261_103;
+    Math.random = () => {
+      seed = (seed * 16_807) % 2_147_483_647;
+      return (seed - 1) / 2_147_483_646;
+    };
+  });
+});
+
 for (const screen of SCREENS) {
   test(`screen ${screen.name}`, async ({ page }) => {
     await boot(page, screen.path, { static: screen.static ?? false });

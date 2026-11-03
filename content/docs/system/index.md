@@ -60,17 +60,17 @@ To build the native shell, compose the same capabilities in
 ## Start with Claude
 
 ```text prompt
-Build a blog with tags and an RSS feed on @moku-labs/web
+Save user settings with the store plugin of @moku-labs/system
 ```
 
 ```text prompt
-Add a D1-backed comments API with @moku-labs/worker
+Show a desktop notification when an export finishes
 ```
 
 ```text prompt
-Make a couch quiz game: TV shows questions, phones answer
+Hide the copy button where the clipboard is unsupported
 ```
 
 ```text prompt
-Ship this app to macOS and iOS
+Keep the screen awake while a recipe is open
 ```

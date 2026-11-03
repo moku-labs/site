@@ -22,6 +22,8 @@ export type Screen = {
   doc?: boolean;
   /** URL of the page's Markdown twin. */
   markdown?: string;
+  /** The sidebar group a docs page sits in (frontmatter `section`). */
+  section?: string;
 };
 
 /** The path the preview answers with the 404 page. */
@@ -63,13 +65,16 @@ export const DOC_SCREENS: Screen[] = markdownFiles(DOCS_DIR)
     const parts = nodePath.relative(DOCS_DIR, file).replace(/\.md$/, "").split("/");
     if (parts.at(-1) === "index") parts.pop();
     const path = `/docs/${parts.join("/")}/`;
-    return {
+    const fields = frontmatter(readFileSync(file, "utf8"));
+    const screen: Screen = {
       name: `docs-${parts.join("-")}`,
       path,
-      title: frontmatter(readFileSync(file, "utf8")).title ?? "",
+      title: fields.title ?? "",
       doc: true,
       markdown: `${path.slice(0, -1)}.md`
     };
+    if (fields.section !== undefined) screen.section = fields.section;
+    return screen;
   })
   .toSorted((a, b) => a.path.localeCompare(b.path));
 
