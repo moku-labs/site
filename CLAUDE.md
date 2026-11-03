@@ -125,8 +125,9 @@ live in the GitHub repository; locally in `.env` (gitignored).
 - `tests/integration/docs-snippets.test.ts` compiles every `check` block of `content/docs` (stubs of
   the reader's project in `content/snippet-stubs/<package>/`) and fails a ts block with no `check`
   or `no-check="reason"`; `tests/integration/api-reference.test.ts` compares `api.md` with the real exports;
-  `tests/integration/assembly-code.test.ts` compiles the hero's three finished snippets the same way
-  (stubs in `content/snippet-stubs/assembly-<goal>/`)
+  `tests/integration/assembly-code.test.ts` compiles the hero's three finished snippets and every code card on the way the same way
+  (stubs in `content/snippet-stubs/assembly-<goal>/`); `tests/integration/landing-code.test.ts` compiles
+  the three-layers sample with its imports added (stubs in `content/snippet-stubs/landing-layers/`)
 - `tests/integration/build.test.ts` runs `bun scripts/build.ts` in a temp copy of the project
   (never touches `dist/`) and checks every docs page has HTML, a `.md` twin, an `llms.txt` line and
   a search row

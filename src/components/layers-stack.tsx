@@ -36,7 +36,7 @@ type Layer = {
 };
 
 /** The three layers, bottom up. */
-const LAYERS: readonly Layer[] = [
+export const LAYERS: readonly Layer[] = [
   {
     level: 1,
     z: 0,

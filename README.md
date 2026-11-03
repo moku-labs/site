@@ -155,7 +155,8 @@ bun run build
 |---|---|---|
 | Versions from `node_modules` | `src/lib/packages.ts` | A package with docs is not installed. A typed version cannot exist. |
 | Kernel errors from the real kernel | `src/lib/kernel-errors.ts`, `src/plugins/docs/` | A check stops throwing after a core release. |
-| Hero code compiled | `tests/integration/assembly-code.test.ts`, `content/snippet-stubs/assembly-*/` | The finished Site, App or Game code of the hero uses an export the installed `web`, `worker` or `game` no longer has. |
+| Hero code compiled | `tests/integration/assembly-code.test.ts`, `content/snippet-stubs/assembly-*/` | The finished code of the hero, or a code card on the way to it, uses an export the installed `web`, `worker` or `game` no longer has. |
+| Three-layers sample compiled | `tests/integration/landing-code.test.ts`, `content/snippet-stubs/landing-layers/` | The landing's `my-site.ts` sample calls an API the installed `core` does not have, or a line no longer names the call its slab shows. |
 | `check` blocks compiled | `src/lib/snippets.ts`, `tests/integration/docs-snippets.test.ts` | An example uses an API the installed packages no longer have, or a ts block has no `check` and no `no-check` reason. |
 | API reference vs exports | `tests/integration/api-reference.test.ts` | A package export is missing from `api.md`, or `api.md` shows a signature the package no longer exports. |
 | A full build in the tests | `tests/integration/build.test.ts` | A docs page has no HTML, no `.md` twin, no `llms.txt` line or no search row. |
