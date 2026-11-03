@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
-    "@biomejs/biome": "2.4.16",
+    "@biomejs/biome": "2.6.4",
     "@moku-labs/ai": "0.16.13",
     "@moku-labs/ci": "1.5.7",
     "@moku-labs/editor": "0.10.19",
