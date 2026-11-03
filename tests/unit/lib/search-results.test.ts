@@ -118,6 +118,16 @@ describe("searchResults", () => {
     expect(hrefs("route head")).toEqual(["/docs/web/guides/head/"]);
   });
 
+  // Bug: each word has matches but no row has both, so two words from the docs answer "Nothing matches".
+  it("falls back to the rows of the rarest word when no row has all the words", () => {
+    expect(hrefs("effects wildcard")).toEqual(["/docs/web/guides/routing/#params"]);
+  });
+
+  // Bug: the fallback also lists the rows of the good word when the other word exists nowhere.
+  it("returns nothing when one word of the query matches nothing", () => {
+    expect(hrefs("zzqxv head")).toEqual([]);
+  });
+
   // Bug: weights are ignored, so index order puts a body hit above a page titled with the word.
   it("ranks a title match above a body match of the same word", () => {
     const found = hrefs("effects");
