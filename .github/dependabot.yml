@@ -4,6 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    # Only the family's own packages. Third-party versions are updated by hand.
+    allow:
+      - dependency-name: "@moku-labs/*"
     # Dependabot holds every new version back for 3 days by default. The family's own
     # packages are trusted the moment they are released, so they skip that wait.
     cooldown:
@@ -18,3 +21,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "moku-labs/*"
