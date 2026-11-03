@@ -89,7 +89,7 @@ framework, writes the routes, the islands and the tests, and runs the build.
 
 ```sh terminal title="Claude Code"
 $ /plugin marketplace add moku-labs/claude
-$ /plugin install moku@moku-labs
+$ /plugin install moku@moku
 ```
 
 ```text prompt

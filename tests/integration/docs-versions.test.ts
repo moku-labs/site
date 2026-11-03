@@ -24,11 +24,6 @@ const ALLOWED: readonly Allowed[] = [
   {
     match: /\b192\.168\.\d+\.\d+\b/g,
     reason: "a LAN address in the sample output of the dev server: an address, not a version"
-  },
-  {
-    match: /\bBun 1\.3\.14\b/g,
-    reason:
-      "the Bun runtime floor of the Claude plugin's requirements, not a version of a Moku package"
   }
 ];
 
