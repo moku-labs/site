@@ -150,7 +150,7 @@ html:has([data-component="search-palette"]:not([hidden])) {
     color: var(--docs-muted);
   }
 
-  /* The Close button replaces the esc cue on a phone; the keyboard hints need a keyboard. */
+  /* The Close button replaces the esc cue on a phone; the foot holds only keyboard hints. */
   [data-part="close"] {
     display: none;
   }
@@ -178,7 +178,7 @@ html:has([data-component="search-palette"]:not([hidden])) {
   }
 
   @media (pointer: coarse) {
-    [data-part="hint"] {
+    [data-part="foot"] {
       display: none;
     }
   }

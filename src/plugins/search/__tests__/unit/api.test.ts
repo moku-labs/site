@@ -85,21 +85,21 @@ describe("buildSearchIndex", () => {
       {
         kind: "Section",
         title: "Define a route",
-        subtitle: "Routing",
+        subtitle: "web · Routing",
         href: "/docs/web/guides/routing/#define-a-route",
         icon: "web"
       },
       {
         kind: "Section",
         title: "Params",
-        subtitle: "Routing",
+        subtitle: "web · Routing",
         href: "/docs/web/guides/routing/#params",
         icon: "web"
       },
       {
         kind: "Section",
         title: "Params",
-        subtitle: "Routing",
+        subtitle: "web · Routing",
         href: "/docs/web/guides/routing/#params-2",
         icon: "web"
       }
