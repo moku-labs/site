@@ -157,7 +157,7 @@ Every export of every entry is in the [API reference](/docs/game/api/).
 
 ## The plugins
 
-Five logic plugins run in every app. The nine screen plugins come as one list, `screen`. Three more
+Six logic plugins run in every app. The nine screen plugins come as one list, `screen`. Three more
 are opt-in: `[...screen, effectsPlugin, audioPlugin, platformPlugin]`, `platform` last.
 
 | Plugin | Set | What it does |
@@ -167,6 +167,7 @@ are opt-in: `[...screen, effectsPlugin, audioPlugin, platformPlugin]`, `platform
 | [model](/docs/game/plugins/model/) | logic | Player and session state, the save, `rng` streams, migrations. |
 | [clock](/docs/game/plugins/clock/) | logic | Trusted `now()` and timers stored as moments. |
 | [flow](/docs/game/plugins/flow/) | logic | The graph: runner, gate, inbox, effects, features. |
+| [debug](/docs/game/plugins/debug/) | logic | The editor's overlay from the game, a no-op without the agent. |
 | [world](/docs/game/plugins/world/) | screen | A small ECS and projections from committed state. |
 | [renderer](/docs/game/plugins/renderer/) | screen | Pixi, loaded lazily, synced from the ECS. |
 | [input](/docs/game/plugins/input/) | screen | Gestures as data: tap, press, drag, swipe. |
