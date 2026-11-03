@@ -79,7 +79,8 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
 - Markdown pipeline (`lib/markdown/`): `directives` (remark: callout, steps, flow, gotchas,
   diagram, terminal, prompt), `code-blocks` (rehype: file, group, hl, notes, diff), `heading-ids`,
   `tables`, and `agent-markdown` (docs Markdown to plain Markdown for the llms files).
-- Browser logic: `link-prefetch` (which links the `prefetch` plugin warms).
+- Browser logic: `link-prefetch` (which links the `prefetch` plugin warms), `landing-prompts`
+  (which four landing prompts the `code-block` island swaps in).
 - Island logic: the hero's assembly in `assembly` (the rules: add, wait, settle, the code card),
   `hero-world` (platforms, cubes, sockets, label placement, needs arcs), `hero-view` (the world
   drawing as SVG nodes and the panel, shared by the SSR hero and the island), `hero-state` (which
