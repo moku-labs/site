@@ -8,12 +8,12 @@ order: 2
 ## A static blog in eight steps
 
 :::steps
-1. **Create the project and install.** `preact`, `preact-render-to-string`, `@moku-labs/core` and `@moku-labs/common` are peer dependencies. Declare them yourself: a second copy of Preact breaks hooks and island hydration.
+1. **Create the project and install.** `@moku-labs/core` and `@moku-labs/common` install by themselves as required peers of web. Declare only `preact` and `preact-render-to-string`: a second copy of Preact breaks hooks and island hydration.
 
    ```sh terminal title="install"
    $ mkdir my-blog && cd my-blog
    $ bun init -y
-   $ bun add @moku-labs/web @moku-labs/core @moku-labs/common preact preact-render-to-string
+   $ bun add @moku-labs/web preact preact-render-to-string
    ```
 
 2. **Point JSX at Preact.** Routes and islands are `.tsx`. Without these two lines Bun looks for React and the build fails.
