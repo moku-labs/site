@@ -4,6 +4,7 @@
  * off, reduced motion, frozen dates, eager images, fonts ready (see `settle`).
  */
 import type { Page } from "@playwright/test";
+import { siteGoal } from "../../src/data/assembly";
 import { boot, expect, isPhone, point, press, scrollTo, settle, test } from "./_fixtures";
 import { RICH_DOC, SCREENS } from "./_inventory";
 
@@ -39,13 +40,11 @@ test.describe("states", () => {
 
   test("hero after a full run", async ({ page }) => {
     await boot(page, "/");
-    for (const id of ["blog", "start", "auth", "session", "auth"]) {
-      await page.locator(`[data-plug="${id}"]`).click();
-    }
-    await expect(page.locator('[data-part="log"] [data-kind="win"]')).toBeVisible();
+    for (const piece of siteGoal.pieces) await page.locator(`[data-plug="${piece.id}"]`).click();
+    await expect(page.locator('[data-labels] [data-callout="running"]:visible')).toBeVisible();
     // The clicks leave the page wherever they scrolled it: start the shot's scroll from the top.
     await page.evaluate(() => window.scrollTo(0, 0));
-    await scrollTo(page, page.locator('[data-part="stage"]'));
+    await scrollTo(page, page.locator('[data-part="world-frame"]'));
     await stateShot(page, "hero-win");
   });
 

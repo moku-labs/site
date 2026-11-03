@@ -12,7 +12,6 @@ import { contentReference } from "./lib/content-reference";
 import type { DocumentationPageView, DocumentationParameters } from "./lib/docs-data";
 import { packageParameters, pageParameters, sectionPageParameters } from "./lib/docs-params";
 import { docsReference } from "./lib/docs-reference";
-import { kernelReference } from "./lib/kernel-reference";
 import { AboutPage } from "./pages/about-page";
 import { DemosPage } from "./pages/demos-page";
 import { DocumentationPage } from "./pages/doc-page";
@@ -87,7 +86,6 @@ export const routes = defineRoutes({
     .load(async ctx => {
       const [home, docs] = await Promise.all([homeData(), docsData()]);
       return home.loadHome({
-        kernel: ctx.require(kernelReference),
         content: ctx.require(contentReference),
         packages: docs.installedSources().packages
       });

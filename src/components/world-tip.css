@@ -1,5 +1,5 @@
 /* D1 world tooltip: inverted colours, placed above the hovered block by the island through
-   --tip-x / --tip-y. A global atom: the hero and the pyramid both use it. */
+   --tip-x / --tip-y. A global atom; the pyramid uses it. */
 @scope ([data-component="world-tip"]) {
   :scope {
     position: fixed;

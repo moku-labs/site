@@ -1,5 +1,5 @@
 /**
- * @file The tooltip of the hero world and the pyramid (D1): name, version, tagline, action.
+ * @file The tooltip of the pyramid (D1): name, version, tagline, action.
  */
 import type { VNode } from "preact";
 

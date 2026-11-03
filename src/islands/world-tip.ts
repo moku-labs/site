@@ -1,33 +1,12 @@
 /**
- * @file Fill and place the world tooltip, shared by the hero and pyramid islands. Not an
- * island.
+ * @file Fill and place the world tooltip of the pyramid. Not an island.
  */
 
 /** Gap kept between the tooltip and the viewport's side edges, in px. */
 const EDGE = 12;
 
-/** Distance a hero block rises on hover (`translateY(-8px)` in `hero.css`), in px. */
-const HOVER_LIFT = 8;
-
-/**
- * Measure how much of the hover lift a hero block has not travelled yet. Pyramid bricks do not
- * lift, so they have none.
- *
- * @param target - The hovered or focused element.
- * @returns The pending lift in px: 8 before the lift, 0 once it is done.
- * @example
- * ```ts
- * pendingLift(heroBlock); // 8 at the first pointerover, 0 after the transition
- * ```
- */
-function pendingLift(target: HTMLElement | SVGElement): number {
-  const block = target.closest<HTMLElement | SVGElement>(
-    '[data-component="hero"] [data-part="block"]'
-  );
-  if (block === null) return 0;
-  const current = new DOMMatrix(getComputedStyle(block).transform).f;
-  return HOVER_LIFT + current;
-}
+/** Gap between the tooltip and the top of the element it describes, in px. */
+const TIP_GAP = 8;
 
 /**
  * Set the text of one tooltip part, or hide the part when there is no text.
@@ -52,9 +31,9 @@ function setPart(tip: Element, part: string, text: string | undefined): void {
  * @param target - The hovered or focused element.
  * @example
  * ```ts
- * // The visitor hovers the web block: <g data-tip-title="@moku-labs/web" data-tip-version="v2.4.11">
- * showTip(tip, webBlock);
- * // tip is visible above the block; its title reads "@moku-labs/web", its version "v2.4.11"
+ * // The visitor hovers the web brick: <g data-tip-title="@moku-labs/web" data-tip-version="v2.4.11">
+ * showTip(tip, webBrick);
+ * // tip is visible above the brick; its title reads "@moku-labs/web", its version "v2.4.11"
  * ```
  */
 export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): void {
@@ -69,7 +48,7 @@ export function showTip(tip: HTMLElement, target: HTMLElement | SVGElement): voi
     art.hidden = !tipArt;
   }
   const box = target.getBoundingClientRect();
-  tip.style.setProperty("--tip-y", `${box.top - 8 - pendingLift(target)}px`);
+  tip.style.setProperty("--tip-y", `${box.top - TIP_GAP}px`);
   tip.hidden = false;
   // Centre the tip over the target, kept a margin inside the screen by its own measured width.
   const half = tip.offsetWidth / 2 + EDGE;

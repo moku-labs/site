@@ -85,9 +85,13 @@ test("key controls have a role and a name", async ({ page }, testInfo) => {
     ? header.getByRole("button", { name: "Menu" })
     : header.getByRole("navigation", { name: "Main" });
   await expect(primary).toBeVisible();
-  await expect(page.getByRole("button", { name: "blog. Plug into the kernel" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Reset" })).toBeVisible();
-  await expect(page.getByRole("group", { name: /Isometric map of the Moku family/ })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "content. Sits on web. Add to the app" })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start over" })).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: /Three layers: the kernel on the ground/ })
+  ).toBeVisible();
 });
 
 test("ARIA snapshot: header and footer", async ({ page }, testInfo) => {

@@ -1,14 +1,17 @@
 /**
  * @file Regressions found by exploratory QA (phone first): the SPA progress bar is visible while a
  * page loads, a deep link puts its heading just under the sticky header, the page under the open
- * search palette stays put, and Reset works while a plugin is still flying to the kernel. Round 2:
- * the socket labels stay apart after a full run, a phone on its side shows the kernel and the tray
- * together, the tray shows when a plugin is in flight, Back closes the search palette, and a phone
- * gets "On this page". Round 3 (UX gate): package names under the About cubes, a Close button and a
- * short placeholder in the phone search palette, tray plugs named from their label, 404 footer
- * targets, and one row of doc-meta actions on a phone.
+ * search palette stays put, and Start over works while a piece is still flying to the kernel.
+ * Round 2: the world labels stay apart after a full run of every goal, a phone on its side shows the
+ * kernel and the tray together, the tray holds new pieces while one is in flight, Back closes the
+ * search palette, and a phone gets "On this page". Round 3 (UX gate): package names under the About
+ * cubes, a Close button and a short placeholder in the phone search palette, tray cards named from
+ * their label, 404 footer targets, and one row of doc-meta actions on a phone.
  */
 import type { Page } from "@playwright/test";
+import type { Goal } from "../../src/data/assembly";
+import { appGoal, assemblyText, gameGoal, siteGoal } from "../../src/data/assembly";
+import { fillText } from "../../src/lib/assembly";
 import { boot, expect, isPhone, press, test } from "./_fixtures";
 import { NOT_FOUND_PATH, RICH_DOC } from "./_inventory";
 
@@ -75,45 +78,77 @@ test("the page under the open search palette does not scroll", async ({ page }) 
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
 });
 
-/** Margin around a label box when two labels are tested for overlap: the text halo, px. */
+/**
+ * Margin around a name's box when two names are tested for overlap: the text halo, px. A callout
+ * pill has no halo; its own padding keeps it off a name, so a pill only must not touch one.
+ */
 const HALO = 2;
 
+/** Every goal with its pieces in a run order that makes one piece wait, where a goal has a need. */
+const FULL_RUNS: readonly { goal: Goal; order: readonly string[] }[] = [
+  { goal: siteGoal, order: ["comments", "content", "newsletter"] },
+  { goal: appGoal, order: ["tasks", "d1", "kv"] },
+  { goal: gameGoal, order: gameGoal.pieces.map(piece => piece.id) }
+];
+
 /**
- * Run the hero to its full state: four plugins in the sockets, two refusals on the way.
+ * Run one goal of the hero to its finish: every piece in, the app cube up.
  *
  * @param page - The page.
+ * @param run - The goal and its run order.
+ * @param run.goal - The goal.
+ * @param run.order - Its piece ids, in the order they are added.
  * @param phone - Whether the project is a phone.
  */
-async function fullRun(page: Page, phone: boolean) {
-  for (const id of ["blog", "start", "auth", "session", "auth"]) {
+async function fullRun(page: Page, run: { goal: Goal; order: readonly string[] }, phone: boolean) {
+  const radio = page.locator(`[data-goal="${run.goal.id}"]`);
+  if ((await radio.getAttribute("aria-checked")) !== "true") await press(radio, phone);
+  await expect(radio).toHaveAttribute("aria-checked", "true");
+  for (const id of run.order) {
     await press(page.locator(`[data-plug="${id}"]`), phone);
+    await expect(page.locator(`[data-plug="${id}"]`)).toHaveAttribute(
+      "data-state",
+      /placed|waiting/
+    );
   }
-  await expect(page.locator('[data-part="log"] [data-kind="win"]')).toBeVisible();
+  await expect(page.locator('[data-labels] [data-callout="running"]:visible')).toHaveText(
+    fillText(assemblyText.completion, { app: run.goal.app.name })
+  );
+  await expect(page.locator('svg[data-part="world"] [data-item="app"]')).toBeVisible();
 }
 
 /**
- * The names of the socket labels whose boxes (plus the halo) overlap another label's box.
+ * The world texts on show (names over cubes and sockets, the app's name, the callout pills)
+ * whose boxes overlap another one's box; two names also keep the halo between them.
  *
  * @param page - The page.
- * @returns Pairs like `session/router`; empty when every label stands clear.
+ * @returns Pairs like `comments/content`; empty when every text stands clear.
  */
 async function overlappingLabels(page: Page): Promise<string[]> {
-  // The newest plugin snaps in from above: measure where it stays, not where it passes.
+  // A settling piece slides and the app cube rises: measure where they stay, not where they pass.
   await page.evaluate(() =>
     Promise.all(document.getAnimations().map(animation => animation.finished))
   );
   return page.evaluate(halo => {
-    const labels = [...document.querySelectorAll('[data-part="plugin-label"]')]
-      .filter(label => label.textContent)
-      .map(label => ({ name: label.textContent ?? "", box: label.getBoundingClientRect() }));
+    const texts = [
+      ...document.querySelectorAll("[data-labels] [data-label], [data-labels] [data-callout]")
+    ]
+      .filter(text => text.checkVisibility() && text.textContent)
+      .map(text => ({
+        name: text.textContent ?? "",
+        isPill: text.tagName === "g",
+        box: text.getBoundingClientRect()
+      }))
+      .filter(text => text.box.width > 0);
     const hits: string[] = [];
-    for (const [index, first] of labels.entries()) {
-      for (const second of labels.slice(index + 1)) {
+    for (const [index, first] of texts.entries()) {
+      for (const second of texts.slice(index + 1)) {
+        const margin = first.isPill || second.isPill ? 0 : halo;
         const apart =
-          first.box.right + halo <= second.box.left ||
-          second.box.right + halo <= first.box.left ||
-          first.box.bottom + halo <= second.box.top ||
-          second.box.bottom + halo <= first.box.top;
+          first.box.right + margin <= second.box.left ||
+          second.box.right + margin <= first.box.left ||
+          first.box.bottom + margin <= second.box.top ||
+          second.box.bottom + margin <= first.box.top;
         if (!apart) hits.push(`${first.name}/${second.name}`);
       }
     }
@@ -121,54 +156,72 @@ async function overlappingLabels(page: Page): Promise<string[]> {
   }, HALO);
 }
 
-test("socket labels do not overlap after a full run", async ({ page }, testInfo) => {
+/**
+ * Slow every Web Animation of the page, so a piece stays in flight long enough to act on it.
+ *
+ * @param page - The page (chromium: the rate goes through the DevTools protocol).
+ * @param rate - Playback rate; 1 is normal speed.
+ */
+async function animationRate(page: Page, rate: number) {
+  const session = await page.context().newCDPSession(page);
+  await session.send("Animation.enable");
+  await session.send("Animation.setPlaybackRate", { playbackRate: rate });
+}
+
+// Bug: after a full run the names over the cubes, the app's name and the completion strip were
+// drawn on top of each other (the layout's width estimate was narrower than the real font).
+test("world labels do not overlap after a full run of every goal", async ({ page }, testInfo) => {
+  const phone = isPhone(testInfo.project.name);
   await boot(page, "/");
-  await fullRun(page, isPhone(testInfo.project.name));
-  await expect(page.locator('[data-part="socket"][data-filled]')).toHaveCount(4);
-  expect(await overlappingLabels(page)).toEqual([]);
+  for (const run of FULL_RUNS) {
+    await fullRun(page, run, phone);
+    expect(await overlappingLabels(page), run.goal.id).toEqual([]);
+  }
 });
 
 test.describe("a phone on its side", () => {
   test.use({ viewport: { width: 844, height: 390 }, hasTouch: true });
 
-  test("socket labels do not overlap after a full run", async ({ page }) => {
+  // Bug: on a landscape phone the labels were laid out for the wrong viewport and collided.
+  test("world labels do not overlap after a full run of every goal", async ({ page }) => {
     await boot(page, "/");
-    await fullRun(page, false);
-    expect(await overlappingLabels(page)).toEqual([]);
+    for (const run of FULL_RUNS) {
+      await fullRun(page, run, false);
+      expect(await overlappingLabels(page), run.goal.id).toEqual([]);
+    }
   });
 
+  // Bug: on a phone on its side the kernel and the tray never shared the screen, so a drag from
+  // the tray to the kernel had to scroll the page mid-gesture (and the drop missed).
   test("the kernel and the tray share the screen, and a drag needs no scrolling", async ({
     page
   }) => {
     await boot(page, "/");
     const header = await headerBottom(page);
-    const frame = page.locator('[data-part="world-frame"]');
-    await page.evaluate(
-      top => window.scrollTo(0, top),
-      (await frame.evaluate(element => element.getBoundingClientRect().top + scrollY)) - header
-    );
+    const card = page.locator('[data-plug="content"]');
+    // The world just under the header, where a visitor sees it: the tray beside it must fit too.
+    await page.locator('[data-part="world-wrap"]').evaluate((element, top) => {
+      scrollBy(0, element.getBoundingClientRect().top - top);
+    }, header);
     const viewport = page.viewportSize() ?? { width: 844, height: 390 };
-    const kernel = await page.locator('[data-part="kernel"]').boundingBox();
-    const tray = await page.locator('[data-part="tray"] ul').boundingBox();
-    const world = await frame.boundingBox();
-    expect(world?.height ?? Infinity).toBeLessThanOrEqual(viewport.height - header);
-    expect(kernel?.y ?? -1).toBeGreaterThanOrEqual(header - 1);
-    expect((kernel?.y ?? Infinity) + (kernel?.height ?? Infinity)).toBeLessThanOrEqual(
-      viewport.height
-    );
-    expect((tray?.y ?? Infinity) + (tray?.height ?? Infinity)).toBeLessThanOrEqual(viewport.height);
-    // The tray stands beside the world, not under it.
-    expect(tray?.x ?? 0).toBeGreaterThanOrEqual((world?.x ?? 0) + (world?.width ?? 0) - 1);
+    const kernel = await page.locator('svg[data-part="world"] [data-item="core"]').boundingBox();
+    const tray = await page.locator('[data-part="cards"]').boundingBox();
+    if (!kernel || !tray) throw new Error("tray or kernel has no box");
+    expect(kernel.y, "the kernel is under the header").toBeGreaterThanOrEqual(header - 1);
+    expect(kernel.y + kernel.height).toBeLessThanOrEqual(viewport.height);
+    expect(tray.y + tray.height).toBeLessThanOrEqual(viewport.height + 1);
 
-    // Drag a plugin from the tray onto the kernel without moving the page.
+    // Drag a piece from the tray onto the kernel without moving the page.
     const scrolled = await page.evaluate(() => scrollY);
-    const plug = await page.locator('[data-plug="blog"]').boundingBox();
-    if (!plug || !kernel) throw new Error("tray or kernel is off screen");
-    await page.mouse.move(plug.x + plug.width / 2, plug.y + plug.height / 2);
+    const from = await card.boundingBox();
+    if (!from) throw new Error("tray card has no box");
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
     await page.mouse.down();
-    await page.mouse.move(kernel.x + kernel.width / 2, kernel.y + kernel.height / 2, { steps: 12 });
+    await page.mouse.move(kernel.x + kernel.width / 2, kernel.y + kernel.height / 2, {
+      steps: 12
+    });
     await page.mouse.up();
-    await expect(page.locator('[data-plug="blog"]')).toHaveAttribute("data-state", "locked");
+    await expect(card).toHaveAttribute("data-state", "placed");
     expect(await page.evaluate(() => scrollY)).toBe(scrolled);
   });
 });
@@ -226,41 +279,59 @@ test("a docs page offers On this page as a closed disclosure on a phone only", a
 test.describe("with motion", () => {
   test.use({ reducedMotion: "no-preference" });
 
-  test("the tray shows it is busy while a plugin is in flight", async ({ page }, testInfo) => {
-    const phone = isPhone(testInfo.project.name);
-    await boot(page, "/");
-    const tray = page.locator('[data-part="tray"]');
-    await tray.scrollIntoViewIfNeeded();
-    await expect(tray).not.toHaveAttribute("data-busy", /./);
-    await press(page.locator('[data-plug="blog"]'), phone);
-    await expect(tray).toHaveAttribute("data-busy", "");
-    await expect(page.locator('[data-plug="session"]')).toHaveAttribute("aria-disabled", "true");
-    expect(
-      await page
-        .locator('[data-plug="session"]')
-        .evaluate(button => Number(getComputedStyle(button).opacity))
-    ).toBeLessThan(1);
-    await expect(tray).not.toHaveAttribute("data-busy", /./, { timeout: 5000 });
-    await expect(page.locator('[data-plug="session"]')).not.toHaveAttribute("aria-disabled", /./);
-  });
-
-  test("Reset while a plugin is in flight empties the kernel", async ({ page }, testInfo) => {
+  // Bug: while a piece flew to the kernel the tray looked ready, a second tap was lost or added
+  // a second piece mid-flight, and the tray stayed stuck after the landing.
+  test("the tray holds new pieces while a piece is in flight, then takes them again", async ({
+    page
+  }, testInfo) => {
     const phone = isPhone(testInfo.project.name);
     await boot(page, "/");
     await page.locator('[data-part="tray"]').scrollIntoViewIfNeeded();
-    await press(page.locator('[data-plug="blog"]'), phone);
+    await animationRate(page, 0.1);
+    await press(page.locator('[data-plug="content"]'), phone);
+    await expect(page.locator('[data-part="flyer"][data-clone]')).toHaveCount(1);
+    // A tap in flight neither adds the piece nor launches a second flyer.
+    await press(page.locator('[data-plug="newsletter"]'), phone);
+    await expect(page.locator('[data-part="flyer"][data-clone]')).toHaveCount(1);
+    await expect(page.locator('[data-part="flyer"][data-clone]')).toHaveCount(0, {
+      timeout: 10_000
+    });
+    await expect(page.locator('[data-plug="content"]')).toHaveAttribute("data-state", "placed");
+    await expect(page.locator('[data-plug="newsletter"]')).not.toHaveAttribute(
+      "data-state",
+      "placed"
+    );
+    // Landed, the tray takes the next piece.
+    await animationRate(page, 1);
+    await press(page.locator('[data-plug="newsletter"]'), phone);
+    await expect(page.locator('[data-plug="newsletter"]')).toHaveAttribute("data-state", "placed");
+  });
+
+  // Bug: Start over pressed while a piece was in flight let the piece land after the reset, so
+  // the "clean" start showed a placed piece, a new code line and a stale log line.
+  test("Start over while a piece is in flight leaves a clean start", async ({ page }, testInfo) => {
+    const phone = isPhone(testInfo.project.name);
+    await boot(page, "/");
+    const hero = page.locator('[data-component="hero"]');
+    const startCode = await hero.locator('ol[data-part="code"] li code').allTextContents();
+    const startLog = await hero.locator('[data-part="log"] li').allTextContents();
+    await page.locator('[data-part="tray"]').scrollIntoViewIfNeeded();
+    await animationRate(page, 0.1);
+    await press(page.locator('[data-plug="content"]'), phone);
     await expect(page.locator('[data-part="flyer"][data-clone]')).toBeAttached();
     await press(page.locator('[data-part="reset"]'), phone);
     await expect(page.locator('[data-part="flyer"][data-clone]')).toHaveCount(0, {
-      timeout: 5000
+      timeout: 10_000
     });
-    await expect(page.locator('[data-part="log"] li')).toHaveCount(1);
-    await expect(page.locator('[data-part="app-arguments"]')).toHaveText("({ plugins: [] })");
-    await expect(page.locator('[data-plug="blog"]')).not.toHaveAttribute("data-state", /./);
-    await expect(page.locator('[data-part="socket"][data-filled]')).toHaveCount(0);
-    // The kernel takes plugins again.
-    await press(page.locator('[data-plug="router"]'), phone);
-    await expect(page.locator('[data-plug="router"]')).toHaveAttribute("data-state", "locked", {
+    await expect(page.locator('[data-plug="content"]')).not.toHaveAttribute("data-state", "placed");
+    await expect(page.locator('svg[data-part="world"] [data-item="content"]')).toHaveCount(0);
+    await expect(page.locator('[data-socket="content"]')).toHaveCount(1);
+    expect(await hero.locator('ol[data-part="code"] li code').allTextContents()).toEqual(startCode);
+    expect(await hero.locator('[data-part="log"] li').allTextContents()).toEqual(startLog);
+    // The kernel takes pieces again.
+    await animationRate(page, 1);
+    await press(page.locator('[data-plug="content"]'), phone);
+    await expect(page.locator('[data-plug="content"]')).toHaveAttribute("data-state", "placed", {
       timeout: 5000
     });
   });
@@ -313,13 +384,26 @@ test("the search palette has a Close button and a short placeholder on a phone o
   await expect(palette).toBeHidden();
 });
 
-test("a tray plug is named from its visible label, then the action", async ({ page }) => {
+// Bug: a tray card's accessible name did not start with the words on the card (voice control
+// users say what they see), or left out what pressing it does.
+test("a tray card is named from its visible label, then the action", async ({ page }, testInfo) => {
+  const phone = isPhone(testInfo.project.name);
   await boot(page, "/");
-  for (const id of ["router", "blog", "auth", "session"]) {
-    await expect(page.locator(`[data-plug="${id}"]`)).toHaveAttribute(
-      "aria-label",
-      `${id}. Plug into the kernel`
-    );
+  for (const goal of [siteGoal, appGoal, gameGoal]) {
+    await press(page.locator(`[data-goal="${goal.id}"]`), phone);
+    await expect(page.locator(`[data-goal="${goal.id}"]`)).toHaveAttribute("aria-checked", "true");
+    for (const piece of goal.pieces) {
+      const card = page.locator(`[data-plug="${piece.id}"]`);
+      const name = (await card.locator("b").textContent()) ?? "";
+      const note = (await card.locator("small").textContent()) ?? "";
+      expect(name).toBe(piece.id);
+      const action =
+        (await card.getAttribute("aria-disabled")) === "true"
+          ? assemblyText.aria.cardWaiting
+          : assemblyText.aria.cardAdd;
+      await expect(card).toHaveAccessibleName(fillText(action, { piece: name, note }));
+      expect((await card.getAttribute("aria-label")) ?? "").toMatch(new RegExp(`^${name}\\. `));
+    }
   }
 });
 
