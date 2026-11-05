@@ -101,6 +101,12 @@ function serverSignaling(url: string): Signaling;
 | `MAX_CONTROLLERS` | `8` | The default of `session.maxControllers`. |
 | `ROOM_CODE_LENGTH` | `6` | The default of `session.codeLength`. |
 
+## Errors
+
+| Export | Thrown when |
+|---|---|
+| `RoomFullError` | `Signaling.join` is rejected because the room is at its controller cap. `transport.connect` rethrows it without a `room:network-warning`, and `session.joinRoom` maps it to `{ ok: false, reason: "full" }`. |
+
 ## Types
 
 All from `@moku-labs/room`.
