@@ -33,8 +33,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
-# Claude Code
-.claude
+# Claude Code: local settings stay out; project skills (the CI docs agent loads update-docs) go in
+.claude/*
+!.claude/skills/
 
 # Planning artifacts
 .planning
