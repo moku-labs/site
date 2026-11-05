@@ -16,6 +16,9 @@ Use `bun` exclusively — never npm, yarn, or pnpm.
 - `bun run dev` — Build, serve, watch, live reload
 - `bun run preview` — Serve the built `dist/`
 - `bun run deploy` — Cloudflare Pages deploy (guided in a terminal, direct with `--cli` or in CI)
+- `bun run docs:update` — Claude Agent SDK run of the `update-docs` skill (`.claude/skills/update-docs/`)
+  on the `@moku-labs/*` packages this branch bumped against `origin/main`. Needs `ANTHROPIC_API_KEY`;
+  `DOCS_BUDGET_USD` caps one run (default 5)
 - `bun run lint` — Biome check + oxlint
 - `bun run lint:fix` — Auto-fix lint issues
 - `bun run format` — Format with Biome
@@ -93,6 +96,9 @@ adding a route: never import a plugin or a Node module into `routes.tsx` directl
   `iso`, `pyramid`, `demos`, `search-tokens`, `search-results`, `search-palette`.
 - Head: `og-path` (page path to card path), `page-head` (card, Open Graph and JSON-LD per route type);
   both browser-safe and called from `routes.tsx`.
+- Docs update: `package-bumps` (which `@moku-labs/*` versions a branch moved) and `docs-task` (the
+  agent's prompt, SDK options with the tool allowlist and budget, and its run report), both for
+  `scripts/update-docs.ts`.
 - `url-builder`, and the two `*-reference` modules above.
 
 UI:
@@ -127,6 +133,12 @@ Cloudflare Pages project `moku-labs` (`wrangler.jsonc`), output `dist/`. `.githu
 is the thin caller of `moku-labs/ci` `app-deploy`: typecheck, lint, `test:coverage`, build on every
 PR; `bun run deploy` on a push to `main`. Secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
 live in the GitHub repository; locally in `.env` (gitignored).
+
+`.github/workflows/docs-update.yml` runs after CI fails on a `dependabot/bun/*` PR: `bun run docs:update`,
+the same checks as CI, then a push of the docs fix to the PR branch as `moku-docs-bot` (once per branch).
+Secrets: `ANTHROPIC_API_KEY` (Agent SDK runs draw on the monthly API credits), and `DOCS_BOT_TOKEN`, a token
+with contents: write whose push starts CI again (without it the push uses the default token and CI does not
+re-run).
 
 ## Testing
 
