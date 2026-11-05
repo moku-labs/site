@@ -114,11 +114,12 @@ export const deliver = defineNode({
   outcomes: { claimed: type<{ orderId: string }>() },
   run: async ({ player, fx, out }) => {
     fx.start(sfx("orders.complete")); // [!note] Started, not awaited: the node goes on at once.
-    const answer = (await fx(popup(RewardPopup, { orderId: "o1", gold: 5 }))) as { intent: "claim"; payload: { orderId: string } };
+    const answer = await fx(popup(RewardPopup, { orderId: "o1", gold: 5 })); // [!note] `answer` is `Answered<"claim">`: the intent, its `payload` as `Json` and `at`.
+    const { orderId } = answer.payload as { orderId: string };
 
     player.coins += 5;
     await fx(play(popCoins, { coins: { projection: "hud", key: "coins" } })); // [!note] A target is `{ projection, key }`: the view that holds the key when the timeline starts.
-    return out.claimed({ orderId: answer.payload.orderId });
+    return out.claimed({ orderId });
   }
 });
 ```
